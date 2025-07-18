@@ -1,15 +1,20 @@
-function generateWallet() {
-  const keyPair = bitcoinjs.ECPair.makeRandom();
-  const { address } = bitcoinjs.payments.p2pkh({ pubkey: keyPair.publicKey });
-  const wif = keyPair.toWIF();
+<script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs.min.js"></script>
+<script>
+  function generateWallet() {
+    const keyPair = bitcoin.ECPair.makeRandom();
+    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+    const wif = keyPair.toWIF();
+    return { address, wif };
+  }
 
-  document.getElementById('btc-address').textContent = address;
-  document.getElementById('btc-wif').textContent = wif;
-}
+  function updateWallet() {
+    const wallet = generateWallet();
+    document.getElementById('btcAddress').textContent = wallet.address;
+    document.getElementById('btcWIF').textContent = wallet.wif;
+  }
 
-// Genera un wallet all'avvio
-generateWallet();
+  document.getElementById('generateBtn').addEventListener('click', updateWallet);
 
-// Collega il bottone al generatore
-document.getElementById('generate-btn').addEventListener('click', generateWallet);
-
+  // Genera un wallet appena si carica la pagina
+  updateWallet();
+</script>
