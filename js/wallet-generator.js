@@ -1,17 +1,30 @@
-function generateWallet() {
-  const keyPair = bitcoin.ECPair.makeRandom();
-  const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
-  const wif = keyPair.toWIF();
-  return { address, wif };
-}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generatore Wallet Bitcoin</title>
+  <script src="https://unpkg.com/bitcoinjs-lib@6.1.0"></script>
+</head>
+<body>
 
-function updateWallet() {
-  const wallet = generateWallet();
-  document.getElementById('btcAddress').textContent = wallet.address;
-  document.getElementById('btcWIF').textContent = wallet.wif;
-}
+  <h2>Generatore Wallet Bitcoin</h2>
 
-document.getElementById('generateBtn').addEventListener('click', updateWallet);
+  <p><strong>Indirizzo:</strong> <span id="address">Caricamento...</span></p>
+  <p><strong>Chiave privata (WIF):</strong> <span id="privateKey">Caricamento...</span></p>
+  <button onclick="generateWallet()">Genera Nuovo Wallet</button>
 
-// Genera un wallet appena si carica la pagina
-updateWallet();
+  <script>
+    function generateWallet() {
+      const bitcoin = window.bitcoinjs;
+      const keyPair = bitcoin.ECPair.makeRandom();
+      const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+      const privateKey = keyPair.toWIF();
+
+      document.getElementById('address').innerText = address;
+      document.getElementById('privateKey').innerText = privateKey;
+    }
+
+    // Genera subito un wallet al caricamento
+    generateWallet();
+  </script>
+</body>
+</html>
