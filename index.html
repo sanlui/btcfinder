@@ -1,121 +1,13 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>L'importante</title>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
-    }
+<section class="container my-5">
+  <h2 class="mb-4 text-center">🔐 Generatore Wallet BTC</h2>
+  <p class="text-center">Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
 
-    .video-section {
-      position: relative;
-      height: 100vh;
-      overflow: hidden;
-    }
+  <div class="text-center mb-3">
+    <button class="btn btn-primary" onclick="generateWallet()">🎲 Genera Wallet</button>
+  </div>
 
-    .video-section video {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      z-index: -1;
-      transform: translate(-50%, -50%);
-      object-fit: cover;
-    }
-
-    .video-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-
-    .video-content h1 {
-      font-size: 3rem;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .wallet-generator-section {
-      background-color: #111;
-      padding: 50px 20px;
-      text-align: center;
-    }
-
-    .wallet-generator-section h2 {
-      margin-bottom: 20px;
-    }
-
-    .wallet-generator-section button {
-      padding: 10px 20px;
-      font-size: 1.2rem;
-      background-color: #00b894;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      cursor: pointer;
-    }
-
-    .wallet-generator-section .result {
-      margin-top: 30px;
-      font-size: 1rem;
-      text-align: left;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-      color: #ccc;
-    }
-
-    .wallet-generator-section .result strong {
-      color: #00cec9;
-    }
-
-  </style>
-</head>
-<body>
-
-  <!-- Sezione con video -->
-  <section class="video-section">
-    <video autoplay muted loop playsinline>
-      <source src="videos/video.mp4" type="video/mp4" />
-      Il tuo browser non supporta il tag video.
-    </video>
-    <div class="video-content">
-      <h1>L'importante è esserci</h1>
-    </div>
-  </section>
-
-  <!-- Sezione wallet -->
-  <section class="wallet-generator-section">
-    <h2>Generatore Wallet BTC</h2>
-    <p>Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
-    <button onclick="generateWallet()">Genera Wallet</button>
-
-    <div class="result">
-      <p><strong>Indirizzo:</strong> <span id="wallet-address"></span></p>
-      <p><strong>Chiave Privata:</strong> <span id="wallet-private"></span></p>
-    </div>
-  </section>
-
-  <script>
-    function generateWallet() {
-      const address = "1BTC" + Math.random().toString(36).substring(2, 10).toUpperCase();
-      const privateKey = "5K" + Math.random().toString(36).substring(2, 30).toUpperCase();
-      document.getElementById("wallet-address").innerText = address;
-      document.getElementById("wallet-private").innerText = privateKey;
-    }
-  </script>
-
-</body>
-</html>
+  <div class="card p-4 mx-auto shadow-sm" style="max-width: 500px;">
+    <p><strong>Indirizzo:</strong> <span id="btc-address">–</span></p>
+    <p><strong>Chiave Privata:</strong> <span id="btc-private">–</span></p>
+  </div>
+</section>
