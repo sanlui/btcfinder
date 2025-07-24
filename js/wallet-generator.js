@@ -1,16 +1,21 @@
-// wallet-generator.js
+// Assumiamo che bitcoinjs-lib sia già caricato tramite CDN nel tuo HTML
 
 function generateWallet() {
-  // Usa direttamente l'oggetto bitcoin caricato da CDN
-  const keyPair = bitcoin.ECPair.makeRandom();
+  try {
+    // genera una coppia di chiavi random
+    const keyPair = bitcoin.ECPair.makeRandom();
 
-  // Genera l'indirizzo Bitcoin P2PKH (legacy)
-  const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+    // genera indirizzo Bitcoin P2PKH (legacy)
+    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-  // Ottieni la chiave privata in formato WIF (Wallet Import Format)
-  const privateKeyWIF = keyPair.toWIF();
+    // chiave privata in formato WIF
+    const privateKeyWIF = keyPair.toWIF();
 
-  // Mostra indirizzo e chiave privata nel DOM
-  document.getElementById("btc-address").innerText = address;
-  document.getElementById("btc-private").innerText = privateKeyWIF;
+    // mostra nel DOM
+    document.getElementById('btc-address').textContent = address;
+    document.getElementById('btc-private').textContent = privateKeyWIF;
+  } catch (e) {
+    console.error('Errore nella generazione del wallet:', e);
+    alert('Errore nella generazione del wallet. Controlla la console per dettagli.');
+  }
 }
