@@ -1,13 +1,37 @@
-<section class="container my-5">
-  <h2 class="mb-4 text-center">🔐 Generatore Wallet BTC</h2>
-  <p class="text-center">Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BTCFinder</title>
 
-  <div class="text-center mb-3">
-    <button class="btn btn-primary" onclick="generateWallet()">🎲 Genera Wallet</button>
-  </div>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/tooplate-kool-form-pack.css">
+</head>
+<body>
 
-  <div class="card p-4 mx-auto shadow-sm" style="max-width: 500px;">
-    <p><strong>Indirizzo:</strong> <span id="btc-address">–</span></p>
-    <p><strong>Chiave Privata:</strong> <span id="btc-private">–</span></p>
-  </div>
-</section>
+  <!-- Generatore Wallet BTC -->
+  <section class="container my-5 text-center">
+    <h2 class="mb-4">🔐 Generatore Wallet BTC</h2>
+    <p>Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
+
+    <button class="btn btn-primary mb-3" onclick="generateWallet()">🎲 Genera Wallet</button>
+
+    <div class="card p-3 shadow-sm mx-auto" style="max-width: 500px;">
+      <p><strong>Indirizzo:</strong> <span id="btc-address">–</span></p>
+      <p><strong>Chiave Privata:</strong> <span id="btc-private">–</span></p>
+    </div>
+  </section>
+
+  <!-- Immagine della Terra -->
+  <section class="text-center">
+    <img src="images/people-practicing-social-integration.jpg" class="img-fluid" alt="Immagine Terra">
+  </section>
+
+  <!-- Script -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/wallet-generator.js"></script>
+</body>
+</html>
