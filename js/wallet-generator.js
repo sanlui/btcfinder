@@ -1,7 +1,8 @@
-// Assumiamo che bitcoinjs-lib sia già caricato tramite CDN nel tuo HTML
-
 function generateWallet() {
   try {
+    const bitcoin = window.bitcoinjs; // PRIMA DI TUTTO definisci bitcoin
+    if (!bitcoin) throw new Error("bitcoinjs-lib non caricato");
+
     // genera una coppia di chiavi random
     const keyPair = bitcoin.ECPair.makeRandom();
 
