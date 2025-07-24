@@ -1,94 +1,81 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BTC Wallet Generator</title>
-  <style>
-    body {
-      background: #121212;
-      color: #eee;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    .wallet-container {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 2rem auto;
-      box-shadow: 0 0 10px #0f0;
-    }
-    button {
-      background: #28a745;
-      border: none;
-      padding: 10px 20px;
-      color: white;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #218838;
-    }
-    p strong {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 1.1rem;
-      color: #0f0;
-    }
-    p span {
-      word-break: break-all;
-      font-family: monospace;
-      font-size: 0.9rem;
-      color: #ccc;
-      user-select: all;
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>BTC FINDER | Coming Soon Page</title>
+
+  <!-- CSS FILES -->                
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,700;1,200&family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-icons.css" rel="stylesheet">
+  <link href="css/tooplate-kool-form-pack.css" rel="stylesheet">
 </head>
+
 <body>
 
-  <h1>🔐 Generatore Wallet Bitcoin</h1>
-  <p>Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
+<main>
 
-  <div class="wallet-container">
-    <button onclick="generateWallet()">🎲 Genera Wallet</button>
+  <!-- [HEADER e NAV già presenti] -->
+  <!-- [MODAL già presente] -->
 
-    <p>
-      <strong>Indirizzo:</strong>
-      <span id="btc-address">–</span>
-    </p>
-    <p>
-      <strong>Chiave Privata:</strong>
-      <span id="btc-private">–</span>
-    </p>
-  </div>
+  <!-- HERO SECTION CON VIDEO E WALLET -->
+  <section class="hero-section d-flex justify-content-center align-items-center text-white" id="section_1">
+    <div class="container">
+      <div class="row justify-content-center">
 
-  <!-- Importa la libreria bitcoinjs-lib -->
+        <div class="col-lg-8 text-center">
+          <small>
+            our website is under construction.
+            <a rel="nofollow" target="_blank" href="https://www.pexels.com/video/digital-projection-of-the-earth-mass-in-blue-lights-3129957/">Earth video by Pexels</a>
+          </small>
+
+          <h1 class="text-white mt-2 mb-4 pb-2">Stay tuned!</h1>
+
+          <!-- countdown rimosso -->
+
+          <!-- ✅ GENERATORE WALLET -->
+          <div class="mt-5 p-4 bg-dark bg-opacity-75 rounded shadow" style="max-width: 600px; margin: auto;">
+            <h2 class="mb-3">🔐 Generatore Wallet BTC</h2>
+            <p>Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
+
+            <button class="btn btn-primary mb-3" onclick="generateWallet()">🎲 Genera Wallet</button>
+
+            <div class="card p-3 text-start text-dark">
+              <p><strong>Indirizzo:</strong> <span id="btc-address" class="text-info">–</span></p>
+              <p><strong>Chiave Privata:</strong> <span id="btc-private" class="text-warning">–</span></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ✅ Video Terra -->
+    <div class="video-wrap">
+      <video autoplay loop muted class="custom-video">
+        <source src="videos/video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </section>
+</main>
+
+<!-- JAVASCRIPT FILES -->
 <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
 <script src="js/wallet-generator.js"></script>
-
-  <!-- Script generatore wallet -->
-  <script>
-    function generateWallet() {
-      try {
-        if (typeof bitcoinjs === "undefined") {
-          throw new Error("bitcoinjs-lib non caricato correttamente");
-        }
-
-        const keyPair = bitcoinjs.ECPair.makeRandom();
-        const { address } = bitcoinjs.payments.p2pkh({ pubkey: keyPair.publicKey });
-        const privateKeyWIF = keyPair.toWIF();
-
-        document.getElementById('btc-address').textContent = address;
-        document.getElementById('btc-private').textContent = privateKeyWIF;
-      } catch (e) {
-        console.error('Errore nella generazione del wallet:', e);
-        alert('Errore nella generazione del wallet. Controlla la console per dettagli.');
-      }
-    }
-  </script>
+<!-- Le tue librerie -->
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/init.js"></script>
+<script src="js/wallet-generator.js"></script>
 
 </body>
-</html>
+</html> questo e il file html
