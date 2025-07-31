@@ -7,6 +7,9 @@
     <meta name="author" content="" />
     <title>Bitcoin Wallet Generator</title>
 
+    <!-- Aggiunto per problemi CSP su GitHub Pages -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://blockstream.info">
+
     <!-- CSS FILES -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +20,7 @@
     
     <style>
         .wallet-info {
-            background-color: #f8f9fa;
+            background-color: rgba(248, 249, 250, 0.9);
             border-radius: 10px;
             padding: 20px;
             margin-top: 30px;
@@ -29,6 +32,38 @@
         .qr-code {
             margin: 20px auto;
             max-width: 200px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        .video-wrap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .custom-video {
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+        .text-white {
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -52,7 +87,11 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-8 col-12 mx-auto text-center">
-                        <h1 class="text-white mb-4">Genera un Wallet Bitcoin</h1>
+                        <small class="text-white">
+                            Generatore sicuro di wallet Bitcoin
+                            <a rel="nofollow" target="_blank" href="https://www.pexels.com/video/digital-projection-of-the-earth-mass-in-blue-lights-3129957/" class="text-white">Earth video by Pexels</a>
+                        </small>
+                        <h1 class="text-white mt-2 mb-4 pb-2">Genera il tuo Wallet</h1>
                         
                         <button id="generateBtn" class="custom-btn btn-lg">
                             Genera Nuovo Wallet <i class="bi-arrow-repeat ms-2"></i>
@@ -89,26 +128,71 @@
                     </div>
                 </div>
             </div>
+
+            <div class="video-wrap">
+                <video autoplay loop muted class="custom-video" poster="">
+                    <source src="videos/video.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         </section>
     </main>
 
     <!-- JAVASCRIPT FILES -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
-    <!-- Librerie esterne -->
+    
+    <!-- Prima prova a caricare da CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@5.2.0/dist/bitcoinjs-min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     
-    <!-- Script principale -->
+    <!-- Fallback locale se CDN non funziona -->
     <script>
+    if(typeof bitcoin === 'undefined') {
+        console.log('Caricamento fallback locale per bitcoinjs-lib');
+        document.write('<script src="js/bitcoinjs-lib.min.js"><\/script>');
+    }
+    if(typeof QRCode === 'undefined') {
+        console.log('Caricamento fallback locale per qrcode.js');
+        document.write('<script src="js/qrcode.min.js"><\/script>');
+    }
+    </script>
+    
+    <!-- Script principale con migliorata gestione errori -->
+    <script>
+        // Verifica che tutte le dipendenze siano caricate
+        function checkDependencies() {
+            if(typeof bitcoin === 'undefined') {
+                throw new Error("La libreria bitcoinjs-lib non è stata caricata correttamente");
+            }
+            if(typeof QRCode === 'undefined') {
+                throw new Error("La libreria qrcode.js non è stata caricata correttamente");
+            }
+            return true;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('generateBtn').addEventListener('click', generateWallet);
+            document.getElementById('generateBtn').addEventListener('click', function() {
+                // Aggiungi animazione durante la generazione
+                this.innerHTML = 'Generazione in corso... <i class="bi-arrow-repeat ms-2 spin"></i>';
+                this.disabled = true;
+                
+                generateWallet().finally(() => {
+                    this.innerHTML = 'Genera Nuovo Wallet <i class="bi-arrow-repeat ms-2"></i>';
+                    this.disabled = false;
+                });
+            });
         });
 
         async function generateWallet() {
             try {
+                checkDependencies();
+                
                 const keyPair = bitcoin.ECPair.makeRandom();
-                const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+                const { address } = bitcoin.payments.p2pkh({ 
+                    pubkey: keyPair.publicKey,
+                    network: bitcoin.networks.bitcoin
+                });
                 const privateKeyWIF = keyPair.toWIF();
 
                 // Mostra le informazioni del wallet
@@ -120,7 +204,11 @@
                 // Genera QR code
                 QRCode.toCanvas(document.getElementById('qrCode'), address, {
                     width: 200,
-                    margin: 2
+                    margin: 2,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    }
                 }, function(error) {
                     if (error) console.error(error);
                 });
@@ -133,11 +221,16 @@
                 const data = await response.json();
 
                 const balance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 1e8;
-                document.getElementById('balance').textContent = balance + " BTC";
+                document.getElementById('balance').textContent = balance.toFixed(8) + " BTC";
 
             } catch (e) {
                 console.error('Errore nella generazione/verifica:', e);
-                alert("Errore: guarda la console per i dettagli.");
+                alert("Errore: " + e.message);
+                
+                // Mostra comunque le info del wallet se la generazione è riuscita ma c'è errore nel saldo
+                if (address && privateKeyWIF) {
+                    document.getElementById('balance').textContent = "Errore nel recupero del saldo";
+                }
             }
         }
     </script>
