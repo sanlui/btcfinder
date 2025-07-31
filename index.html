@@ -3,78 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BTC FINDER | Generatore Wallet</title>
 
-  <meta name="description" content="" />
-  <meta name="author" content="" />
-
-  <title>BTC FINDER | Coming Soon Page</title>
-
-  <!-- CSS FILES -->                
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,700;1,200&family=Unbounded:wght@400;700&display=swap" rel="stylesheet" />
-
-  <link href="css/bootstrap.min.css" rel="stylesheet" />
-  <link href="css/bootstrap-icons.css" rel="stylesheet" />
-  <link href="css/tooplate-kool-form-pack.css" rel="stylesheet" />
+  <!-- CSS base (Bootstrap CDN per esempio, puoi cambiare) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
+<body class="bg-dark text-white">
 
-<body>
+<main class="container py-5">
 
-<main>
+  <h1 class="mb-4 text-center">🔐 Generatore Wallet BTC</h1>
 
-  <!-- [HEADER e NAV già presenti] -->
-  <!-- [MODAL già presente] -->
+  <div class="text-center mb-4">
+    <button class="btn btn-primary btn-lg" onclick="generateWallet()">🎲 Genera Wallet</button>
+  </div>
 
-  <!-- HERO SECTION CON VIDEO E WALLET -->
-  <section class="hero-section d-flex justify-content-center align-items-center text-white" id="section_1">
-    <div class="container">
-      <div class="row justify-content-center">
+  <div class="card bg-secondary bg-opacity-75 text-dark p-4 mx-auto" style="max-width: 600px;">
+    <p><strong>Indirizzo:</strong> <span id="btc-address" class="text-info">–</span></p>
+    <p><strong>Chiave Privata:</strong> <span id="btc-private" class="text-warning">–</span></p>
+    <p><strong>Saldo:</strong> <span id="btc-balance" class="text-success">–</span></p>
+  </div>
 
-        <div class="col-lg-8 text-center">
-          <small>
-            our website is under construction.
-            <a rel="nofollow" target="_blank" href="https://www.pexels.com/video/digital-projection-of-the-earth-mass-in-blue-lights-3129957/">Earth video by Pexels</a>
-          </small>
-
-          <h1 class="text-white mt-2 mb-4 pb-2">Stay tuned!</h1>
-
-          <!-- countdown rimosso -->
-
-          <!-- ✅ GENERATORE WALLET -->
-          <div class="mt-5 p-4 bg-dark bg-opacity-75 rounded shadow" style="max-width: 600px; margin: auto;">
-            <h2 class="mb-3">🔐 Generatore Wallet BTC</h2>
-            <p>Premi il pulsante per generare un nuovo indirizzo Bitcoin e la sua chiave privata.</p>
-
-            <button class="btn btn-primary mb-3" onclick="generateWallet()">🎲 Genera Wallet</button>
-
-            <div class="card p-3 text-start text-dark">
-              <p><strong>Indirizzo:</strong> <span id="btc-address" class="text-info">–</span></p>
-              <p><strong>Chiave Privata:</strong> <span id="btc-private" class="text-warning">–</span></p>
-              <p><strong>Saldo:</strong> <span id="btc-balance" class="text-success">–</span></p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ✅ Video Terra -->
-    <div class="video-wrap">
-      <video autoplay loop muted class="custom-video">
-        <source src="videos/video.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </section>
 </main>
 
-<!-- JAVASCRIPT FILES -->
+<!-- JS Librairy bitcoinjs-lib -->
 <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
-<script src="js/jquery.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/init.js"></script>
-<script src="js/wallet-generator.js"></script>
+
+<!-- Script wallet-generator inline per test veloce -->
+<script>
+async function generateWallet() {
+  try {
+    const keyPair = bitcoin.ECPair.makeRandom();
+    const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+    const privateKeyWIF = keyPair.toWIF();
+
+    document.getElementById('btc-address').textContent = address;
+    document.getElementById('btc-private').textContent = privateKeyWIF;
+    document.getElementById('btc-balance').textContent = "Caricamento...";
+
+    // Fetch saldo da Blockstream API
+    const response = await fetch(`https://blockstream.info/api/address/${address}`);
+    if (!response.ok) throw new Error("Errore API saldo");
+    const data = await response.json();
+    const balance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 1e8;
+
+    document.getElementById('btc-balance').textContent = balance + " BTC";
+
+  } catch (e) {
+    console.error('Errore nella generazione/verifica:', e);
+    alert("Errore, controlla la console.");
+  }
+}
+</script>
 
 </body>
 </html>
