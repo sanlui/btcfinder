@@ -7,9 +7,6 @@
     <meta name="author" content="" />
     <title>Bitcoin Wallet Generator</title>
 
-    <!-- Aggiunto per problemi CSP su GitHub Pages -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://blockstream.info">
-
     <!-- CSS FILES -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -141,98 +138,46 @@
     <!-- JAVASCRIPT FILES -->
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/bitcoinjs-lib.min.js"></script>
+    <script src="js/wallet-generator.js"></script>
     
-    <!-- Prima prova a caricare da CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@5.2.0/dist/bitcoinjs-min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    
-    <!-- Fallback locale se CDN non funziona -->
-    <script>
-    if(typeof bitcoin === 'undefined') {
-        console.log('Caricamento fallback locale per bitcoinjs-lib');
-        document.write('<script src="js/bitcoinjs-lib.min.js"><\/script>');
-    }
-    if(typeof QRCode === 'undefined') {
-        console.log('Caricamento fallback locale per qrcode.js');
-        document.write('<script src="js/qrcode.min.js"><\/script>');
-    }
-    </script>
-    
-    <!-- Script principale con migliorata gestione errori -->
+    <!-- Inizializzazione -->
     <script>
         // Verifica che tutte le dipendenze siano caricate
         function checkDependencies() {
             if(typeof bitcoin === 'undefined') {
                 throw new Error("La libreria bitcoinjs-lib non è stata caricata correttamente");
             }
-            if(typeof QRCode === 'undefined') {
-                throw new Error("La libreria qrcode.js non è stata caricata correttamente");
+            if(typeof $ === 'undefined') {
+                throw new Error("jQuery non è stato caricato correttamente");
             }
             return true;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('generateBtn').addEventListener('click', function() {
-                // Aggiungi animazione durante la generazione
-                this.innerHTML = 'Generazione in corso... <i class="bi-arrow-repeat ms-2 spin"></i>';
-                this.disabled = true;
-                
-                generateWallet().finally(() => {
-                    this.innerHTML = 'Genera Nuovo Wallet <i class="bi-arrow-repeat ms-2"></i>';
-                    this.disabled = false;
-                });
-            });
-        });
-
-        async function generateWallet() {
             try {
                 checkDependencies();
                 
-                const keyPair = bitcoin.ECPair.makeRandom();
-                const { address } = bitcoin.payments.p2pkh({ 
-                    pubkey: keyPair.publicKey,
-                    network: bitcoin.networks.bitcoin
-                });
-                const privateKeyWIF = keyPair.toWIF();
-
-                // Mostra le informazioni del wallet
-                document.getElementById('address').textContent = address;
-                document.getElementById('privateKey').textContent = privateKeyWIF;
-                document.getElementById('balance').textContent = "Caricamento...";
-                document.getElementById('walletInfo').style.display = 'block';
-
-                // Genera QR code
-                QRCode.toCanvas(document.getElementById('qrCode'), address, {
-                    width: 200,
-                    margin: 2,
-                    color: {
-                        dark: '#000000',
-                        light: '#ffffff'
+                document.getElementById('generateBtn').addEventListener('click', function() {
+                    // Aggiungi animazione durante la generazione
+                    this.innerHTML = 'Generazione in corso... <i class="bi-arrow-repeat ms-2 spin"></i>';
+                    this.disabled = true;
+                    
+                    // Chiamata alla funzione principale dal tuo wallet-generator.js
+                    if(typeof generateWallet === 'function') {
+                        generateWallet().finally(() => {
+                            this.innerHTML = 'Genera Nuovo Wallet <i class="bi-arrow-repeat ms-2"></i>';
+                            this.disabled = false;
+                        });
+                    } else {
+                        throw new Error("La funzione generateWallet non è stata trovata");
                     }
-                }, function(error) {
-                    if (error) console.error(error);
                 });
-
-                // Recupera il saldo
-                const response = await fetch(`https://blockstream.info/api/address/${address}`);
-                if (!response.ok) {
-                    throw new Error("Errore nella richiesta API saldo");
-                }
-                const data = await response.json();
-
-                const balance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 1e8;
-                document.getElementById('balance').textContent = balance.toFixed(8) + " BTC";
-
-            } catch (e) {
-                console.error('Errore nella generazione/verifica:', e);
-                alert("Errore: " + e.message);
-                
-                // Mostra comunque le info del wallet se la generazione è riuscita ma c'è errore nel saldo
-                if (address && privateKeyWIF) {
-                    document.getElementById('balance').textContent = "Errore nel recupero del saldo";
-                }
+            } catch(e) {
+                console.error('Errore di inizializzazione:', e);
+                alert("Errore di inizializzazione: " + e.message);
             }
-        }
+        });
     </script>
 </body>
 </html>
