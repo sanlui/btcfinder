@@ -13,18 +13,344 @@
   <meta name="twitter:card" content="summary_large_image">
   <title>Advanced Bitcoin Explorer | Real-time Blockchain Data & Price Charts</title>
   <link rel="canonical" href="https://yourwebsite.com/bitcoin-explorer" />
-  <link rel="stylesheet" href="/assets/css/main.css">
-  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'GA_MEASUREMENT_ID');
+  </script>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      "name": "Bitcoin Explorer",
-      "description": "Advanced Bitcoin blockchain explorer with real-time price charts",
-      "applicationCategory": "Blockchain Explorer",
-      "operatingSystem": "Web"
+      "name": "Advanced Bitcoin Explorer",
+      "description": "Real-time Bitcoin blockchain explorer with price charts and transaction details",
+      "url": "https://yourwebsite.com",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
     }
   </script>
+  <style>
+    :root {
+      --primary: #f7931a;
+      --primary-hover: #e07b0a;
+      --secondary: #f0f0f0;
+      --text: #333;
+      --error: #d32f2f;
+      --success: #388e3c;
+      --tooltip-bg: #333;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      max-width: 1000px; 
+      margin: 0 auto; 
+      padding: 20px; 
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    h1 { color: var(--primary); text-align: center; }
+    
+    .search-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 30px 0;
+    }
+    
+    input, button, select { 
+      padding: 10px 12px; 
+      font-size: 16px; 
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    
+    input { 
+      flex: 1; 
+      min-width: 250px;
+    }
+    
+    button { 
+      cursor: pointer; 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    
+    button:hover { background: var(--primary-hover); }
+    
+    .result { 
+      background: var(--secondary); 
+      padding: 20px; 
+      margin-top: 30px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    h2 { margin-top: 30px; color: var(--primary); }
+    h3 { margin-top: 20px; }
+    
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    
+    ul { padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    
+    .tx-link { 
+      color: var(--primary); 
+      text-decoration: none;
+      font-family: monospace;
+    }
+    
+    .tx-link:hover { text-decoration: underline; }
+    
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .data-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+    
+    .data-label {
+      font-weight: bold;
+      min-width: 180px;
+    }
+    
+    .shorten {
+      display: inline-block;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    
+    .confirmed { background: var(--success); color: white; }
+    .unconfirmed { background: #ff9800; color: white; }
+    
+    @media (max-width: 600px) {
+      .search-container { flex-direction: column; }
+      input { width: 100%; }
+      .data-row { flex-direction: column; }
+      .data-label { min-width: auto; margin-bottom: 4px; }
+    }
+    
+    .copy-btn {
+      background: #666;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .copy-btn:hover { background: #555; }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* Price chart styles */
+    .price-container {
+      margin: 40px 0;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .price-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .price-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .current-price {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    
+    .price-change {
+      margin-left: 15px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    
+    .positive { background: #e8f5e9; color: var(--success); }
+    .negative { background: #ffebee; color: var(--error); }
+    
+    .timeframe-selector {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .timeframe-btn {
+      padding: 5px 10px;
+      background: #eee;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .timeframe-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .chart-container {
+      height: 300px;
+      width: 100%;
+      position: relative;
+    }
+    
+    /* Additional SEO-friendly content */
+    .intro-content {
+      margin: 20px 0;
+      line-height: 1.7;
+    }
+    
+    /* New styles for improvements */
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 1em;
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    .tooltip {
+      position: relative;
+      cursor: help;
+    }
+    
+    .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background: var(--tooltip-bg);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 14px;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    .fee-box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .fee-row:last-child {
+      border-bottom: none;
+    }
+    
+    #fees-container {
+      margin-top: 20px;
+    }
+    
+    .skeleton-chart {
+      height: 300px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin: 20px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .skeleton-chart::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      animation: shimmer 1.5s infinite;
+    }
+  </style>
 </head>
 <body>
 
@@ -50,8 +376,9 @@
       </div>
     </div>
     <div class="chart-container" id="price-chart">
-      <div class="loader"></div>
+      <div class="skeleton-chart"></div>
     </div>
+    <div id="fees-container"></div>
   </section>
 
   <!-- Blockchain Explorer Section -->
@@ -71,8 +398,637 @@
     <div id="result" class="result" role="region" aria-live="polite"></div>
   </section>
 
-  <script src="/assets/js/utils.js"></script>
-  <script src="/assets/js/charts.js"></script>
-  <script src="/assets/js/main.js" type="module"></script>
+<script>
+  // API configuration with fallback endpoints
+  const API_ENDPOINTS = {
+    blockstream: 'https://blockstream.info/api',
+    blockchain: 'https://blockchain.info',
+    mempool: 'https://mempool.space/api',
+    coingecko: 'https://api.coingecko.com/api/v3'
+  };
+
+  // Simple cache implementation with expiration
+  const cache = {
+    data: {},
+    get(key) {
+      const item = this.data[key];
+      if (!item) return null;
+      if (item.expiry < Date.now()) {
+        delete this.data[key];
+        return null;
+      }
+      return item.value;
+    },
+    set(key, value, ttl = 300000) {
+      this.data[key] = {
+        value: value,
+        expiry: Date.now() + ttl
+      };
+    }
+  };
+
+  // Price chart variables
+  let priceChart = null;
+  let currentTimeframe = '24h';
+
+  // Initialize the page
+  document.addEventListener('DOMContentLoaded', function() {
+    loadPriceData();
+    loadPriceChart(currentTimeframe);
+    
+    // Add support for Enter key in search input
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') performSearch();
+    });
+    
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful');
+        })
+        .catch(err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    }
+  });
+
+  // Formatting functions
+  function formatBTC(satoshi) {
+    return (satoshi / 1e8).toFixed(8) + ' BTC';
+  }
+  
+  function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  
+  function shortenHash(hash) {
+    if (hash.length > 20) {
+      return `${hash.substring(0, 10)}...${hash.substring(hash.length - 10)}`;
+    }
+    return hash;
+  }
+  
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copy-feedback');
+      if (btn) {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      }
+    });
+  }
+
+  // Input validation
+  function validateInput(type, query) {
+    if (!query) {
+      throw new Error('Please enter a valid value');
+    }
+    
+    if (type === 'tx') {
+      if (!/^[a-fA-F0-9]{64}$/.test(query)) {
+        throw new Error('Invalid TXID. Must be 64 hexadecimal characters');
+      }
+    } else if (type === 'address') {
+      if (!/^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/.test(query)) {
+        throw new Error('Invalid Bitcoin address');
+      }
+    } else if (type === 'block') {
+      if (!/^[0-9]+$/.test(query) && !/^[a-fA-F0-9]{64}$/.test(query)) {
+        throw new Error('Invalid block. Enter a number (height) or hash (64 hexadecimal characters)');
+      }
+    }
+  }
+
+  // API fetch with fallback
+  async function fetchWithFallback(endpoint, type = 'blockstream') {
+    try {
+      let url;
+      switch(type) {
+        case 'blockstream':
+          url = `${API_ENDPOINTS.blockstream}${endpoint}`;
+          break;
+        case 'blockchain':
+          url = `${API_ENDPOINTS.blockchain}${endpoint}`;
+          break;
+        case 'mempool':
+          url = `${API_ENDPOINTS.mempool}${endpoint}`;
+          break;
+        default:
+          url = `${API_ENDPOINTS.blockstream}${endpoint}`;
+      }
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('API request failed');
+      return await response.json();
+    } catch (error) {
+      console.error(`Error with ${type} API:`, error);
+      // Try fallback APIs
+      if (type === 'blockstream') {
+        return fetchWithFallback(endpoint, 'mempool');
+      } else if (type === 'mempool') {
+        return fetchWithFallback(endpoint, 'blockchain');
+      }
+      throw error;
+    }
+  }
+
+  // Main search function
+  async function performSearch() {
+    const type = document.getElementById('searchType').value;
+    const query = document.getElementById('searchInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    const originalContent = resultDiv.innerHTML;
+    
+    try {
+      validateInput(type, query);
+      
+      // Show loading skeleton
+      resultDiv.innerHTML = `
+        <div class="loading-skeleton" style="height: 30px; width: 60%; margin-bottom: 15px;"></div>
+        <div class="loading-skeleton" style="height: 20px; width: 90%; margin-bottom: 10px;"></div>
+        <div class="loading-skeleton" style="height: 20px; width: 80%; margin-bottom: 10px;"></div>
+        <div class="loading-skeleton" style="height: 20px; width: 85%;"></div>
+      `;
+      
+      if (type === 'tx') {
+        await searchTransaction(query, resultDiv);
+      } else if (type === 'address') {
+        await searchAddress(query, resultDiv);
+      } else if (type === 'block') {
+        await searchBlock(query, resultDiv);
+      }
+    } catch (e) {
+      resultDiv.innerHTML = `
+        <p style="color:var(--error);">
+          <strong>Error:</strong> ${e.message}
+          <span class="tooltip">ⓘ
+            <span class="tooltip-text">Please check your input and try again. TXIDs must be 64 characters, addresses must be valid, and blocks can be height or hash.</span>
+          </span>
+        </p>
+        ${originalContent}
+      `;
+    }
+  }
+
+  // Transaction search
+  async function searchTransaction(txid, container) {
+    const cacheKey = `tx_${txid}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      renderTransaction(cachedData, container);
+      return;
+    }
+    
+    try {
+      const [tx, txStatus] = await Promise.all([
+        fetchWithFallback(`/tx/${txid}`),
+        fetchWithFallback(`/tx/${txid}/status`)
+      ]);
+      
+      tx.status = txStatus;
+      cache.set(cacheKey, tx);
+      renderTransaction(tx, container);
+    } catch (e) {
+      throw new Error('Failed to fetch transaction data. Please try again later.');
+    }
+  }
+  
+  function renderTransaction(tx, container) {
+    let html = `<h2>Transaction Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">TXID:</div>
+      <div>${tx.txid} <button class="copy-btn" onclick="copyToClipboard('${tx.txid}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Status:</div>
+      <div>${tx.status.confirmed ? 
+        `<span class="badge confirmed">Confirmed</span> (Block #${tx.status.block_height})` : 
+        `<span class="badge unconfirmed">Unconfirmed</span>`}
+      </div>
+    </div>`;
+    
+    if (tx.status.confirmed) {
+      html += `<div class="data-row">
+        <div class="data-label">Confirmations:</div>
+        <div>${formatNumber(tx.status.block_height)}</div>
+      </div>`;
+      
+      html += `<div class="data-row">
+        <div class="data-label">Block Time:</div>
+        <div>${new Date(tx.status.block_time * 1000).toLocaleString()}</div>
+      </div>`;
+    }
+    
+    html += `<div class="data-row">
+      <div class="data-label">Size:</div>
+      <div>${formatNumber(tx.size)} bytes</div>
+    </div>`;
+    
+    // Calculate fee if available
+    if (tx.vin && tx.vout) {
+      const inputSum = tx.vin.reduce((sum, vin) => sum + (vin.prevout?.value || 0), 0);
+      const outputSum = tx.vout.reduce((sum, vout) => sum + vout.value, 0);
+      const fee = inputSum - outputSum;
+      
+      if (fee > 0) {
+        html += `<div class="data-row">
+          <div class="data-label">Fee:</div>
+          <div>${formatBTC(fee)} (${formatNumber(fee)} satoshi)</div>
+        </div>`;
+        
+        html += `<div class="data-row">
+          <div class="data-label">Fee rate:</div>
+          <div>${(fee / tx.size).toFixed(2)} satoshi/byte</div>
+        </div>`;
+      }
+    }
+    
+    // Inputs and Outputs tabs
+    html += `<div class="tabs">
+      <div class="tab active" onclick="switchTab('inputs', 'outputs')">Inputs (${tx.vin.length})</div>
+      <div class="tab" onclick="switchTab('outputs', 'inputs')">Outputs (${tx.vout.length})</div>
+    </div>`;
+    
+    // Inputs tab
+    html += `<div id="inputs" class="tab-content active"><ul>`;
+    tx.vin.forEach((vin, i) => {
+      const address = vin.prevout?.scriptpubkey_address || 'Coinbase (new coin generation)';
+      const value = vin.prevout?.value ? formatBTC(vin.prevout.value) : 'N/A';
+      
+      html += `<li>
+        <strong>Input #${i + 1}:</strong> 
+        ${address.startsWith('Coinbase') ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${value}
+        ${vin.txid ? `<br><small>From TX: <a href="#" class="tx-link" onclick="performSearchTx('${vin.txid}')">${shortenHash(vin.txid)}</a></small>` : ''}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    // Outputs tab
+    html += `<div id="outputs" class="tab-content"><ul>`;
+    tx.vout.forEach((vout, i) => {
+      const address = vout.scriptpubkey_address || 'N/A (non-standard script)';
+      html += `<li>
+        <strong>Output #${i + 1}:</strong> 
+        ${address === 'N/A (non-standard script)' ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${formatBTC(vout.value)}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    container.innerHTML = html;
+  }
+
+  // Address search
+  async function searchAddress(address, container) {
+    const cacheKey = `addr_${address}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      renderAddress(cachedData, address, container);
+      return;
+    }
+    
+    try {
+      const [addrInfo, txs] = await Promise.all([
+        fetchWithFallback(`/address/${address}`),
+        fetchWithFallback(`/address/${address}/txs`)
+      ]);
+      
+      const data = { addrInfo, txs };
+      cache.set(cacheKey, data);
+      renderAddress(data, address, container);
+    } catch (e) {
+      throw new Error('Failed to fetch address data. Please try again later.');
+    }
+  }
+  
+  function renderAddress(data, address, container) {
+    const { addrInfo, txs } = data;
+    
+    const confirmedBalance = (addrInfo.chain_stats.funded_txo_sum - addrInfo.chain_stats.spent_txo_sum) / 1e8;
+    const unconfirmedBalance = (addrInfo.mempool_stats.funded_txo_sum - addrInfo.mempool_stats.spent_txo_sum) / 1e8;
+    const totalReceived = addrInfo.chain_stats.funded_txo_sum / 1e8;
+    const totalSent = addrInfo.chain_stats.spent_txo_sum / 1e8;
+    
+    let html = `<h2>Address Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Address:</div>
+      <div>${address} <button class="copy-btn" onclick="copyToClipboard('${address}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Confirmed balance:</div>
+      <div>${confirmedBalance.toFixed(8)} BTC</div>
+    </div>`;
+    
+    if (unconfirmedBalance !== 0) {
+      html += `<div class="data-row">
+        <div class="data-label">Unconfirmed balance:</div>
+        <div>${unconfirmedBalance.toFixed(8)} BTC</div>
+      </div>`;
+    }
+    
+    html += `<div class="data-row">
+      <div class="data-label">Total received:</div>
+      <div>${totalReceived.toFixed(8)} BTC</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Total sent:</div>
+      <div>${totalSent.toFixed(8)} BTC</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Transaction count:</div>
+      <div>${formatNumber(addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count)}</div>
+    </div>`;
+    
+    // Show recent transactions
+    html += `<h3>Recent Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions found</p>`;
+    } else {
+      html += `<ul>`;
+      txs.slice(0, 10).forEach(tx => {
+        const isOutgoing = tx.vin.some(vin => vin.prevout?.scriptpubkey_address === address);
+        html += `<li>
+          <span class="badge ${isOutgoing ? 'unconfirmed' : 'confirmed'}">${isOutgoing ? 'Sent' : 'Received'}</span>
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${shortenHash(tx.txid)}</a>
+          (${formatBTC(isOutgoing ? 
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0))})
+          ${tx.status.confirmed ? 
+            `<small>${new Date(tx.status.block_time * 1000).toLocaleDateString()}</small>` : 
+            '<small>In mempool</small>'}
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    container.innerHTML = html;
+  }
+
+  // Block search
+  async function searchBlock(blockQuery, container) {
+    const cacheKey = `block_${blockQuery}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) {
+      renderBlock(cachedData, container);
+      return;
+    }
+    
+    try {
+      let blockHash = blockQuery;
+      
+      // If it's a number (block height)
+      if (/^\d+$/.test(blockQuery)) {
+        const hashRes = await fetch(`${API_ENDPOINTS.blockstream}/block-height/${blockQuery}`);
+        if (!hashRes.ok) throw new Error('Block not found');
+        blockHash = await hashRes.text();
+      }
+      
+      const [block, txs] = await Promise.all([
+        fetchWithFallback(`/block/${blockHash}`),
+        fetchWithFallback(`/block/${blockHash}/txs`)
+      ]);
+      
+      const data = { block, txs, blockHash };
+      cache.set(`block_${blockQuery}`, data);
+      cache.set(`block_${blockHash}`, data);
+      
+      renderBlock(data, container);
+    } catch (e) {
+      throw new Error('Failed to fetch block data. Please try again later.');
+    }
+  }
+  
+  function renderBlock(data, container) {
+    const { block, txs, blockHash } = data;
+    
+    let html = `<h2>Block Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Height:</div>
+      <div>${formatNumber(block.height)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Hash:</div>
+      <div>${blockHash} <button class="copy-btn" onclick="copyToClipboard('${blockHash}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Timestamp:</div>
+      <div>${new Date(block.timestamp * 1000).toLocaleString()}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Transaction count:</div>
+      <div>${formatNumber(block.tx_count)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Size:</div>
+      <div>${formatNumber(block.size)} bytes</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Difficulty:</div>
+      <div>${formatNumber(Math.round(block.difficulty))}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Version:</div>
+      <div>0x${block.version.toString(16)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Merkle Root:</div>
+      <div>${block.merkle_root}</div>
+    </div>`;
+    
+    // Block transactions
+    html += `<h3>Block Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions available</p>`;
+    } else {
+      html += `<ul>`;
+      txs.slice(0, 10).forEach(tx => {
+        html += `<li>
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${shortenHash(tx.txid)}</a>
+          (${formatBTC(tx.vout.reduce((sum, v) => sum + v.value, 0))})
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    container.innerHTML = html;
+  }
+
+  // Price data and chart functions
+  async function loadPriceData() {
+    try {
+      const [priceRes, feesRes] = await Promise.all([
+        fetch(`${API_ENDPOINTS.coingecko}/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true`),
+        fetch(`${API_ENDPOINTS.mempool}/v1/fees/recommended`)
+      ]);
+      
+      const priceData = await priceRes.json();
+      const fees = await feesRes.json();
+      
+      const price = priceData.bitcoin.usd;
+      const change24h = priceData.bitcoin.usd_24h_change;
+      
+      document.getElementById('btc-price').textContent = `$${price.toLocaleString()}`;
+      
+      const changeElement = document.getElementById('price-change');
+      changeElement.textContent = `${change24h > 0 ? '+' : ''}${change24h.toFixed(2)}%`;
+      changeElement.className = `price-change ${change24h >= 0 ? 'positive' : 'negative'}`;
+      
+      // Render fees
+      if (fees) {
+        document.getElementById('fees-container').innerHTML = `
+          <div class="fee-box">
+            <h3>Current Fee Rates (sat/vB)</h3>
+            <div class="fee-row">
+              <span>High priority:</span> <strong>${fees.fastestFee}</strong>
+            </div>
+            <div class="fee-row">
+              <span>Medium:</span> <strong>${fees.halfHourFee}</strong>
+            </div>
+            <div class="fee-row">
+              <span>Low:</span> <strong>${fees.hourFee}</strong>
+            </div>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Error loading price data:', error);
+      document.getElementById('btc-price').textContent = 'Price data unavailable';
+    }
+  }
+
+  async function loadPriceChart(timeframe) {
+    currentTimeframe = timeframe;
+    const container = document.getElementById('price-chart');
+    container.innerHTML = '<div class="skeleton-chart"></div>';
+    
+    // Update active timeframe button
+    document.querySelectorAll('.timeframe-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    try {
+      // Load chart data from CoinGecko
+      let days = '1';
+      if (timeframe === '7d') days = '7';
+      if (timeframe === '30d') days = '30';
+      if (timeframe === '1y') days = '365';
+      
+      const response = await fetch(`${API_ENDPOINTS.coingecko}/coins/bitcoin/market_chart?vs_currency=usd&days=${days}`);
+      const data = await response.json();
+      
+      // Process data for chart
+      const prices = data.prices.map(entry => ({
+        date: new Date(entry[0]),
+        value: entry[1]
+      }));
+      
+      // Render chart with Chart.js
+      renderChartJS(prices, container);
+    } catch (error) {
+      console.error('Error loading price chart:', error);
+      container.innerHTML = '<p>Unable to load price chart data</p>';
+    }
+  }
+
+  function renderChartJS(prices, container) {
+    if (!prices || prices.length === 0) {
+      container.innerHTML = '<p>No chart data available</p>';
+      return;
+    }
+    
+    // Clear container
+    container.innerHTML = '<canvas height="300"></canvas>';
+    const ctx = container.querySelector('canvas').getContext('2d');
+    
+    // Destroy previous chart if exists
+    if (priceChart) {
+      priceChart.destroy();
+    }
+    
+    priceChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: prices.map(p => p.date.toLocaleDateString()),
+        datasets: [{
+          label: 'BTC Price (USD)',
+          data: prices.map(p => p.value),
+          borderColor: '#f7931a',
+          backgroundColor: 'rgba(247, 147, 26, 0.1)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)'
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Helper functions for searching from links
+  function performSearchTx(txid) {
+    document.getElementById('searchType').value = 'tx';
+    document.getElementById('searchInput').value = txid;
+    performSearch();
+  }
+  
+  function performSearchAddress(address) {
+    document.getElementById('searchType').value = 'address';
+    document.getElementById('searchInput').value = address;
+    performSearch();
+  }
+  
+  function switchTab(showId, hideId) {
+    document.getElementById(showId).classList.add('active');
+    document.getElementById(hideId).classList.remove('active');
+    
+    document.querySelector(`.tab[onclick="switchTab('${showId}', '${hideId}')"]`).classList.add('active');
+    document.querySelector(`.tab[onclick="switchTab('${hideId}', '${showId}')"]`).classList.remove('active');
+  }
+</script>
+
 </body>
 </html>
