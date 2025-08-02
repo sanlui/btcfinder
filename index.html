@@ -3,150 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Generatore BTC Reale</title>
+  <title>Explorer Bitcoin Semplice</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      text-align: center;
-      background: #f8f9fa;
-      color: #333;
-    }
-    h1 {
-      color: #f7931a;
-    }
-    button {
-      background: #f7931a;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 5px;
-      margin: 10px 5px;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #e07b0a;
-    }
-    button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      margin-top: 20px;
-      text-align: left;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .warning {
-      background: #fff3cd;
-      color: #856404;
-      padding: 15px;
-      border-radius: 5px;
-      margin: 20px 0;
-      text-align: left;
-      border-left: 5px solid #ffc107;
-    }
-    .balance {
-      font-size: 24px;
-      font-weight: bold;
-      color: #28a745;
-      margin: 10px 0;
-    }
-    .copy-btn {
-      background: #6c757d;
-      padding: 5px 10px;
-      font-size: 14px;
-      border-radius: 3px;
-    }
-    .copy-btn:hover {
-      background: #5a6268;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .qr-container {
-      display: flex;
-      justify-content: space-around;
-      margin: 20px 0;
-    }
-    .qr-code {
-      text-align: center;
-    }
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; }
+    input, button, select { padding: 8px; margin: 5px; font-size: 16px; }
+    button { cursor: pointer; background: #f7931a; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #e07b0a; }
+    .result { background: #f0f0f0; padding: 15px; margin-top: 20px; border-radius: 8px; }
+    h2 { margin-top: 40px; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    ul { padding-left: 20px; }
   </style>
 </head>
 <body>
-  <h1>Generatore Bitcoin (BTC)</h1>
-  <p>Genera indirizzi BTC validi con relative chiavi private</p>
 
-  <div class="warning">
-    <strong>⚠ Attenzione:</strong> Questo generatore crea indirizzi Bitcoin reali e funzionanti.<br />
-    Le chiazi private generate danno accesso completo ai fondi.<br />
-    <strong>Non usare per depositi reali</strong> e non condividere le chiavi private con nessuno.<br />
-    Questo è solo uno strumento dimostrativo.
-  </div>
+  <h1>Explorer Bitcoin Semplice</h1>
 
-  <button id="generateBtn">Genera Nuovo Indirizzo BTC</button>
+  <label for="searchType">Tipo di ricerca:</label>
+  <select id="searchType">
+    <option value="tx">Transazione (TXID)</option>
+    <option value="address">Indirizzo</option>
+    <option value="block">Blocco (numero o hash)</option>
+  </select>
 
-  <div id="result" class="card" style="display: none;">
-    <h3>Indirizzo Bitcoin (BTC):</h3>
-    <div class="info-row">
-      <p id="address" style="font-weight: bold; font-size: 18px; word-break: break-all;"></p>
-      <button class="copy-btn" onclick="copyToClipboard('address')">Copia</button>
-    </div>
+  <input type="text" id="searchInput" placeholder="Inserisci TXID, indirizzo o blocco" size="50" />
+  <button onclick="performSearch()">Cerca</button>
 
-    <h3>Chiave Privata (WIF):</h3>
-    <div class="info-row">
-      <p id="privateKey" style="color: #dc3545; word-break: break-all;"></p>
-      <button class="copy-btn" onclick="copyToClipboard('privateKey')">Copia</button>
-    </div>
-
-    <div class="qr-container">
-      <div class="qr-code">
-        <h4>QR Code Indirizzo</h4>
-        <canvas id="addressQr"></canvas>
-      </div>
-      <div class="qr-code">
-        <h4>QR Code Chiave Privata</h4>
-        <canvas id="privateKeyQr"></canvas>
-      </div>
-    </div>
-
-    <h3>Informazioni:</h3>
-    <p><strong>Rete:</strong> <span id="network">Mainnet</span></p>
-    <p><strong>Tipo:</strong> <span id="type">P2PKH (Legacy)</span></p>
-
-    <div class="balance">
-      <span id="balance">0.00000000</span> BTC
-    </div>
-  </div>
-
-  <!-- Carica le librerie necessarie -->
-  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/browser/bip39.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+  <div id="result" class="result"></div>
 
 <script>
-  const mnemonic = bip39.generateMnemonic(); // 12 parole
-  const seed = bip39.mnemonicToSeedSync(mnemonic); // Uint8Array
+  async function performSearch() {
+    const type = document.getElementById('searchType').value;
+    const query = document.getElementById('searchInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = 'Caricamento...';
 
-  const root = bitcoin.bip32.fromSeed(seed);
-  const keyPair = root.derivePath("m/44'/0'/0'/0/0");
-  const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
+    if (!query) {
+      alert('Inserisci un valore valido');
+      resultDiv.innerHTML = '';
+      return;
+    }
 
-  console.log("Address:", address);
-  console.log("Private Key (WIF):", keyPair.toWIF());
-  console.log("Mnemonic:", mnemonic);
+    try {
+      if (type === 'tx') {
+        await searchTransaction(query, resultDiv);
+      } else if (type === 'address') {
+        await searchAddress(query, resultDiv);
+      } else if (type === 'block') {
+        await searchBlock(query, resultDiv);
+      }
+    } catch (e) {
+      resultDiv.innerHTML = `<p style="color:red;">Errore: ${e.message}</p>`;
+    }
+  }
+
+  async function searchTransaction(txid, container) {
+    const res = await fetch(`https://blockstream.info/api/tx/${txid}`);
+    if (!res.ok) throw new Error('Transazione non trovata');
+    const tx = await res.json();
+
+    let html = `<h2>Transazione</h2>`;
+    html += `<p><strong>TXID:</strong> ${txid}</p>`;
+    html += `<p><strong>Blocco:</strong> ${tx.status.block_height || 'Non confermato'}</p>`;
+    html += `<p><strong>Confermata:</strong> ${tx.status.confirmed ? 'Sì' : 'No'}</p>`;
+    html += `<h3>Input</h3><ul>`;
+    tx.vin.forEach((vin, i) => {
+      html += `<li>${vin.prevout?.scriptpubkey_address || 'Indirizzo non disponibile'} - Valore: ${(vin.prevout?.value || 0)/1e8} BTC</li>`;
+    });
+    html += `</ul><h3>Output</h3><ul>`;
+    tx.vout.forEach((vout, i) => {
+      html += `<li>${vout.scriptpubkey_address || 'Indirizzo non disponibile'} - Valore: ${vout.value/1e8} BTC</li>`;
+    });
+    html += `</ul>`;
+    container.innerHTML = html;
+  }
+
+  async function searchAddress(address, container) {
+    const res = await fetch(`https://blockstream.info/api/address/${address}`);
+    if (!res.ok) throw new Error('Indirizzo non trovato');
+    const addrInfo = await res.json();
+
+    const balance = (addrInfo.chain_stats?.funded_txo_sum - addrInfo.chain_stats?.spent_txo_sum) / 1e8;
+    const mempoolBalance = (addrInfo.mempool_stats?.funded_txo_sum - addrInfo.mempool_stats?.spent_txo_sum) / 1e8;
+
+    let html = `<h2>Indirizzo</h2>`;
+    html += `<p><strong>Indirizzo:</strong> ${address}</p>`;
+    html += `<p><strong>Saldo confermato:</strong> ${balance.toFixed(8)} BTC</p>`;
+    html += `<p><strong>Saldo non confermato (mempool):</strong> ${mempoolBalance.toFixed(8)} BTC</p>`;
+
+    // Mostra ultime 10 transazioni dell'indirizzo
+    const txsRes = await fetch(`https://blockstream.info/api/address/${address}/txs`);
+    if (!txsRes.ok) throw new Error('Errore nel recupero transazioni');
+    const txs = await txsRes.json();
+
+    html += `<h3>Ultime transazioni</h3><ul>`;
+    txs.slice(0, 10).forEach(tx => {
+      html += `<li><a href="#" onclick="performSearchTx('${tx.txid}')">${tx.txid}</a></li>`;
+    });
+    html += `</ul>`;
+
+    container.innerHTML = html;
+  }
+
+  async function searchBlock(blockQuery, container) {
+    // Se è un numero (altezza blocco)
+    if (/^\d+$/.test(blockQuery)) {
+      // Ottieni hash blocco
+      const hashRes = await fetch(`https://blockstream.info/api/block-height/${blockQuery}`);
+      if (!hashRes.ok) throw new Error('Blocco non trovato');
+      const blockHash = await hashRes.text();
+      await searchBlockByHash(blockHash, container);
+    } else {
+      // Assume hash blocco
+      await searchBlockByHash(blockQuery, container);
+    }
+  }
+
+  async function searchBlockByHash(blockHash, container) {
+    const res = await fetch(`https://blockstream.info/api/block/${blockHash}`);
+    if (!res.ok) throw new Error('Blocco non trovato');
+    const block = await res.json();
+
+    let html = `<h2>Blocco</h2>`;
+    html += `<p><strong>Hash:</strong> ${block.hash}</p>`;
+    html += `<p><strong>Altezza:</strong> ${block.height}</p>`;
+    html += `<p><strong>Timestamp:</strong> ${new Date(block.timestamp * 1000).toLocaleString()}</p>`;
+    html += `<p><strong>Numero transazioni:</strong> ${block.tx_count}</p>`;
+
+    // Ultime 10 transazioni del blocco
+    const txsRes = await fetch(`https://blockstream.info/api/block/${blockHash}/txs`);
+    if (!txsRes.ok) throw new Error('Errore nel recupero transazioni blocco');
+    const txs = await txsRes.json();
+
+    html += `<h3>Ultime transazioni</h3><ul>`;
+    txs.slice(0, 10).forEach(tx => {
+      html += `<li><a href="#" onclick="performSearchTx('${tx.txid}')">${tx.txid}</a></li>`;
+    });
+    html += `</ul>`;
+
+    container.innerHTML = html;
+  }
+
+  // Funzione helper per cercare transazione da link in elenco
+  function performSearchTx(txid) {
+    document.getElementById('searchType').value = 'tx';
+    document.getElementById('searchInput').value = txid;
+    performSearch();
+  }
 </script>
 
 </body>
