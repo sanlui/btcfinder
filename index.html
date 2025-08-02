@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generatore BTC Reale</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -90,7 +89,7 @@
 
   <div class="warning">
     <strong>⚠ Attenzione:</strong> Questo generatore crea indirizzi Bitcoin reali e funzionanti.<br />
-    Le chiavi private generate danno accesso completo ai fondi.<br />
+    Le chiazi private generate danno accesso completo ai fondi.<br />
     <strong>Non usare per depositi reali</strong> e non condividere le chiavi private con nessuno.<br />
     Questo è solo uno strumento dimostrativo.
   </div>
@@ -130,116 +129,84 @@
     </div>
   </div>
 
-  <!-- Librerie CDN -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // bitcoinjs-lib usa l'oggetto globale "bitcoinjsLib"
-  const bitcoin = window.bitcoin || window.bitcoinjsLib;
+  <!-- Carica le librerie necessarie -->
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
-  if (typeof bitcoin === 'undefined') {
-    alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
-    document.getElementById('generateBtn').disabled = true;
-    return;
-  }
-
-  const btn = document.getElementById('generateBtn');
-  btn.addEventListener('click', () => {
-    btn.disabled = true;
-    btn.textContent = 'Generazione in corso...';
-
-    setTimeout(() => {
-      try {
-        const network = bitcoin.networks.bitcoin;
-        const keyPair = bitcoin.ECPair.makeRandom({ network });
-
-        const { address } = bitcoin.payments.p2pkh({
-          pubkey: keyPair.publicKey,
-          network
-        });
-
-        const privateKey = keyPair.toWIF();
-
-        document.getElementById('address').textContent = address;
-        document.getElementById('privateKey').textContent = privateKey;
-        document.getElementById('result').style.display = 'block';
-
-        if (typeof QRCode !== 'undefined') {
-          QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
-          QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
-        }
-      } catch (error) {
-        alert('Errore durante la generazione: ' + error.message);
-        console.error(error);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Genera Nuovo Indirizzo BTC';
-      }
-    }, 100);
-  });
-});
-
-function copyToClipboard(id) {
-  const text = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    alert('Testo copiato negli appunti!');
-  }).catch(err => {
-    alert('Impossibile copiare il testo');
-    console.error(err);
-  });
-}
-</script>
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // bitcoinjs-lib usa l'oggetto globale "bitcoin"
+  <script>
+    // Verifica il caricamento delle librerie
+    function checkLibraries() {
       if (typeof bitcoin === 'undefined') {
+        console.error("bitcoinjs-lib non caricata");
         alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
         document.getElementById('generateBtn').disabled = true;
-        return;
+        return false;
       }
+      
+      if (typeof QRCode === 'undefined') {
+        console.warn("QRCode non disponibile - i QR code non funzioneranno");
+      }
+      
+      return true;
+    }
+
+    // Genera un nuovo wallet Bitcoin
+    function generateWallet() {
+      if (!checkLibraries()) return;
 
       const btn = document.getElementById('generateBtn');
-      btn.addEventListener('click', () => {
-        btn.disabled = true;
-        btn.textContent = 'Generazione in corso...';
+      btn.disabled = true;
+      btn.textContent = 'Generazione in corso...';
 
-        setTimeout(() => {
-          try {
-            const network = bitcoin.networks.bitcoin;
-            const keyPair = bitcoin.ECPair.makeRandom({ network });
-            const { address } = bitcoin.payments.p2pkh({
-              pubkey: keyPair.publicKey,
-              network
-            });
-            const privateKey = keyPair.toWIF();
+      setTimeout(() => {
+        try {
+          const network = bitcoin.networks.bitcoin;
+          const keyPair = bitcoin.ECPair.makeRandom({ network });
 
-            document.getElementById('address').textContent = address;
-            document.getElementById('privateKey').textContent = privateKey;
-            document.getElementById('result').style.display = 'block';
+          const { address } = bitcoin.payments.p2pkh({
+            pubkey: keyPair.publicKey,
+            network: network
+          });
 
-            if (typeof QRCode !== 'undefined') {
-              QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
-              QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
-            }
-          } catch (error) {
-            alert('Errore durante la generazione: ' + error.message);
-            console.error(error);
-          } finally {
-            btn.disabled = false;
-            btn.textContent = 'Genera Nuovo Indirizzo BTC';
+          const privateKey = keyPair.toWIF();
+
+          // Aggiorna l'interfaccia utente
+          document.getElementById('address').textContent = address;
+          document.getElementById('privateKey').textContent = privateKey;
+          document.getElementById('result').style.display = 'block';
+
+          // Genera QR code se disponibile
+          if (typeof QRCode !== 'undefined') {
+            QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
+            QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
           }
-        }, 100);
-      });
-    });
 
+        } catch (error) {
+          console.error("Errore generazione wallet:", error);
+          alert("Errore durante la generazione: " + error.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Genera Nuovo Indirizzo BTC';
+        }
+      }, 100);
+    }
+
+    // Copia il testo negli appunti
     function copyToClipboard(id) {
       const text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text).then(() => {
-        alert('Testo copiato negli appunti!');
+        alert('Copiato negli appunti!');
       }).catch(err => {
+        console.error('Errore copia:', err);
         alert('Impossibile copiare il testo');
-        console.error(err);
       });
     }
+
+    // Inizializza l'applicazione
+    document.addEventListener('DOMContentLoaded', () => {
+      checkLibraries();
+      document.getElementById('generateBtn').addEventListener('click', generateWallet);
+    });
   </script>
 </body>
 </html>
