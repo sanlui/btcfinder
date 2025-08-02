@@ -132,9 +132,12 @@
 
   <!-- Librerie CDN -->
 <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+<script>
+  if (typeof window.bitcoin === 'undefined' && typeof window.bitcoinjsLib === 'undefined') {
+    document.write('<script src="js/bitcoinjs-lib.min.js"><\/script>');
+  }
+</script>
 
-  <script>
     document.addEventListener('DOMContentLoaded', () => {
       // bitcoinjs-lib usa l'oggetto globale "bitcoin"
       if (typeof bitcoin === 'undefined') {
