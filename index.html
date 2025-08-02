@@ -2,24 +2,204 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>BTCFinder.xyz - Generatore Wallet Bitcoin</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generatore BTC Reale</title>
+  
+  <!-- Stili CSS -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background: #f8f9fa;
+      color: #333;
+    }
+    h1 {
+      color: #f7931a;
+    }
+    button {
+      background: #f7931a;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin: 10px 5px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e07b0a;
+    }
+    button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      text-align: left;
+      border-left: 5px solid #ffc107;
+    }
+    .balance {
+      font-size: 24px;
+      font-weight: bold;
+      color: #28a745;
+      margin: 10px 0;
+    }
+    .copy-btn {
+      background: #6c757d;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 3px;
+    }
+    .copy-btn:hover {
+      background: #5a6268;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .qr-container {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+    }
+    .qr-code {
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <h1>Generatore di Wallet Bitcoin</h1>
-  </header>
+  <h1>Generatore Bitcoin (BTC)</h1>
+  <p>Genera indirizzi BTC validi con relative chiavi private</p>
 
-  <main>
-    <button onclick="generateWallet()">Genera Wallet</button>
+  <div class="warning">
+    <strong>⚠ Attenzione:</strong> Questo generatore crea indirizzi Bitcoin reali e funzionanti.<br />
+    Le chiavi private generate danno accesso completo ai fondi.<br />
+    <strong>Non usare per depositi reali</strong> e non condividere le chiavi private con nessuno.<br />
+    Questo è solo uno strumento dimostrativo.
+  </div>
 
-    <div id="output">
-      <p>Indirizzo BTC: <span id="btc-address"></span></p>
-      <p>Chiave Privata: <span id="btc-private"></span></p>
+  <button id="generateBtn">Genera Nuovo Indirizzo BTC</button>
+
+  <div id="result" class="card" style="display: none;">
+    <h3>Indirizzo Bitcoin (BTC):</h3>
+    <div class="info-row">
+      <p id="address" style="font-weight: bold; font-size: 18px; word-break: break-all;"></p>
+      <button class="copy-btn" onclick="copyToClipboard('address')">Copia</button>
     </div>
-  </main>
 
-  <script src="js/bitcoinjs-lib.min.js"></script>
-  <script src="js/main.js"></script>
+    <h3>Chiave Privata (WIF):</h3>
+    <div class="info-row">
+      <p id="privateKey" style="color: #dc3545; word-break: break-all;"></p>
+      <button class="copy-btn" onclick="copyToClipboard('privateKey')">Copia</button>
+    </div>
+
+    <div class="qr-container">
+      <div class="qr-code">
+        <h4>QR Code Indirizzo</h4>
+        <canvas id="addressQr"></canvas>
+      </div>
+      <div class="qr-code">
+        <h4>QR Code Chiave Privata</h4>
+        <canvas id="privateKeyQr"></canvas>
+      </div>
+    </div>
+
+    <h3>Informazioni:</h3>
+    <p><strong>Rete:</strong> <span id="network">Mainnet</span></p>
+    <p><strong>Tipo:</strong> <span id="type">P2PKH (Legacy)</span></p>
+
+    <div class="balance">
+      <span id="balance">0.00000000</span> BTC
+    </div>
+  </div>
+
+  <!-- Caricamento delle librerie -->
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+  <script>
+    // Verifica il caricamento delle librerie
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof bitcoin === 'undefined') {
+        console.error("bitcoinjs-lib non è stato caricato correttamente");
+        document.getElementById('generateBtn').disabled = true;
+        alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
+        return;
+      }
+
+      if (typeof QRCode === 'undefined') {
+        console.warn("La libreria QRCode non è stata caricata correttamente");
+      }
+
+      // Imposta il gestore del pulsante
+      document.getElementById('generateBtn').addEventListener('click', generateWallet);
+    });
+
+    function generateWallet() {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.textContent = 'Generazione in corso...';
+
+      setTimeout(() => {
+        try {
+          const network = bitcoin.networks.bitcoin;
+          const keyPair = bitcoin.ECPair.makeRandom({ network });
+
+          const { address } = bitcoin.payments.p2pkh({
+            pubkey: keyPair.publicKey,
+            network: network
+          });
+
+          const privateKey = keyPair.toWIF();
+
+          // Aggiorna l'interfaccia
+          document.getElementById('address').textContent = address;
+          document.getElementById('privateKey').textContent = privateKey;
+          document.getElementById('result').style.display = 'block';
+
+          // Genera QR code se la libreria è disponibile
+          if (typeof QRCode !== 'undefined') {
+            QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
+            QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
+          }
+
+        } catch (error) {
+          console.error("Errore:", error);
+          alert("Si è verificato un errore durante la generazione: " + error.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Genera Nuovo Indirizzo BTC';
+        }
+      }, 100);
+    }
+
+    function copyToClipboard(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Testo copiato negli appunti!');
+      }).catch(err => {
+        console.error('Errore durante la copia:', err);
+        alert('Impossibile copiare il testo');
+      });
+    }
+  </script>
 </body>
 </html>
