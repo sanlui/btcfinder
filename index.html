@@ -13,8 +13,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <title>Advanced Bitcoin Explorer | Real-time Blockchain Data & Price Charts</title>
   <link rel="canonical" href="https://yourwebsite.com/bitcoin-explorer" />
-  <link rel="stylesheet" href="/assets/css/main.css">
-  <link rel="icon" href="/assets/img/favicon.ico">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="icon" href="assets/img/favicon.ico">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -43,10 +43,10 @@
         <div class="price-change" id="price-change">24h</div>
       </div>
       <div class="timeframe-selector">
-        <button class="timeframe-btn active" onclick="loadPriceChart('24h')">24h</button>
-        <button class="timeframe-btn" onclick="loadPriceChart('7d')">7d</button>
-        <button class="timeframe-btn" onclick="loadPriceChart('30d')">30d</button>
-        <button class="timeframe-btn" onclick="loadPriceChart('1y')">1y</button>
+        <button class="timeframe-btn active" data-timeframe="24h">24h</button>
+        <button class="timeframe-btn" data-timeframe="7d">7d</button>
+        <button class="timeframe-btn" data-timeframe="30d">30d</button>
+        <button class="timeframe-btn" data-timeframe="1y">1y</button>
       </div>
     </div>
     <div class="chart-container" id="price-chart">
@@ -65,14 +65,40 @@
       
       <input type="text" id="searchInput" placeholder="Enter TXID, address or block" aria-label="Search input" />
       
-      <button id="searchBtn" onclick="performSearch()">Search</button>
+      <button id="searchBtn">Search</button>
     </div>
 
     <div id="result" class="result" role="region" aria-live="polite"></div>
   </section>
 
-  <script src="/assets/js/utils.js"></script>
-  <script src="/assets/js/charts.js"></script>
-  <script src="/assets/js/main.js" type="module"></script>
+  <!-- Scripts modificati per funzionamento garantito -->
+  <script src="assets/js/utils.js"></script>
+  <script src="assets/js/charts.js"></script>
+  <script src="assets/js/main.js"></script>
+  
+  <!-- Inizializzazione inline per sicurezza -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Bitcoin Explorer initialized');
+      
+      // Event delegation per i pulsanti
+      document.querySelector('.timeframe-selector').addEventListener('click', function(e) {
+        if(e.target.classList.contains('timeframe-btn')) {
+          const timeframe = e.target.dataset.timeframe;
+          loadPriceChart(timeframe);
+        }
+      });
+      
+      // Controlla che tutti gli script siano caricati
+      if(typeof performSearch !== 'undefined') {
+        document.getElementById('searchBtn').addEventListener('click', performSearch);
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+          if(e.key === 'Enter') performSearch();
+        });
+      } else {
+        console.error('Error: main.js not loaded properly');
+      }
+    });
+  </script>
 </body>
 </html>
