@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generatore BTC Reale</title>
-  
-  <!-- Stili CSS -->
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -131,73 +130,62 @@
     </div>
   </div>
 
-  <!-- Caricamento delle librerie -->
+  <!-- Librerie CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
   <script>
-    // Verifica il caricamento delle librerie
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof bitcoin === 'undefined') {
-        console.error("bitcoinjs-lib non è stato caricato correttamente");
-        document.getElementById('generateBtn').disabled = true;
+    document.addEventListener('DOMContentLoaded', () => {
+      // Accedi all'oggetto bitcoinjsLib dal CDN
+      const bitcoin = window.bitcoinjsLib;
+
+      if (!bitcoin) {
         alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
+        document.getElementById('generateBtn').disabled = true;
         return;
       }
 
-      if (typeof QRCode === 'undefined') {
-        console.warn("La libreria QRCode non è stata caricata correttamente");
-      }
-
-      // Imposta il gestore del pulsante
-      document.getElementById('generateBtn').addEventListener('click', generateWallet);
-    });
-
-    function generateWallet() {
       const btn = document.getElementById('generateBtn');
-      btn.disabled = true;
-      btn.textContent = 'Generazione in corso...';
+      btn.addEventListener('click', () => {
+        btn.disabled = true;
+        btn.textContent = 'Generazione in corso...';
 
-      setTimeout(() => {
-        try {
-          const network = bitcoin.networks.bitcoin;
-          const keyPair = bitcoin.ECPair.makeRandom({ network });
+        setTimeout(() => {
+          try {
+            const network = bitcoin.networks.bitcoin;
+            const keyPair = bitcoin.ECPair.makeRandom({ network });
+            const { address } = bitcoin.payments.p2pkh({
+              pubkey: keyPair.publicKey,
+              network
+            });
+            const privateKey = keyPair.toWIF();
 
-          const { address } = bitcoin.payments.p2pkh({
-            pubkey: keyPair.publicKey,
-            network: network
-          });
+            document.getElementById('address').textContent = address;
+            document.getElementById('privateKey').textContent = privateKey;
+            document.getElementById('result').style.display = 'block';
 
-          const privateKey = keyPair.toWIF();
-
-          // Aggiorna l'interfaccia
-          document.getElementById('address').textContent = address;
-          document.getElementById('privateKey').textContent = privateKey;
-          document.getElementById('result').style.display = 'block';
-
-          // Genera QR code se la libreria è disponibile
-          if (typeof QRCode !== 'undefined') {
-            QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
-            QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
+            if (typeof QRCode !== 'undefined') {
+              QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
+              QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
+            }
+          } catch (error) {
+            alert('Errore durante la generazione: ' + error.message);
+            console.error(error);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = 'Genera Nuovo Indirizzo BTC';
           }
-
-        } catch (error) {
-          console.error("Errore:", error);
-          alert("Si è verificato un errore durante la generazione: " + error.message);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Genera Nuovo Indirizzo BTC';
-        }
-      }, 100);
-    }
+        }, 100);
+      });
+    });
 
     function copyToClipboard(id) {
       const text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text).then(() => {
         alert('Testo copiato negli appunti!');
       }).catch(err => {
-        console.error('Errore durante la copia:', err);
         alert('Impossibile copiare il testo');
+        console.error(err);
       });
     }
   </script>
