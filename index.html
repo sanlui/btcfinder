@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Generatore BTC Reale</title>
-  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script>
+
+  <!-- CDN bitcoinjs-lib -->
   <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+  <!-- Fallback locale se CDN non carica -->
+  <script>
+    if(typeof window.bitcoinjsLib === 'undefined') {
+      document.write('<script src="js/bitcoinjs-lib.min.js"><\/script>');
+    }
+  </script>
+
+  <!-- Libreria QR code -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -64,6 +75,7 @@
       background: #6c757d;
       padding: 5px 10px;
       font-size: 14px;
+      border-radius: 3px;
     }
     .copy-btn:hover {
       background: #5a6268;
@@ -89,9 +101,10 @@
   <p>Genera indirizzi BTC validi con relative chiavi private</p>
 
   <div class="warning">
-    <strong>⚠ Attenzione:</strong> Questo generatore crea indirizzi Bitcoin reali e funzionanti. 
-    Le chiavi private generate danno accesso completo ai fondi. <strong>Non usare per depositi reali</strong> 
-    e non condividere le chiavi private con nessuno. Questo è solo uno strumento dimostrativo.
+    <strong>⚠ Attenzione:</strong> Questo generatore crea indirizzi Bitcoin reali e funzionanti.<br />
+    Le chiavi private generate danno accesso completo ai fondi.<br />
+    <strong>Non usare per depositi reali</strong> e non condividere le chiavi private con nessuno.<br />
+    Questo è solo uno strumento dimostrativo.
   </div>
 
   <button id="generateBtn">Genera Nuovo Indirizzo BTC</button>
@@ -129,7 +142,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
   <script src="wallet-generator.js"></script>
 </body>
 </html>
