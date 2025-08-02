@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>BTCFinder.xyz - Generatore Wallet Bitcoin</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Generatore di Wallet Bitcoin</h1>
+  </header>
+
+  <main>
+    <button onclick="generateWallet()">Genera Wallet</button>
+
+    <div id="output">
+      <p>Indirizzo BTC: <span id="btc-address"></span></p>
+      <p>Chiave Privata: <span id="btc-private"></span></p>
+    </div>
+  </main>
+
+  <script src="js/bitcoinjs-lib.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
