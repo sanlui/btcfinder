@@ -1,10 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Page Not Found</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Advanced Bitcoin Explorer with real-time price charts, transaction details, block information, and address tracking">
+  <meta name="keywords" content="Bitcoin, BTC, blockchain explorer, cryptocurrency, Bitcoin price, Bitcoin transactions">
+  <meta name="author" content="Bitcoin Explorer">
+  <meta property="og:title" content="Advanced Bitcoin Explorer">
+  <meta property="og:description" content="Explore Bitcoin transactions, blocks, addresses and real-time price data">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourwebsite.com/bitcoin-explorer">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Advanced Bitcoin Explorer | Real-time Blockchain Data & Price Charts</title>
+  <link rel="canonical" href="https://yourwebsite.com/bitcoin-explorer" />
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="icon" href="/assets/img/favicon.ico">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Bitcoin Explorer",
+      "description": "Advanced Bitcoin blockchain explorer with real-time price charts",
+      "applicationCategory": "Blockchain Explorer",
+      "operatingSystem": "Web"
+    }
+  </script>
 </head>
 <body>
-    <h1>404 - Page Not Found</h1>
-    <p>Return to <a href="/">Bitcoin Explorer</a></p>
+
+  <header>
+    <h1>Advanced Bitcoin Explorer</h1>
+    <div class="intro-content">
+      <p>Explore the Bitcoin blockchain with our comprehensive explorer. View real-time Bitcoin price charts, transaction details, block information, and address tracking. Our tool provides everything you need to analyze the Bitcoin network.</p>
+    </div>
+  </header>
+
+  <!-- Real-time Price Chart Section -->
+  <section class="price-container" aria-label="Bitcoin price chart">
+    <div class="price-header">
+      <div class="price-info">
+        <div class="current-price" id="btc-price">Loading...</div>
+        <div class="price-change" id="price-change">24h</div>
+      </div>
+      <div class="timeframe-selector">
+        <button class="timeframe-btn active" onclick="loadPriceChart('24h')">24h</button>
+        <button class="timeframe-btn" onclick="loadPriceChart('7d')">7d</button>
+        <button class="timeframe-btn" onclick="loadPriceChart('30d')">30d</button>
+        <button class="timeframe-btn" onclick="loadPriceChart('1y')">1y</button>
+      </div>
+    </div>
+    <div class="chart-container" id="price-chart">
+      <div class="loader"></div>
+    </div>
+  </section>
+
+  <!-- Blockchain Explorer Section -->
+  <section aria-label="Blockchain explorer">
+    <div class="search-container">
+      <select id="searchType">
+        <option value="tx">Transaction (TXID)</option>
+        <option value="address">Address</option>
+        <option value="block">Block (height or hash)</option>
+      </select>
+      
+      <input type="text" id="searchInput" placeholder="Enter TXID, address or block" aria-label="Search input" />
+      
+      <button id="searchBtn" onclick="performSearch()">Search</button>
+    </div>
+
+    <div id="result" class="result" role="region" aria-live="polite"></div>
+  </section>
+
+  <script src="/assets/js/utils.js"></script>
+  <script src="/assets/js/charts.js"></script>
+  <script src="/assets/js/main.js" type="module"></script>
 </body>
 </html>
