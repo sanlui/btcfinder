@@ -131,11 +131,62 @@
   </div>
 
   <!-- Librerie CDN -->
-<script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
 <script>
-  if (typeof window.bitcoin === 'undefined' && typeof window.bitcoinjsLib === 'undefined') {
-    document.write('<script src="js/bitcoinjs-lib.min.js"><\/script>');
+document.addEventListener('DOMContentLoaded', () => {
+  // bitcoinjs-lib usa l'oggetto globale "bitcoinjsLib"
+  const bitcoin = window.bitcoin || window.bitcoinjsLib;
+
+  if (typeof bitcoin === 'undefined') {
+    alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
+    document.getElementById('generateBtn').disabled = true;
+    return;
   }
+
+  const btn = document.getElementById('generateBtn');
+  btn.addEventListener('click', () => {
+    btn.disabled = true;
+    btn.textContent = 'Generazione in corso...';
+
+    setTimeout(() => {
+      try {
+        const network = bitcoin.networks.bitcoin;
+        const keyPair = bitcoin.ECPair.makeRandom({ network });
+
+        const { address } = bitcoin.payments.p2pkh({
+          pubkey: keyPair.publicKey,
+          network
+        });
+
+        const privateKey = keyPair.toWIF();
+
+        document.getElementById('address').textContent = address;
+        document.getElementById('privateKey').textContent = privateKey;
+        document.getElementById('result').style.display = 'block';
+
+        if (typeof QRCode !== 'undefined') {
+          QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
+          QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
+        }
+      } catch (error) {
+        alert('Errore durante la generazione: ' + error.message);
+        console.error(error);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Genera Nuovo Indirizzo BTC';
+      }
+    }, 100);
+  });
+});
+
+function copyToClipboard(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Testo copiato negli appunti!');
+  }).catch(err => {
+    alert('Impossibile copiare il testo');
+    console.error(err);
+  });
+}
 </script>
 
     document.addEventListener('DOMContentLoaded', () => {
