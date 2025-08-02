@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generatore BTC Reale</title>
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+    <!-- Carica prima bip39 che è un dipendenza -->
     <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-message@2.2.0/index.min.js"></script>
+    <!-- Poi bitcoinjs-lib -->
+    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,14 +43,6 @@
             text-align: left;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .qr-code {
-            margin: 20px auto;
-            width: 200px;
-            height: 200px;
-            background: white;
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
         .warning {
             background: #fff3cd;
             color: #856404;
@@ -81,54 +74,50 @@
         <h3>Indirizzo Bitcoin (BTC):</h3>
         <p id="address" style="font-weight: bold; font-size: 18px;"></p>
         
-        <div class="qr-code" id="addressQr"></div>
-        
         <h3>Chiave Privata (WIF):</h3>
         <p id="privateKey" style="color: #dc3545;"></p>
         
-        <div class="qr-code" id="privateKeyQr"></div>
-        
         <h3>Informazioni:</h3>
         <p><strong>Rete:</strong> <span id="network">Mainnet</span></p>
-        <p><strong>Tipo:</strong> <span id="addressType">P2PKH (Legacy)</span></p>
         
         <div class="balance">
             <span id="balance">0.00000000</span> BTC
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script>
         document.getElementById('generateBtn').addEventListener('click', function() {
-            // Genera un nuovo indirizzo BTC
-            const network = bitcoin.networks.bitcoin;
-            const keyPair = bitcoin.ECPair.makeRandom({ network });
-            
-            // Ottieni l'indirizzo P2PKH (legacy)
-            const { address } = bitcoin.payments.p2pkh({ 
-                pubkey: keyPair.publicKey, 
-                network 
-            });
-            
-            // Ottieni la chiave privata in formato WIF
-            const privateKey = keyPair.toWIF();
-            
-            // Mostra i risultati
-            document.getElementById('address').textContent = address;
-            document.getElementById('privateKey').textContent = privateKey;
-            document.getElementById('result').style.display = 'block';
-            
-            // Genera QR code
-            QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 180 }, function(error) {
-                if (error) console.error(error);
-            });
-            
-            QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 180 }, function(error) {
-                if (error) console.error(error);
-            });
-            
-            // Simula un saldo (nella realtà servirebbe un API)
-            document.getElementById('balance').textContent = '0.00000000';
+            try {
+                // Verifica che bitcoinjs-lib sia caricato
+                if (typeof bitcoin === 'undefined') {
+                    throw new Error("La libreria bitcoinjs-lib non è stata caricata correttamente");
+                }
+                
+                // Genera un nuovo indirizzo BTC
+                const network = bitcoin.networks.bitcoin;
+                const keyPair = bitcoin.ECPair.makeRandom({ network });
+                
+                // Ottieni l'indirizzo P2PKH (legacy)
+                const { address } = bitcoin.payments.p2pkh({ 
+                    pubkey: keyPair.publicKey, 
+                    network 
+                });
+                
+                // Ottieni la chiave privata in formato WIF
+                const privateKey = keyPair.toWIF();
+                
+                // Mostra i risultati
+                document.getElementById('address').textContent = address;
+                document.getElementById('privateKey').textContent = privateKey;
+                document.getElementById('result').style.display = 'block';
+                
+                // Simula un saldo
+                document.getElementById('balance').textContent = '0.00000000';
+                
+            } catch (error) {
+                console.error("Errore:", error);
+                alert("Si è verificato un errore: " + error.message);
+            }
         });
     </script>
 </body>
