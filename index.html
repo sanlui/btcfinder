@@ -133,80 +133,21 @@
   <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
-  <script>
-    // Verifica il caricamento delle librerie
-    function checkLibraries() {
-      if (typeof bitcoin === 'undefined') {
-        console.error("bitcoinjs-lib non caricata");
-        alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
-        document.getElementById('generateBtn').disabled = true;
-        return false;
-      }
-      
-      if (typeof QRCode === 'undefined') {
-        console.warn("QRCode non disponibile - i QR code non funzioneranno");
-      }
-      
-      return true;
-    }
+<script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/browser/bip39.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
 
-    // Genera un nuovo wallet Bitcoin
-    function generateWallet() {
-      if (!checkLibraries()) return;
+<script>
+  const mnemonic = bip39.generateMnemonic(); // 12 parole
+  const seed = bip39.mnemonicToSeedSync(mnemonic); // Uint8Array
 
-      const btn = document.getElementById('generateBtn');
-      btn.disabled = true;
-      btn.textContent = 'Generazione in corso...';
+  const root = bitcoin.bip32.fromSeed(seed);
+  const keyPair = root.derivePath("m/44'/0'/0'/0/0");
+  const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-      setTimeout(() => {
-        try {
-          const network = bitcoin.networks.bitcoin;
-          const keyPair = bitcoin.ECPair.makeRandom({ network });
+  console.log("Address:", address);
+  console.log("Private Key (WIF):", keyPair.toWIF());
+  console.log("Mnemonic:", mnemonic);
+</script>
 
-          const { address } = bitcoin.payments.p2pkh({
-            pubkey: keyPair.publicKey,
-            network: network
-          });
-
-          const privateKey = keyPair.toWIF();
-
-          // Aggiorna l'interfaccia utente
-          document.getElementById('address').textContent = address;
-          document.getElementById('privateKey').textContent = privateKey;
-          document.getElementById('result').style.display = 'block';
-
-          // Genera QR code se disponibile
-          if (typeof QRCode !== 'undefined') {
-            QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
-            QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
-          }
-
-        } catch (error) {
-          console.error("Errore generazione wallet:", error);
-          alert("Errore durante la generazione: " + error.message);
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Genera Nuovo Indirizzo BTC';
-        }
-      }, 100);
-    }
-
-    // Copia il testo negli appunti
-    function copyToClipboard(id) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copiato negli appunti!');
-      }).catch(err => {
-        console.error('Errore copia:', err);
-        alert('Impossibile copiare il testo');
-      });
-    }
-
-    // Inizializza l'applicazione
-    document.addEventListener('DOMContentLoaded', () => {
-      checkLibraries();
-      document.getElementById('generateBtn').addEventListener('click', generateWallet);
-    });
-  </script>
 </body>
 </html>
