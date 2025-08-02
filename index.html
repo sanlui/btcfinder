@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Generatore BTC Reale</title>
 
-  <!-- Librerie -->
+  <!-- Librerie da CDN -->
   <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
 
+  <!-- Stili -->
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -87,35 +88,12 @@
     </div>
   </div>
 
-  <script>
-    const bitcoin = bitcoinjsLib;
+  <!-- Librerie opzionali (se usi Bootstrap o jQuery) -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
 
-    document.getElementById('generateBtn').addEventListener('click', function() {
-      try {
-        const network = bitcoin.networks.bitcoin;
-        const keyPair = bitcoin.ECPair.makeRandom({ network });
+  <!-- Tuo script personalizzato -->
+  <script src="js/wallet-generator.js"></script>
 
-        const { address } = bitcoin.payments.p2pkh({
-          pubkey: keyPair.publicKey,
-          network
-        });
-
-        const privateKey = keyPair.toWIF();
-
-        document.getElementById('address').textContent = address;
-        document.getElementById('privateKey').textContent = privateKey;
-        document.getElementById('result').style.display = 'block';
-        document.getElementById('balance').textContent = '0.00000000'; // statico o puoi aggiungere fetch
-      } catch (error) {
-        console.error("Errore:", error);
-        alert("Si è verificato un errore: " + error.message);
-      }
-    });
-  </script>
-<script src="js/jquery.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/bitcoinjs-lib.min.js"></script>
-<script src="js/wallet-generator.js"></script>
 </body>
 </html>
-
