@@ -1,4 +1,6 @@
-const bitcoin = window.bitcoinjsLib;
+// Usa window.bitcoinjs perché bitcoinjs-lib espone questo oggetto globale
+const bitcoin = window.bitcoinjs;
+
 if (!bitcoin) {
   console.error("bitcoinjs-lib non è stato caricato correttamente");
   document.getElementById('generateBtn').disabled = true;
@@ -11,7 +13,7 @@ document.getElementById('generateBtn').addEventListener('click', function() {
 
   setTimeout(() => {
     try {
-      const network = bitcoin.networks.bitcoin;
+      const network = bitcoin.networks.bitcoin; // mainnet
       const keyPair = bitcoin.ECPair.makeRandom({ network });
 
       const { address } = bitcoin.payments.p2pkh({
