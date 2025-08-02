@@ -8,26 +8,26 @@ document.getElementById('generateBtn').addEventListener('click', function() {
   const btn = this;
   btn.disabled = true;
   btn.textContent = 'Generazione in corso...';
-  
+
   setTimeout(() => {
     try {
       const network = bitcoin.networks.bitcoin;
       const keyPair = bitcoin.ECPair.makeRandom({ network });
-      
+
       const { address } = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
         network: network
       });
-      
+
       const privateKey = keyPair.toWIF();
-      
+
       document.getElementById('address').textContent = address;
       document.getElementById('privateKey').textContent = privateKey;
       document.getElementById('result').style.display = 'block';
-      
+
       QRCode.toCanvas(document.getElementById('addressQr'), address, { width: 150 });
       QRCode.toCanvas(document.getElementById('privateKeyQr'), privateKey, { width: 150 });
-      
+
     } catch (error) {
       console.error("Errore:", error);
       alert("Si è verificato un errore durante la generazione: " + error.message);
