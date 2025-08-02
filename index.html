@@ -1,124 +1,117 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generatore BTC Reale</title>
-    <!-- Carica prima bip39 che è un dipendenza -->
-    <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script>
-    <!-- Poi bitcoinjs-lib -->
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-            background: #f8f9fa;
-            color: #333;
-        }
-        h1 {
-            color: #f7931a;
-        }
-        button {
-            background: #f7931a;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin: 20px 0;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background: #e07b0a;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: left;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        .balance {
-            font-size: 24px;
-            font-weight: bold;
-            color: #28a745;
-            margin: 10px 0;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generatore BTC Reale</title>
+
+  <!-- Librerie -->
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-lib.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background: #f8f9fa;
+      color: #333;
+    }
+    h1 {
+      color: #f7931a;
+    }
+    button {
+      background: #f7931a;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin: 20px 0;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #e07b0a;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 20px;
+      text-align: left;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 20px 0;
+      text-align: left;
+    }
+    .balance {
+      font-size: 24px;
+      font-weight: bold;
+      color: #28a745;
+      margin: 10px 0;
+    }
+  </style>
 </head>
 <body>
-    <h1>Generatore Bitcoin (BTC)</h1>
-    <p>Genera indirizzi BTC validi con relative chiavi private</p>
-    
-    <div class="warning">
-        <strong>Attenzione:</strong> Questo è un generatore reale. Le chiavi private generate danno accesso completo ai fondi. 
-        Usa solo per test e non depositare fondi reali su questi indirizzi.
-    </div>
-    
-    <button id="generateBtn">Genera Nuovo Indirizzo BTC</button>
-    
-    <div id="result" class="card" style="display: none;">
-        <h3>Indirizzo Bitcoin (BTC):</h3>
-        <p id="address" style="font-weight: bold; font-size: 18px;"></p>
-        
-        <h3>Chiave Privata (WIF):</h3>
-        <p id="privateKey" style="color: #dc3545;"></p>
-        
-        <h3>Informazioni:</h3>
-        <p><strong>Rete:</strong> <span id="network">Mainnet</span></p>
-        
-        <div class="balance">
-            <span id="balance">0.00000000</span> BTC
-        </div>
-    </div>
 
-    <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            try {
-                // Verifica che bitcoinjs-lib sia caricato
-                if (typeof bitcoin === 'undefined') {
-                    throw new Error("La libreria bitcoinjs-lib non è stata caricata correttamente");
-                }
-                
-                // Genera un nuovo indirizzo BTC
-                const network = bitcoin.networks.bitcoin;
-                const keyPair = bitcoin.ECPair.makeRandom({ network });
-                
-                // Ottieni l'indirizzo P2PKH (legacy)
-                const { address } = bitcoin.payments.p2pkh({ 
-                    pubkey: keyPair.publicKey, 
-                    network 
-                });
-                
-                // Ottieni la chiave privata in formato WIF
-                const privateKey = keyPair.toWIF();
-                
-                // Mostra i risultati
-                document.getElementById('address').textContent = address;
-                document.getElementById('privateKey').textContent = privateKey;
-                document.getElementById('result').style.display = 'block';
-                
-                // Simula un saldo
-                document.getElementById('balance').textContent = '0.00000000';
-                
-            } catch (error) {
-                console.error("Errore:", error);
-                alert("Si è verificato un errore: " + error.message);
-            }
+  <h1>Generatore Bitcoin (BTC)</h1>
+  <p>Genera indirizzi BTC validi con relative chiavi private</p>
+
+  <div class="warning">
+    <strong>Attenzione:</strong> Questo è un generatore reale. Le chiavi private generate danno accesso completo ai fondi.
+    Usa solo per test e non depositare fondi reali su questi indirizzi.
+  </div>
+
+  <button id="generateBtn">Genera Nuovo Indirizzo BTC</button>
+
+  <div id="result" class="card" style="display: none;">
+    <h3>Indirizzo Bitcoin (BTC):</h3>
+    <p id="address" style="font-weight: bold; font-size: 18px;"></p>
+
+    <h3>Chiave Privata (WIF):</h3>
+    <p id="privateKey" style="color: #dc3545;"></p>
+
+    <h3>Informazioni:</h3>
+    <p><strong>Rete:</strong> <span id="network">Mainnet</span></p>
+
+    <div class="balance">
+      <span id="balance">0.00000000</span> BTC
+    </div>
+  </div>
+
+  <script>
+    const bitcoin = bitcoinjsLib;
+
+    document.getElementById('generateBtn').addEventListener('click', function() {
+      try {
+        const network = bitcoin.networks.bitcoin;
+        const keyPair = bitcoin.ECPair.makeRandom({ network });
+
+        const { address } = bitcoin.payments.p2pkh({
+          pubkey: keyPair.publicKey,
+          network
         });
-    </script>
+
+        const privateKey = keyPair.toWIF();
+
+        document.getElementById('address').textContent = address;
+        document.getElementById('privateKey').textContent = privateKey;
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('balance').textContent = '0.00000000'; // statico o puoi aggiungere fetch
+      } catch (error) {
+        console.error("Errore:", error);
+        alert("Si è verificato un errore: " + error.message);
+      }
+    });
+  </script>
+
 </body>
 </html>
