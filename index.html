@@ -136,10 +136,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Accedi all'oggetto bitcoinjsLib dal CDN
-      const bitcoin = window.bitcoinjsLib;
-
-      if (!bitcoin) {
+      // bitcoinjs-lib usa l'oggetto globale "bitcoin"
+      if (typeof bitcoin === 'undefined') {
         alert("Errore: La libreria bitcoinjs-lib non è stata caricata correttamente");
         document.getElementById('generateBtn').disabled = true;
         return;
