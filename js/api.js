@@ -1,44 +1,99 @@
-const API_PROXY = "https://cors-anywhere.herokuapp.com/";
+const API_BASE = "https://blockchain.info";
+const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
 
-async function fetchAddressData(address) {
-  const response = await fetch(`${API_PROXY}https://blockchain.info/rawaddr/${address}?limit=50`);
-  // ... resto del codice
-}
 let currentBlockHeight = 0;
 
-// Funzioni API
-async function updateCurrentBlockHeight() {
+// Funzione per fare richieste con ritentativi e gestione CORS
+async function fetchWithRetry(url, retries = MAX_RETRIES) {
   try {
-    const response = await fetch('https://blockchain.info/q/getblockcount');
-    if (!response.ok) throw new Error('Failed to get block height');
-    currentBlockHeight = await response.json();
+    // Usa il proxy CORS solo se necessario (in sviluppo)
+    const useProxy = window.location.hostname === 'localhost';
+    const targetUrl = useProxy ? `${CORS_PROXY}${url}` : url;
+    
+    const response = await fetch(targetUrl, {
+      headers: useProxy ? { 'X-Requested-With': 'XMLHttpRequest' } : {}
+    });
+
+    if (!response.ok) {
+      if (response.status === 429 && retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+        return fetchWithRetry(url, retries - 1);
+      }
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   } catch (error) {
-    console.error("Error updating block height:", error);
-    currentBlockHeight = 0; // Fallback
+    if (retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      return fetchWithRetry(url, retries - 1);
+    }
+    throw error;
   }
 }
 
+// Aggiorna l'altezza del blocco
+async function updateCurrentBlockHeight() {
+  try {
+    const data = await fetchWithRetry(`${API_BASE}/q/getblockcount`);
+    currentBlockHeight = data;
+    return data;
+  } catch (error) {
+    console.error("Error updating block height:", error);
+    currentBlockHeight = await getFallbackBlockHeight();
+    return currentBlockHeight;
+  }
+}
+
+// Altezza di fallback da un altro endpoint
+async function getFallbackBlockHeight() {
+  try {
+    const data = await fetchWithRetry(`${API_BASE}/latestblock`);
+    return data.height;
+  } catch {
+    return 0; // Ultimo fallback
+  }
+}
+
+// Ottieni dati indirizzo
 async function fetchAddressData(address) {
-  const response = await fetch(`https://blockchain.info/rawaddr/${address}?limit=50`);
-  if (!response.ok) throw new Error('Address not found');
-  
-  const data = await response.json();
-  return formatAddressData(data);
+  try {
+    const data = await fetchWithRetry(`${API_BASE}/rawaddr/${address}?limit=50`);
+    return formatAddressData(data);
+  } catch (error) {
+    console.error("Address fetch error:", error);
+    throw new Error(`Unable to fetch address: ${error.message}`);
+  }
 }
 
+// Ottieni dati transazione
 async function fetchTransactionData(txHash) {
-  const response = await fetch(`https://blockchain.info/rawtx/${txHash}`);
-  if (!response.ok) throw new Error('Transaction not found');
-  return await response.json();
+  try {
+    const data = await fetchWithRetry(`${API_BASE}/rawtx/${txHash}`);
+    return formatTransaction(data);
+  } catch (error) {
+    console.error("Transaction fetch error:", error);
+    throw new Error(`Transaction not found: ${txHash}`);
+  }
 }
 
+// Ottieni dati blocco
 async function fetchBlockData(blockHash) {
-  const response = await fetch(`https://blockchain.info/rawblock/${blockHash}`);
-  if (!response.ok) throw new Error('Block not found');
-  return await response.json();
+  try {
+    const data = await fetchWithRetry(`${API_BASE}/rawblock/${blockHash}`);
+    return {
+      ...data,
+      // Formattazione aggiuntiva per i blocchi
+      formattedTime: new Date(data.time * 1000).toLocaleString()
+    };
+  } catch (error) {
+    console.error("Block fetch error:", error);
+    throw new Error(`Block not found: ${blockHash}`);
+  }
 }
 
-// Funzioni di supporto
+// Formattazione dati
 function formatAddressData(data) {
   return {
     address: data.address,
@@ -66,3 +121,11 @@ function formatTransaction(tx) {
     }))
   };
 }
+
+export {
+  fetchAddressData,
+  fetchTransactionData,
+  fetchBlockData,
+  updateCurrentBlockHeight,
+  currentBlockHeight
+};
