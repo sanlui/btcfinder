@@ -4,7 +4,6 @@ async loadContent(path) {
   
   try {
     const cacheBuster = window.location.hostname === 'localhost' ? `?t=${Date.now()}` : '';
-    // Modifica questa linea (rimuovi 'pages/' e gestisci home.html/index.html):
     const response = await fetch(`/${page === 'home' ? 'home' : page}.html${cacheBuster}`);
     
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
