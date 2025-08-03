@@ -22,28 +22,28 @@ let currentBlockHeight = 0;
 // Funzione principale per la ricerca
 async function searchBlockchain(type, query) {
   const resultsContainer = document.getElementById('search-results-container');
-  resultsContainer.innerHTML = '<div class="status-message"><div class="loader"></div><p>Searching blockchain...</p></div>';
+  resultsContainer.innerHTML = '<div class="loader"></div>';
   resultsContainer.classList.remove('hidden');
 
   try {
-    // Prima aggiorna l'altezza del blocco corrente
-    await updateCurrentBlockHeight();
-    
+    // Aggiungi timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     if (type === 'address') {
       const data = await fetchAddressData(query);
       displayAddressData(data);
-    } else if (type === 'tx') {
-      const data = await fetchTransactionData(query);
-      displayTransactionData(data);
-    } else if (type === 'block') {
-      const data = await fetchBlockData(query);
-      displayBlockData(data);
     }
+    // ... altre condizioni
+
+    clearTimeout(timeoutId);
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error("Search error:", error);
     resultsContainer.innerHTML = `
       <div class="error-message">
-        Error: ${error.message || 'Failed to fetch data'}
+        ${error.message.includes('load') ? 
+          'Server overloaded. Please try again later.' : 
+          'Network error. Check your connection.'}
       </div>
     `;
   }
