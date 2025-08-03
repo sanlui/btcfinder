@@ -10,6 +10,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
 </head>
 <body>
+  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -23,27 +24,56 @@
         </div>
         <nav class="desktop-nav">
           <ul>
-            <li><a href="/" class="nav-link active" data-page="home">HOME</a></li>
-            <li><a href="/tool" class="nav-link" data-page="tool">TOOL</a></li>
-            <li><a href="/api" class="nav-link" data-page="api">API</a></li>
-            <li><a href="/docs" class="nav-link" data-page="docs">DOCS</a></li>
+            <li><a href="#" class="active">TOOL</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">DOCS</a></li>
           </ul>
         </nav>
       </div>
     </div>
   </header>
 
-  <main class="main-content" id="main-content">
-    <!-- Contenuto verrà caricato dinamicamente -->
+  <main class="main-content">
+    <!-- Search Section -->
+    <section class="search-section">
+      <div class="search-container">
+        <h2>BITCOIN BLOCKCHAIN SEARCH</h2>
+        <div class="search-input-group">
+          <select id="search-type">
+            <option value="tx">TRANSACTION</option>
+            <option value="address" selected>ADDRESS</option>
+            <option value="block">BLOCK</option>
+          </select>
+          <input 
+            type="text"
+            id="search-input"
+            placeholder="Enter Bitcoin address (e.g. 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa)"
+            autofocus
+          >
+          <button id="search-btn">SEARCH</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results">
+      <div id="default-state">
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h3>ENTER BITCOIN ADDRESS</h3>
+        <p>Search for transactions, balance and history of any Bitcoin address</p>
+      </div>
+      
+      <div id="loading-state" class="hidden">
+        <div class="loader"></div>
+        <p>SEARCHING BLOCKCHAIN...</p>
+      </div>
+      
+      <div id="results-content" class="hidden"></div>
+    </section>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <p>BTC Finder - Open-source Bitcoin blockchain explorer</p>
-      <p>MIT License © 2023</p>
-    </div>
-  </footer>
-
-  <script type="module" src="js/router.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
