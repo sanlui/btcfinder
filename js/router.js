@@ -47,7 +47,7 @@ class Router {
       this.updateActiveLink(path);
       
       if (page === 'home') {
-        await import('./main.js');
+        await import('./main.js').then(m => m.default);
       }
       
     } catch (error) {
