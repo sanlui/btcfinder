@@ -327,6 +327,134 @@ body {
   text-decoration: underline;
 }
 
+/* Address Details Specific Styles */
+.address-details {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.address-details h2 {
+  color: var(--btc-orange);
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.address-info {
+  display: grid;
+  grid-template-columns: minmax(140px, auto) 1fr;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.address-info-row {
+  display: contents;
+}
+
+.address-label {
+  font-weight: 600;
+  color: var(--bg-darker);
+  font-size: 0.9rem;
+  align-self: start;
+}
+
+.address-value {
+  font-family: 'Roboto Mono', monospace;
+  word-break: break-all;
+  font-size: 0.95rem;
+}
+
+.address-hash {
+  font-size: 0.85rem;
+  color: #333;
+  background: #f8f8f8;
+  padding: 0.75rem;
+  border-radius: 6px;
+  grid-column: 1 / -1;
+  word-break: break-all;
+  font-family: 'Roboto Mono', monospace;
+  margin-bottom: 0.5rem;
+}
+
+/* Transactions Section */
+.transactions-section {
+  margin-top: 1.5rem;
+}
+
+.transactions-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--bg-darker);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.transaction-list {
+  list-style: none;
+  border-top: 1px solid #eee;
+}
+
+.transaction-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.transaction-direction {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.transaction-direction.in {
+  background: #e6f7ee;
+  color: #10b981;
+}
+
+.transaction-direction.out {
+  background: #fee2e2;
+  color: #ef4444;
+  transform: rotate(180deg);
+}
+
+.transaction-hash {
+  font-family: 'Roboto Mono', monospace;
+  color: var(--btc-orange);
+  text-decoration: none;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.transaction-hash:hover {
+  text-decoration: underline;
+}
+
+.transaction-amount {
+  font-family: 'Roboto Mono', monospace;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.transaction-date {
+  grid-column: 2;
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-content {
@@ -362,6 +490,26 @@ body {
   .tab.active {
     border-bottom: none;
     border-left-color: var(--btc-orange);
+  }
+
+  .address-info {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .address-hash {
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+  
+  .transaction-item {
+    grid-template-columns: auto 1fr;
+  }
+  
+  .transaction-amount {
+    grid-column: 2;
+    text-align: left;
+    margin-top: 0.25rem;
   }
 }
 
