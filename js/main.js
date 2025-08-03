@@ -1,50 +1,35 @@
+import { searchBlockchain } from './api.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Elementi del DOM
   const searchForm = document.getElementById('search-form');
-  const searchBtn = document.getElementById('search-btn');
   const searchInput = document.getElementById('search-input');
   const searchType = document.getElementById('search-type');
+  const resultsContainer = document.getElementById('search-results-container');
 
-  // Gestione eventi
   if (searchForm) {
     searchForm.addEventListener('submit', handleSearch);
-    searchBtn.addEventListener('click', handleSearch);
   }
 
-  // Funzione principale di ricerca
   async function handleSearch(e) {
     e.preventDefault();
     
     const query = searchInput.value.trim();
     const type = searchType.value;
     
-    if (!query) {
-      showAlert('Please enter a search term');
-      return;
-    }
+    if (!validateInput(type, query)) return;
     
-    // Validazione input
-    if (!validateInput(type, query)) {
-      return;
-    }
-    
-    // Mostra stato di caricamento
-    showLoading();
+    showLoadingState();
     
     try {
-      // Esegui la ricerca
-      const result = await performSearch(type, query);
-      
-      // Mostra risultati
-      displayResults(result);
+      const data = await searchBlockchain(type, query);
+      displayResults(type, query, data);
     } catch (error) {
-      showAlert('Search failed: ' + error.message);
+      showError(error.message);
     } finally {
-      hideLoading();
+      hideLoadingState();
     }
   }
 
-  // Funzioni di supporto
   function validateInput(type, query) {
     const validations = {
       tx: /^[a-fA-F0-9]{64}$/,
@@ -53,58 +38,41 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     if (!validations[type].test(query)) {
-      showAlert(`Invalid ${type} format`);
+      showError(`Invalid ${type} format`);
       return false;
     }
     return true;
   }
 
-  async function performSearch(type, query) {
-    // Qui implementerai la chiamata API reale
-    // Esempio con mock:
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve({
-          type,
-          query,
-          data: `${type} data for ${query}`
-        });
-      }, 1000);
-    });
-    
-    // Per un'implementazione reale, usa:
-    // const response = await fetch(`/api/search?type=${type}&q=${query}`);
-    // return await response.json();
-  }
-
-  function displayResults(result) {
-    const resultsHTML = `
+  function displayResults(type, query, data) {
+    resultsContainer.innerHTML = `
       <div class="search-results fade-in">
-        <h3>Search Results</h3>
+        <h3>${type.toUpperCase()} Results</h3>
         <div class="result-card">
-          <h4>${result.type.toUpperCase()}</h4>
-          <p>${result.query}</p>
-          <pre>${JSON.stringify(result.data, null, 2)}</pre>
+          <h4>${query}</h4>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
         </div>
       </div>
     `;
-    
-    document.getElementById('main-content').insertAdjacentHTML('beforeend', resultsHTML);
   }
 
-  function showLoading() {
-    const loader = document.createElement('div');
-    loader.className = 'loader';
+  function showLoadingState() {
     searchBtn.disabled = true;
-    searchBtn.innerHTML = 'Searching...';
+    searchBtn.innerHTML = `
+      <span class="loader-btn"></span> Searching...
+    `;
   }
 
-  function hideLoading() {
+  function hideLoadingState() {
     searchBtn.disabled = false;
-    searchBtn.innerHTML = 'Search';
+    searchBtn.textContent = 'Search';
   }
 
-  function showAlert(message) {
-    alert(message); // Sostituisci con un modal più elegante
+  function showError(message) {
+    resultsContainer.innerHTML = `
+      <div class="error-message">
+        <p>${message}</p>
+      </div>
+    `;
   }
 });
