@@ -37,9 +37,11 @@ body {
 
 /* Header */
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 1rem 0;
+  /* ... restanti stili ... */
 }
 
 .header-content {
