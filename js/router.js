@@ -43,36 +43,32 @@ class Router {
       const html = await response.text();
       document.getElementById('main-content').innerHTML = html;
       
-      // Carica gli script specifici della pagina
-      this.loadPageScript(page);
+      // Aggiorna titolo della pagina
+      document.title = `BTC Finder | ${page.toUpperCase()}`;
       
-      // Aggiorna il menu attivo
+      // Aggiorna link attivo
       this.updateActiveLink(path);
       
     } catch (error) {
       console.error('Error loading page:', error);
-      window.location.href = '/404.html';
+      this.showError(error);
     }
   }
 
-  loadPageScript(page) {
-    // Rimuovi vecchi script
-    document.querySelectorAll('script[data-page]').forEach(script => {
-      script.remove();
-    });
-
-    // Aggiungi nuovo script
-    const script = document.createElement('script');
-    script.src = `js/${page}.js`;
-    script.type = 'module';
-    script.setAttribute('data-page', page);
-    document.body.appendChild(script);
-  }
-
   updateActiveLink(path) {
-    document.querySelectorAll('nav a').forEach(link => {
+    document.querySelectorAll('.nav-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('href') === path);
     });
+  }
+
+  showError(error) {
+    document.getElementById('main-content').innerHTML = `
+      <div class="error-message">
+        <h3>Error Loading Page</h3>
+        <p>${error.message}</p>
+        <a href="/">Return to Home</a>
+      </div>
+    `;
   }
 }
 
