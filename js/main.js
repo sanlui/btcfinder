@@ -1,144 +1,97 @@
-async function displayResults(data, type, query, container) {
-  if (type === 'address') {
-    // Ottieni sia il saldo che le transazioni complete
-    const [balance, transactions] = await Promise.all([
-      getAddressBalance(query),
-      getAddressTransactions(query)
-    ]);
+import { fetchAddressData } from './api.js';
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchForm = document.getElementById('search-form');
+  const searchInput = document.getElementById('search-input');
+  const resultsContainer = document.getElementById('search-results-container');
+
+  searchForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const address = searchInput.value.trim();
     
-    // Processa le transazioni per separare incoming/outgoing
-    const processedTxs = processTransactions(transactions, query);
+    if (!address) {
+      showError('Please enter a Bitcoin address');
+      return;
+    }
+
+    try {
+      showLoading();
+      const data = await fetchAddressData(address);
+      displayAddressData(address, data);
+    } catch (error) {
+      showError('Failed to fetch address data');
+    }
+  });
+
+  function showLoading() {
+    resultsContainer.innerHTML = `
+      <div class="loading">
+        <div class="loader"></div>
+        <p>Loading address data...</p>
+      </div>
+    `;
+    resultsContainer.classList.remove('hidden');
+  }
+
+  function showError(message) {
+    resultsContainer.innerHTML = `
+      <div class="error">
+        <p>${message}</p>
+      </div>
+    `;
+    resultsContainer.classList.remove('hidden');
+  }
+
+  function displayAddressData(address, data) {
+    const balance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
     
-    container.innerHTML = `
+    resultsContainer.innerHTML = `
       <div class="address-details">
         <h2>Address Details</h2>
         <div class="address-info">
-          <div class="address-info-row">
-            <div class="address-label">Address:</div>
-            <div class="address-value monospace">${query}</div>
+          <div class="address-row">
+            <span class="label">Address:</span>
+            <span class="value monospace">${address}</span>
           </div>
-          <div class="address-info-row">
-            <div class="address-label">Balance:</div>
-            <div class="address-value">${balance} BTC</div>
+          <div class="address-row">
+            <span class="label">Balance:</span>
+            <span class="value">${balance} BTC</span>
           </div>
         </div>
-        
-        <div class="transactions-section">
-          <div class="transactions-tabs">
-            <button class="tab-btn active" data-tab="all">All Transactions</button>
-            <button class="tab-btn" data-tab="incoming">Received</button>
-            <button class="tab-btn" data-tab="outgoing">Sent</button>
-          </div>
-          
-          <div class="transactions-list">
-            ${renderTransactionList(processedTxs.all)}
-          </div>
-          
-          <div class="transactions-list hidden" id="incoming-txs">
-            ${renderTransactionList(processedTxs.incoming)}
-          </div>
-          
-          <div class="transactions-list hidden" id="outgoing-txs">
-            ${renderTransactionList(processedTxs.outgoing)}
+        <div class="transactions">
+          <h3>Transactions</h3>
+          <div class="tx-list">
+            ${data.txs.map(tx => `
+              <div class="tx-item">
+                <a href="#" class="tx-link" data-txid="${tx.txid}">
+                  ${tx.txid.substring(0, 20)}...
+                </a>
+                <span class="tx-value">${calculateTxAmount(tx, address)} BTC</span>
+              </div>
+            `).join('')}
           </div>
         </div>
       </div>
     `;
-    
-    setupTabHandlers();
   }
-}
 
-// Nuove funzioni helper
-function processTransactions(txs, address) {
-  const result = {
-    all: [],
-    incoming: [],
-    outgoing: []
-  };
-
-  txs.forEach(tx => {
-    // Calcola il valore netto per questo indirizzo
-    let value = 0;
-    let isIncoming = false;
-
-    // Controlla gli output (ricevuti)
+  function calculateTxAmount(tx, address) {
+    let amount = 0;
+    
+    // Check outputs (received)
     tx.vout.forEach(output => {
       if (output.scriptpubkey_address === address) {
-        value += output.value;
-        isIncoming = true;
+        amount += output.value;
       }
     });
-
-    // Controlla gli input (spesi)
+    
+    // Check inputs (sent)
     tx.vin.forEach(input => {
-      if (input.prevout && input.prevout.scriptpubkey_address === address) {
-        value -= input.prevout.value;
-        isIncoming = false;
+      if (input.prevout?.scriptpubkey_address === address) {
+        amount -= input.prevout.value;
       }
     });
-
-    const txData = {
-      txid: tx.txid,
-      value: value / 100000000, // Converti in BTC
-      isIncoming,
-      time: tx.status.block_time,
-      block: tx.status.block_height
-    };
-
-    result.all.push(txData);
-    if (isIncoming) {
-      result.incoming.push(txData);
-    } else {
-      result.outgoing.push(txData);
-    }
-  });
-
-  return result;
-}
-
-function renderTransactionList(transactions) {
-  if (transactions.length === 0) {
-    return '<p class="no-txs">No transactions found</p>';
+    
+    return (amount / 100000000).toFixed(8);
   }
-
-  return `
-    <ul>
-      ${transactions.map(tx => `
-        <li class="transaction-item ${tx.isIncoming ? 'incoming' : 'outgoing'}">
-          <div class="tx-hash">
-            <a href="#" class="tx-link" data-txid="${tx.txid}">
-              ${tx.txid.substring(0, 20)}...
-            </a>
-          </div>
-          <div class="tx-value ${tx.isIncoming ? 'positive' : 'negative'}">
-            ${tx.isIncoming ? '+' : '-'}${Math.abs(tx.value).toFixed(8)} BTC
-          </div>
-          <div class="tx-time">
-            ${tx.block ? `Block: ${tx.block}` : 'Unconfirmed'}
-          </div>
-        </li>
-      `).join('')}
-    </ul>
-  `;
-}
-
-function setupTabHandlers() {
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      document.querySelectorAll('.transactions-list').forEach(list => {
-        list.classList.add('hidden');
-      });
-      
-      const tabType = this.dataset.tab;
-      const tabElement = tabType === 'all' ? 
-        document.querySelector('.transactions-list') : 
-        document.getElementById(`${tabType}-txs`);
-      
-      tabElement.classList.remove('hidden');
-    });
-  });
-}
+});
