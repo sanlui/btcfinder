@@ -1,30 +1,22 @@
-export async function searchBlockchain(type, query) {
-  const API_BASE = 'https://blockstream.info/api';
-  
+export async function getAddressTransactions(address) {
   try {
-    let url;
-    switch(type) {
-      case 'address':
-        url = `${API_BASE}/address/${query}`;
-        break;
-      case 'tx':
-        url = `${API_BASE}/tx/${query}`;
-        break;
-      case 'block':
-        url = `${API_BASE}/block/${query}`;
-        break;
-      default:
-        throw new Error('Invalid search type');
-    }
-    
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
+    const response = await fetch(`https://blockstream.info/api/address/${address}/txs`);
+    if (!response.ok) throw new Error('Failed to fetch transactions');
     return await response.json();
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
+}
+
+export async function getAddressBalance(address) {
+  try {
+    const response = await fetch(`https://blockstream.info/api/address/${address}`);
+    if (!response.ok) throw new Error('Failed to fetch balance');
+    const data = await response.json();
+    return (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
+  } catch (error) {
+    console.error('Error fetching balance:', error);
     throw error;
   }
 }
