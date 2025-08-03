@@ -1,24 +1,25 @@
 <?php
-// Abilita CORS per tutti i domini (puoi limitarlo se vuoi)
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-// Verifica che il parametro sia presente
-if (!isset($_GET['wallet'])) {
+// Verifica che 'endpoint' sia presente
+if (!isset($_GET['endpoint'])) {
     http_response_code(400);
-    echo json_encode(["error" => "Missing wallet address"]);
+    echo json_encode(["error" => "Missing endpoint"]);
     exit;
 }
 
-// Sanifica input
-$wallet = preg_replace('/[^a-zA-Z0-9]/', '', $_GET['wallet']);
-$url = "https://blockchain.info/rawaddr/$wallet?limit=50";
+$endpoint = $_GET['endpoint'];
+$base_url = "https://blockchain.info";
+
+// Prepara URL finale
+$url = $base_url . $endpoint;
 
 // Inizializza cURL
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_USERAGENT, 'PHP Proxy'); // importante per evitare 429
+curl_setopt($ch, CURLOPT_USERAGENT, 'PHP Proxy');
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
 $response = curl_exec($ch);
