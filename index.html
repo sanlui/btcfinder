@@ -4,7 +4,227 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BTC Finder - Bitcoin Explorer</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    :root {
+      --btc-orange: #F7931A; --btc-orange-hover: #E07B0A; --bg-dark: #111; --bg-darker: #0A0A0A;
+      --bg-light: #f5f5f5; --text-light: #E5E5E5; --text-dark: #333; --border-gray: #374151;
+      --success: #10B981; --warning: #F59E0B; --error: #EF4444;
+    }
+
+    *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto Mono', monospace; background: var(--bg-light); color: var(--text-dark); line-height: 1.6;
+    }
+
+    .container {
+      width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1rem;
+    }
+
+    /* Header */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%); padding: 1rem 0;
+    }
+
+    .header-content {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+
+    .logo h1 {
+      color: var(--text-light); font-size: 1.25rem; font-weight: 500; letter-spacing: 0.05em;
+    }
+
+    .desktop-nav ul {
+      display: flex; gap: 1.5rem; list-style: none;
+    }
+
+    .desktop-nav a {
+      color: var(--text-light); text-decoration: none; font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s; text-transform: uppercase; letter-spacing: 0.05em; position: relative;
+    }
+
+    .desktop-nav a:hover, .desktop-nav a.active { color: var(--btc-orange); }
+    .desktop-nav a.active::after {
+      content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 2px; background: var(--btc-orange);
+    }
+
+    /* Main Content */
+    .main-content { padding: 2rem 0; }
+
+    /* Search Section */
+    .search-container {
+      background: var(--bg-dark); border-radius: 0.5rem; padding: 1.5rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); margin-bottom: 3rem;
+    }
+
+    .search-container h2 {
+      color: var(--text-light); font-size: 1.125rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .search-input-group {
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+
+    #search-type, #search-input {
+      background: #1E1E1E; color: var(--text-light); padding: 0.75rem;
+      border: 1px solid var(--border-gray); border-radius: 0.375rem; font-family: inherit;
+    }
+
+    #search-btn {
+      background: var(--btc-orange); color: var(--bg-dark); font-weight: bold; padding: 0.75rem 1.5rem;
+      border: none; border-radius: 0.375rem; cursor: pointer; transition: background 0.2s; text-transform: uppercase;
+    }
+
+    #search-btn:hover { background: var(--btc-orange-hover); }
+
+    /* Features */
+    .features {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .feature-card {
+      background: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-card h3 {
+      color: var(--btc-orange); margin-bottom: 0.75rem;
+    }
+
+    /* Stile per i risultati degli indirizzi */
+    .address-data-container {
+      background: white; border-radius: 0.5rem; padding: 1.5rem;
+      margin-top: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .address-header {
+      padding-bottom: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #eee;
+    }
+
+    .address-hash-display {
+      font-family: 'Roboto Mono', monospace; font-size: 1.1rem;
+      color: var(--btc-orange); word-break: break-all; margin-bottom: 0.5rem;
+    }
+
+    .address-balance-display {
+      font-size: 1.5rem; font-weight: bold; color: var(--btc-orange);
+      margin: 1rem 0;
+    }
+
+    .address-stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem; margin-bottom: 2rem;
+    }
+
+    .address-stat-card {
+      background: #f9f9f9; border-radius: 0.5rem; padding: 1rem;
+    }
+
+    .stat-title {
+      font-size: 0.85rem; color: var(--text-dark); opacity: 0.8;
+      margin-bottom: 0.5rem; text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-family: 'Roboto Mono', monospace; font-weight: bold;
+    }
+
+    .transactions-section {
+      margin-top: 2rem;
+    }
+
+    .transactions-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .transaction-list {
+      list-style: none;
+    }
+
+    .transaction-item {
+      padding: 1.25rem 0; border-bottom: 1px solid #eee;
+    }
+
+    .tx-hash-link {
+      color: var(--btc-orange); text-decoration: none;
+      font-family: 'Roboto Mono', monospace; word-break: break-all;
+      display: block; margin-bottom: 0.75rem;
+    }
+
+    .tx-hash-link:hover {
+      text-decoration: underline;
+    }
+
+    .tx-details-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    }
+
+    .tx-io-box {
+      background: #f8f8f8; border-radius: 0.375rem; padding: 0.75rem;
+    }
+
+    .tx-address {
+      font-family: 'Roboto Mono', monospace; font-size: 0.85rem;
+      word-break: break-all; margin-bottom: 0.5rem;
+    }
+
+    .tx-amount {
+      font-family: 'Roboto Mono', monospace; font-weight: bold;
+      color: var(--success);
+    }
+
+    .tx-amount.out {
+      color: var(--error);
+    }
+
+    .tx-confirmations {
+      font-size: 0.8rem; color: #666; margin-top: 0.75rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--bg-dark); color: var(--text-light);
+      padding: 1.5rem 0; text-align: center;
+    }
+
+    .footer p {
+      margin-bottom: 0.5rem; font-size: 0.875rem;
+    }
+
+    /* Animazioni */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden { display: none; }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .search-input-group { flex-direction: row; }
+    }
+
+    @media (max-width: 768px) {
+      .header-content { flex-direction: column; gap: 1rem; }
+      .desktop-nav ul { gap: 1rem; }
+      .tx-details-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -28,44 +248,85 @@
 
   <main class="main-content">
     <section class="search-section fade-in">
-      <div class="search-container">
-        <h2>Bitcoin Blockchain Search</h2>
-        <form id="search-form" class="search-input-group">
-          <select id="search-type">
-            <option value="tx">Transaction</option>
-            <option value="address" selected>Address</option>
-            <option value="block">Block</option>
-          </select>
-          <input 
-            type="text" 
-            id="search-input" 
-            placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-            required
-          >
-          <button type="submit" id="search-btn" class="btn">Search</button>
-        </form>
+      <div class="container">
+        <div class="search-container">
+          <h2>Bitcoin Blockchain Search</h2>
+          <form id="search-form" class="search-input-group">
+            <select id="search-type">
+              <option value="tx">Transaction</option>
+              <option value="address" selected>Address</option>
+              <option value="block">Block</option>
+            </select>
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+              required
+            >
+            <button type="submit" id="search-btn" class="btn">Search</button>
+          </form>
+        </div>
       </div>
     </section>
 
     <section class="features fade-in">
       <div class="container">
-        <div class="feature-card">
-          <h3>Transactions</h3>
-          <p>Search by transaction ID with full details</p>
-        </div>
-        <div class="feature-card">
-          <h3>Addresses</h3>
-          <p>Track balances and transaction history</p>
-        </div>
-        <div class="feature-card">
-          <h3>Blocks</h3>
-          <p>Explore block details and confirmations</p>
+        <div class="features">
+          <div class="feature-card">
+            <h3>Transactions</h3>
+            <p>Search by transaction ID with full details</p>
+          </div>
+          <div class="feature-card">
+            <h3>Addresses</h3>
+            <p>Track balances and transaction history</p>
+          </div>
+          <div class="feature-card">
+            <h3>Blocks</h3>
+            <p>Explore block details and confirmations</p>
+          </div>
         </div>
       </div>
     </section>
 
     <div id="search-results-container" class="hidden">
-      <!-- I risultati della ricerca appariranno qui -->
+      <!-- Template per i risultati dell'indirizzo -->
+      <div class="address-data-container" id="address-results-template">
+        <div class="address-header">
+          <div class="stat-title">Indirizzo Bitcoin</div>
+          <div class="address-hash-display" id="address-hash"></div>
+          <div class="address-balance-display" id="address-balance"></div>
+        </div>
+
+        <div class="address-stats-grid">
+          <div class="address-stat-card">
+            <div class="stat-title">Transazioni totali</div>
+            <div class="stat-value" id="total-transactions"></div>
+          </div>
+          <div class="address-stat-card">
+            <div class="stat-title">BTC ricevuti</div>
+            <div class="stat-value" id="total-received"></div>
+          </div>
+          <div class="address-stat-card">
+            <div class="stat-title">BTC inviati</div>
+            <div class="stat-value" id="total-sent"></div>
+          </div>
+          <div class="address-stat-card">
+            <div class="stat-title">Saldo finale</div>
+            <div class="stat-value" id="final-balance"></div>
+          </div>
+        </div>
+
+        <div class="transactions-section">
+          <div class="transactions-header">
+            <h3>Transazioni</h3>
+            <div class="stat-title" id="transactions-count"></div>
+          </div>
+
+          <ul class="transaction-list" id="transactions-list">
+            <!-- Le transazioni verranno aggiunte dinamicamente qui -->
+          </ul>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -76,7 +337,130 @@
     </div>
   </footer>
 
-  <!-- Script modificato per supportare i moduli ES6 -->
-  <script type="module" src="js/main.js"></script>
+  <script>
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const searchType = document.getElementById('search-type').value;
+      const searchQuery = document.getElementById('search-input').value.trim();
+      
+      if (searchQuery) {
+        searchBlockchain(searchType, searchQuery);
+      }
+    });
+
+    function searchBlockchain(type, query) {
+      // Mostra lo stato di caricamento
+      const resultsContainer = document.getElementById('search-results-container');
+      resultsContainer.innerHTML = '<div class="status-message"><div class="loader"></div><p>Searching blockchain...</p></div>';
+      resultsContainer.classList.remove('hidden');
+      
+      // Simulazione di una chiamata API (sostituire con chiamata reale)
+      setTimeout(() => {
+        // Questo è solo un esempio con dati mock
+        if (type === 'address') {
+          displayAddressData(mockAddressData(query));
+        } else {
+          resultsContainer.innerHTML = '<div class="error-message">Feature not implemented yet</div>';
+        }
+      }, 1500);
+    }
+
+    function mockAddressData(address) {
+      // Dati mock per dimostrazione
+      return {
+        address: address,
+        final_balance: '0.00375810',
+        n_tx: 2,
+        total_received: '0.00751620',
+        total_sent: '0.00375810',
+        txs: [
+          {
+            hash: 'f3d4fce1ba3282e3d87fd858c9bc5d2d0601c46b7ff8e175745fb645eff9ab9b',
+            block_height: 810000,
+            inputs: [
+              {
+                prev_out: {
+                  addr: '1FVPqpJ2rRtAZfjJN4BU6i5uBiLmvY8Vt6',
+                  value: '0.00375810'
+                }
+              }
+            ],
+            out: [
+              {
+                addr: address,
+                value: '0.00373770'
+              }
+            ]
+          },
+          {
+            hash: '53125de2cdd67db1a42d7a3ccd1fb19af09ea5d4b436631f9ad25c4c1854605c',
+            block_height: 810001,
+            inputs: [
+              {
+                prev_out: {
+                  addr: '87ba4256c73638be5d6fcd87498fa3842b572a347e90a0c281f235dee6c48a3a',
+                  value: '0.00378105'
+                }
+              }
+            ],
+            out: [
+              {
+                addr: address,
+                value: '0.00375810'
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    function displayAddressData(data) {
+      const currentBlockHeight = 814000; // Altezza del blocco corrente (esempio)
+      
+      // Popola i dati principali
+      document.getElementById('address-hash').textContent = data.address;
+      document.getElementById('address-balance').textContent = data.final_balance + ' BTC';
+      document.getElementById('total-transactions').textContent = data.n_tx;
+      document.getElementById('total-received').textContent = data.total_received + ' BTC';
+      document.getElementById('total-sent').textContent = data.total_sent + ' BTC';
+      document.getElementById('final-balance').textContent = data.final_balance + ' BTC';
+      document.getElementById('transactions-count').textContent = data.txs.length + ' transazioni';
+
+      // Popola le transazioni
+      const transactionsList = document.getElementById('transactions-list');
+      transactionsList.innerHTML = '';
+
+      data.txs.forEach(tx => {
+        const txItem = document.createElement('li');
+        txItem.className = 'transaction-item';
+        
+        txItem.innerHTML = `
+          <a href="#" class="tx-hash-link">${tx.hash}</a>
+          <div class="tx-details-grid">
+            <div class="tx-io-box">
+              <div class="stat-title">Input</div>
+              ${tx.inputs.map(input => `
+                <div class="tx-address">${input.prev_out.addr}</div>
+                <div class="tx-amount out">-${input.prev_out.value} BTC</div>
+              `).join('')}
+            </div>
+            <div class="tx-io-box">
+              <div class="stat-title">Output</div>
+              ${tx.out.map(output => `
+                <div class="tx-address">${output.addr}</div>
+                <div class="tx-amount">+${output.value} BTC</div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="tx-confirmations">${tx.block_height ? (currentBlockHeight - tx.block_height + 1) + ' conferme' : 'Non confermato'}</div>
+        `;
+        
+        transactionsList.appendChild(txItem);
+      });
+
+      // Mostra i risultati
+      document.getElementById('search-results-container').classList.remove('hidden');
+    }
+  </script>
 </body>
 </html>
