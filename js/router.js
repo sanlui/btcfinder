@@ -2,9 +2,7 @@ class Router {
   constructor() {
     this.routes = {
       '/': 'home',
-      '/tool': 'tool',
-      '/api': 'api',
-      '/docs': 'docs'
+      '/tool': 'tool'
     };
     this.init();
   }
@@ -37,20 +35,21 @@ class Router {
     const page = this.routes[path] || 'home';
     
     try {
+      // Carica il contenuto HTML
       const response = await fetch(`/${page}.html`);
       if (!response.ok) throw new Error('Page not found');
       
       const html = await response.text();
       document.getElementById('main-content').innerHTML = html;
       
-      // Aggiorna titolo della pagina
+      // Aggiorna titolo
       document.title = `BTC Finder | ${page.toUpperCase()}`;
       
       // Aggiorna link attivo
       this.updateActiveLink(path);
       
-      // Carica eventuali script solo se esistono
-      this.tryLoadScript(page);
+      // Carica script specifico se esiste
+      await this.loadPageScript(page);
       
     } catch (error) {
       console.error('Error loading page:', error);
@@ -58,9 +57,9 @@ class Router {
     }
   }
 
-  async tryLoadScript(page) {
+  async loadPageScript(page) {
     try {
-      // Verifica se il file esiste
+      // Verifica se lo script esiste
       const response = await fetch(`/js/${page}.js`);
       if (response.ok) {
         const script = document.createElement('script');
@@ -69,7 +68,7 @@ class Router {
         document.body.appendChild(script);
       }
     } catch (error) {
-      console.log(`No ${page}.js file found, skipping`);
+      console.log(`No ${page}.js script found, skipping`);
     }
   }
 
