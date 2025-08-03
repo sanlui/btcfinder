@@ -84,7 +84,7 @@ function showErrorState(message) {
   `;
 }
 
-// Search Functions
+// Transaction Search
 async function searchTransaction(txid) {
   const cacheKey = `tx_${txid}`;
   const cachedData = cache.get(cacheKey);
@@ -115,7 +115,7 @@ function renderTransaction(tx) {
       <div class="data-grid">
         <div class="data-row">
           <div class="data-label">TXID:</div>
-          <div>${tx.txid}</div>
+          <div class="monospace">${tx.txid}</div>
         </div>
         <div class="data-row">
           <div class="data-label">Status:</div>
@@ -146,13 +146,285 @@ function renderTransaction(tx) {
       <div>${tx.size} bytes</div>
     </div>
   `;
-  
-  // Add more transaction details as needed...
-  
-  html += `</div></div>`;
+
+  // Calculate fee if inputs/outputs are available
+  if (tx.vin && tx.vout) {
+    const inputSum = tx.vin.reduce((sum, vin) => sum + (vin.prevout?.value || 0), 0);
+    const outputSum = tx.vout.reduce((sum, vout) => sum + vout.value, 0);
+    const fee = inputSum - outputSum;
+
+    if (fee > 0) {
+      html += `
+        <div class="data-row">
+          <div class="data-label">Fee:</div>
+          <div>${formatBTC(fee)}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Fee Rate:</div>
+          <div>${(fee / tx.size).toFixed(2)} sat/vB</div>
+        </div>
+      `;
+    }
+  }
+
+  // Inputs and Outputs
+  html += `
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('inputs', 'outputs')">Inputs (${tx.vin.length})</div>
+      <div class="tab" onclick="switchTab('outputs', 'inputs')">Outputs (${tx.vout.length})</div>
+    </div>
+    <div id="inputs" class="tab-content active">
+      <ul class="tx-list">
+  `;
+
+  tx.vin.forEach((vin, i) => {
+    const address = vin.prevout?.scriptpubkey_address || 'Coinbase';
+    const value = vin.prevout?.value ? formatBTC(vin.prevout.value) : 'N/A';
+    
+    html += `
+      <li>
+        <strong>Input #${i + 1}:</strong>
+        ${address === 'Coinbase' ? address : 
+          `<a href="#" onclick="event.preventDefault(); performSearch('address', '${address}')" class="tx-link">
+            ${address}
+          </a>`}
+        - ${value}
+        ${vin.txid ? `<br><small>From TX: 
+          <a href="#" onclick="event.preventDefault(); performSearch('tx', '${vin.txid}')" class="tx-link">
+            ${shortenHash(vin.txid)}
+          </a></small>` : ''}
+      </li>
+    `;
+  });
+
+  html += `
+      </ul>
+    </div>
+    <div id="outputs" class="tab-content">
+      <ul class="tx-list">
+  `;
+
+  tx.vout.forEach((vout, i) => {
+    const address = vout.scriptpubkey_address || 'Unknown';
+    html += `
+      <li>
+        <strong>Output #${i + 1}:</strong>
+        ${address === 'Unknown' ? address : 
+          `<a href="#" onclick="event.preventDefault(); performSearch('address', '${address}')" class="tx-link">
+            ${address}
+          </a>`}
+        - ${formatBTC(vout.value)}
+      </li>
+    `;
+  });
+
+  html += `
+      </ul>
+    </div>
+    </div></div>
+  `;
+
   showResults(html);
 }
 
-// Additional search functions would be implemented similarly
-// async function searchAddress(address) { ... }
-// async function searchBlock(blockQuery) { ... }
+// Address Search
+async function searchAddress(address) {
+  const cacheKey = `addr_${address}`;
+  const cachedData = cache.get(cacheKey);
+  
+  if (cachedData) {
+    renderAddress(cachedData, address);
+    return;
+  }
+  
+  try {
+    const [addrInfo, txs] = await Promise.all([
+      fetchWithFallback(`/address/${address}`),
+      fetchWithFallback(`/address/${address}/txs`)
+    ]);
+    
+    const data = { addrInfo, txs };
+    cache.set(cacheKey, data);
+    renderAddress(data, address);
+  } catch (error) {
+    throw new Error('Failed to fetch address data');
+  }
+}
+
+function renderAddress(data, address) {
+  const { addrInfo, txs } = data;
+  
+  const confirmedBalance = (addrInfo.chain_stats.funded_txo_sum - addrInfo.chain_stats.spent_txo_sum) / 1e8;
+  const unconfirmedBalance = (addrInfo.mempool_stats.funded_txo_sum - addrInfo.mempool_stats.spent_txo_sum) / 1e8;
+  const totalReceived = addrInfo.chain_stats.funded_txo_sum / 1e8;
+  const totalSent = addrInfo.chain_stats.spent_txo_sum / 1e8;
+  
+  let html = `
+    <div class="address-details">
+      <h2>ADDRESS DETAILS</h2>
+      <div class="data-grid">
+        <div class="data-row">
+          <div class="data-label">Address:</div>
+          <div class="monospace">${address}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Confirmed balance:</div>
+          <div>${confirmedBalance.toFixed(8)} BTC</div>
+        </div>
+  `;
+  
+  if (unconfirmedBalance !== 0) {
+    html += `
+      <div class="data-row">
+        <div class="data-label">Unconfirmed balance:</div>
+        <div>${unconfirmedBalance.toFixed(8)} BTC</div>
+      </div>
+    `;
+  }
+  
+  html += `
+    <div class="data-row">
+      <div class="data-label">Total received:</div>
+      <div>${totalReceived.toFixed(8)} BTC</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Total sent:</div>
+      <div>${totalSent.toFixed(8)} BTC</div>
+    </div>
+    <div class="data-row">
+      <div class="data-label">Transaction count:</div>
+      <div>${addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count}</div>
+    </div>
+    <h3>RECENT TRANSACTIONS</h3>
+    <ul class="tx-list">
+  `;
+  
+  if (txs.length === 0) {
+    html += `<li>No transactions found</li>`;
+  } else {
+    txs.slice(0, 10).forEach(tx => {
+      const isOutgoing = tx.vin.some(vin => vin.prevout?.scriptpubkey_address === address);
+      html += `
+        <li>
+          <span class="badge ${isOutgoing ? 'unconfirmed' : 'confirmed'}">
+            ${isOutgoing ? 'Sent' : 'Received'}
+          </span>
+          <a href="#" onclick="event.preventDefault(); performSearch('tx', '${tx.txid}')" class="tx-link">
+            ${shortenHash(tx.txid)}
+          </a>
+          (${formatBTC(isOutgoing ? 
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0))})
+          ${tx.status.confirmed ? 
+            `<small>${new Date(tx.status.block_time * 1000).toLocaleDateString()}</small>` : 
+            '<small>Pending</small>'}
+        </li>
+      `;
+    });
+  }
+  
+  html += `</ul></div></div>`;
+  showResults(html);
+}
+
+// Block Search
+async function searchBlock(blockQuery) {
+  const cacheKey = `block_${blockQuery}`;
+  const cachedData = cache.get(cacheKey);
+  
+  if (cachedData) {
+    renderBlock(cachedData);
+    return;
+  }
+  
+  try {
+    let blockHash = blockQuery;
+    
+    // If it's a number (block height)
+    if (/^\d+$/.test(blockQuery)) {
+      const hashRes = await fetch(`${API_ENDPOINTS.blockstream}/block-height/${blockQuery}`);
+      if (!hashRes.ok) throw new Error('Block not found');
+      blockHash = await hashRes.text();
+    }
+    
+    const [block, txs] = await Promise.all([
+      fetchWithFallback(`/block/${blockHash}`),
+      fetchWithFallback(`/block/${blockHash}/txs`)
+    ]);
+    
+    const data = { block, txs, blockHash };
+    cache.set(cacheKey, data);
+    renderBlock(data);
+  } catch (error) {
+    throw new Error('Failed to fetch block data');
+  }
+}
+
+function renderBlock(data) {
+  const { block, txs, blockHash } = data;
+  
+  let html = `
+    <div class="block-details">
+      <h2>BLOCK DETAILS</h2>
+      <div class="data-grid">
+        <div class="data-row">
+          <div class="data-label">Height:</div>
+          <div>${block.height}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Hash:</div>
+          <div class="monospace">${blockHash}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Timestamp:</div>
+          <div>${new Date(block.timestamp * 1000).toLocaleString()}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Transactions:</div>
+          <div>${block.tx_count}</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Size:</div>
+          <div>${block.size} bytes</div>
+        </div>
+        <div class="data-row">
+          <div class="data-label">Difficulty:</div>
+          <div>${Math.round(block.difficulty).toLocaleString()}</div>
+        </div>
+        <h3>BLOCK TRANSACTIONS</h3>
+        <ul class="tx-list">
+  `;
+  
+  if (txs.length === 0) {
+    html += `<li>No transactions available</li>`;
+  } else {
+    txs.slice(0, 10).forEach(tx => {
+      html += `
+        <li>
+          <a href="#" onclick="event.preventDefault(); performSearch('tx', '${tx.txid}')" class="tx-link">
+            ${shortenHash(tx.txid)}
+          </a>
+          (${formatBTC(tx.vout.reduce((sum, v) => sum + v.value, 0))})
+        </li>
+      `;
+    });
+  }
+  
+  html += `</ul></div></div>`;
+  showResults(html);
+}
+
+// Helper Functions
+window.performSearch = function(type, query) {
+  searchType.value = type;
+  searchInput.value = query;
+  performSearch();
+};
+
+window.switchTab = function(showId, hideId) {
+  document.getElementById(showId).classList.add('active');
+  document.getElementById(hideId).classList.remove('active');
+  
+  document.querySelector(`.tab[onclick="switchTab('${showId}', '${hideId}')"]`).classList.add('active');
+  document.querySelector(`.tab[onclick="switchTab('${hideId}', '${showId}')"]`).classList.remove('active');
+};
