@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation | BTC Finder</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="header">
+    <!-- Stesso header delle altre pagine -->
+  </header>
+
+  <main class="main-content">
+    <section class="api-section">
+      <div class="container">
+        <h2>BTC FINDER API</h2>
+        
+        <div class="endpoint">
+          <h3>Get Transaction Data</h3>
+          <div class="code-block">
+            <code>GET /api/tx/:txid</code>
+          </div>
+          <p>Returns detailed information about a Bitcoin transaction.</p>
+        </div>
+        
+        <div class="endpoint">
+          <h3>Get Address Info</h3>
+          <div class="code-block">
+            <code>GET /api/address/:address</code>
+          </div>
+          <p>Returns balance and transaction history for a Bitcoin address.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
