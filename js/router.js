@@ -10,7 +10,6 @@ class Router {
   }
 
   init() {
-    // Handle link clicks
     document.addEventListener('click', e => {
       const link = e.target.closest('a[href^="/"]');
       if (link) {
@@ -19,10 +18,7 @@ class Router {
       }
     });
 
-    // Handle back/forward
     window.addEventListener('popstate', () => this.loadPage(window.location.pathname));
-    
-    // Initial load
     this.loadPage(window.location.pathname);
   }
 
@@ -35,7 +31,6 @@ class Router {
     const page = this.routes[path] || 'home';
     
     try {
-      // Show loading state
       document.getElementById('main-content').innerHTML = `
         <div class="loading-state">
           <div class="loader"></div>
@@ -48,12 +43,13 @@ class Router {
       
       const html = await response.text();
       document.getElementById('main-content').innerHTML = html;
-      
-      // Update page title
       document.title = `BTC Finder | ${page.charAt(0).toUpperCase() + page.slice(1)}`;
-      
-      // Update active nav link
       this.updateActiveLink(path);
+      
+      // Load page-specific JS
+      if (page === 'home') {
+        await import('./main.js');
+      }
       
     } catch (error) {
       console.error('Error loading page:', error);
@@ -79,6 +75,4 @@ class Router {
 }
 
 // Initialize router
-document.addEventListener('DOMContentLoaded', () => {
-  new Router();
-});
+new Router();
