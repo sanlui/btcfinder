@@ -1,4 +1,22 @@
-// Variabile globale per l'altezza del blocco corrente (aggiornala periodicamente)
+import { 
+  fetchAddressData, 
+  fetchTransactionData, 
+  fetchBlockData, 
+  currentBlockHeight,
+  updateCurrentBlockHeight
+} from './api.js';
+
+// Aggiungi le funzioni mancanti:
+function showLoadingState(container) {
+  container.innerHTML = '<div class="status-message"><div class="loader"></div><p>Searching blockchain...</p></div>';
+  container.classList.remove('hidden');
+}
+
+function showErrorState(container, error) {
+  container.innerHTML = `<div class="error-message">Error: ${error.message || 'Unknown error'}</div>`;
+}
+
+// ... (resto del codice)
 let currentBlockHeight = 0;
 
 // Funzione principale per la ricerca
