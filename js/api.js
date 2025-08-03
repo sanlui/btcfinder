@@ -1,4 +1,3 @@
-
 // API Configuration
 const API_ENDPOINTS = {
   blockstream: 'https://blockstream.info/api',
@@ -70,7 +69,6 @@ function shortenHash(hash) {
     : hash;
 }
 
-// Export Functions
 export {
   API_ENDPOINTS,
   cache,
