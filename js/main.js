@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const data = await fetchAddressData(address);
       displayAddressData(address, data);
     } catch (error) {
-      showError('Failed to fetch address data');
+      showError('Failed to fetch address data. Please try again.');
+      console.error(error);
     }
   });
 
@@ -43,7 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function displayAddressData(address, data) {
-    const balance = (data.chain_stats.funded_txo_sum - data.chain_stats.spent_txo_sum) / 100000000;
+    const received = data.chain_stats.funded_txo_sum / 100000000;
+    const sent = data.chain_stats.spent_txo_sum / 100000000;
+    const balance = (received - sent).toFixed(8);
     
     resultsContainer.innerHTML = `
       <div class="address-details">
@@ -57,16 +60,26 @@ document.addEventListener('DOMContentLoaded', function() {
             <span class="label">Balance:</span>
             <span class="value">${balance} BTC</span>
           </div>
+          <div class="address-row">
+            <span class="label">Total Received:</span>
+            <span class="value">${received.toFixed(8)} BTC</span>
+          </div>
+          <div class="address-row">
+            <span class="label">Total Sent:</span>
+            <span class="value">${sent.toFixed(8)} BTC</span>
+          </div>
         </div>
         <div class="transactions">
-          <h3>Transactions</h3>
+          <h3>Last ${data.txs.length} Transactions</h3>
           <div class="tx-list">
             ${data.txs.map(tx => `
               <div class="tx-item">
-                <a href="#" class="tx-link" data-txid="${tx.txid}">
+                <a href="https://blockstream.info/tx/${tx.txid}" target="_blank" class="tx-link">
                   ${tx.txid.substring(0, 20)}...
                 </a>
-                <span class="tx-value">${calculateTxAmount(tx, address)} BTC</span>
+                <span class="tx-value ${calculateTxAmount(tx, address) > 0 ? 'positive' : 'negative'}">
+                  ${calculateTxAmount(tx, address) > 0 ? '+' : ''}${calculateTxAmount(tx, address)} BTC
+                </span>
               </div>
             `).join('')}
           </div>
