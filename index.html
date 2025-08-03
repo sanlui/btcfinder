@@ -7,9 +7,10 @@
   <meta name="description" content="Technical tool for searching Bitcoin transactions, addresses and blocks">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
 </head>
 <body>
-  <!-- Header (rimane fisso) -->
+  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -33,14 +34,18 @@
     </div>
   </header>
 
-  <!-- Solo il contenuto principale cambia -->
+  <!-- Main Content (vuoto per il router) -->
   <main class="main-content" id="main-content">
-    <!-- Il contenuto delle pagine verrà caricato qui -->
-    <!-- Contenuto iniziale (homepage) -->
-    <section class="search-section">
-      <!-- ... il tuo contenuto esistente ... -->
-    </section>
+    <!-- Il router caricherà qui il contenuto dinamico -->
   </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>BTC Finder - Open-source Bitcoin blockchain explorer</p>
+      <p>MIT License © 2023</p>
+    </div>
+  </footer>
 
   <script type="module" src="js/router.js"></script>
 </body>
