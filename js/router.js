@@ -46,7 +46,6 @@ class Router {
       document.title = `BTC Finder | ${page.charAt(0).toUpperCase() + page.slice(1)}`;
       this.updateActiveLink(path);
       
-      // Load page-specific JS
       if (page === 'home') {
         await import('./main.js');
       }
