@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchForm = document.getElementById('search-form');
   const searchInput = document.getElementById('search-input');
   const searchType = document.getElementById('search-type');
+  const searchBtn = document.getElementById('search-btn');
   const resultsContainer = document.getElementById('search-results-container');
 
   if (searchForm) {
