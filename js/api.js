@@ -6,21 +6,12 @@ export async function searchBlockchain(type, query) {
     block: `${API_BASE}/block/${query}`
   };
 
-  console.log(`Fetching from: ${endpoints[type]}`); // Debug
-
   try {
     const response = await fetch(endpoints[type]);
-    console.log('API response status:', response.status); // Debug
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    console.log('API data received:', data); // Debug
-    return data;
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    return await response.json();
   } catch (error) {
-    console.error('API fetch error:', error); // Debug
-    throw new Error('Failed to fetch blockchain data. Please try again later.');
+    console.error('API error:', error);
+    throw error;
   }
 }
