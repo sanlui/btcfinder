@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BTC Finder | Bitcoin Blockchain Explorer</title>
-  <meta name="description" content="Technical tool for searching Bitcoin transactions, addresses and blocks">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="css/styles.css">
+  <meta name="description" content="Technical tool for searching Bitcoin transactions, addresses and blocks" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="css/styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
 </head>
 <body>
@@ -14,12 +14,7 @@
     <div class="container">
       <div class="header-content">
         <div class="logo">
-          <svg class="logo-icon" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="8"/>
-            <path d="M16 16L20 20"/>
-            <text x="12" y="16">₿</text>
-          </svg>
-          <h1>BTC FINDER</h1>
+          <h1>₿ BTC FINDER</h1>
         </div>
         <nav class="desktop-nav">
           <ul>
@@ -33,28 +28,29 @@
     </div>
   </header>
 
-  <main class="main-content" id="main-content">
-  <div class="search-section">
-    <form id="search-form" class="search-form">
-      <select id="search-type" class="search-type">
-        <option value="address">Address</option>
-        <option value="transaction">Transaction</option>
-        <option value="block">Block</option>
-      </select>
-      <input type="text" id="search-input" placeholder="Enter BTC address, TX hash or block height..." required>
-      <button type="submit" id="search-btn">SEARCH</button>
-    </form>
-    <div id="search-results-container" class="search-results"></div>
-  </div>
-</main>
+  <main class="main-content">
+    <section class="search-section">
+      <form id="search-form" class="search-form">
+        <select id="search-type" class="search-type">
+          <option value="address">Address</option>
+          <option value="transaction">Transaction</option>
+          <option value="block">Block</option>
+        </select>
+        <input type="text" id="search-input" placeholder="Enter BTC address, TX hash or block height..." required />
+        <button type="submit" id="search-btn">SEARCH</button>
+      </form>
+    </section>
+
+    <div id="app" class="page-container"></div>
+  </main>
 
   <footer class="footer">
     <div class="container">
       <p>BTC Finder - Open-source Bitcoin blockchain explorer</p>
-      <p>MIT License © 2023</p>
+      <p>MIT License © 2025</p>
     </div>
   </footer>
-  <script type="module" src="js/main.js"></script>
+
   <script type="module" src="js/router.js"></script>
 </body>
 </html>
