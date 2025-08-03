@@ -10,6 +10,7 @@ class Router {
   }
 
   init() {
+    // Handle link clicks
     document.addEventListener('click', e => {
       const link = e.target.closest('a[href^="/"]');
       if (link) {
@@ -18,7 +19,10 @@ class Router {
       }
     });
 
+    // Handle back/forward
     window.addEventListener('popstate', () => this.loadPage(window.location.pathname));
+    
+    // Initial load
     this.loadPage(window.location.pathname);
   }
 
@@ -31,35 +35,29 @@ class Router {
     const page = this.routes[path] || 'home';
     
     try {
+      // Show loading state
+      document.getElementById('main-content').innerHTML = `
+        <div class="loading-state">
+          <div class="loader"></div>
+          <p>Loading...</p>
+        </div>
+      `;
+
       const response = await fetch(`/${page}.html`);
       if (!response.ok) throw new Error('Page not found');
       
       const html = await response.text();
       document.getElementById('main-content').innerHTML = html;
-      document.title = `BTC Finder | ${page.toUpperCase()}`;
+      
+      // Update page title
+      document.title = `BTC Finder | ${page.charAt(0).toUpperCase() + page.slice(1)}`;
+      
+      // Update active nav link
       this.updateActiveLink(path);
       
-      // Load page-specific JS if exists
-      if (page !== 'home') {
-        await this.loadScript(`js/${page}.js`);
-      }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error loading page:', error);
       this.showError();
-    }
-  }
-
-  async loadScript(src) {
-    try {
-      const response = await fetch(src);
-      if (response.ok) {
-        const script = document.createElement('script');
-        script.src = src;
-        script.type = 'module';
-        document.body.appendChild(script);
-      }
-    } catch (error) {
-      console.log(`Script ${src} not found, skipping`);
     }
   }
 
@@ -71,10 +69,10 @@ class Router {
 
   showError() {
     document.getElementById('main-content').innerHTML = `
-      <div class="error">
+      <div class="error-message">
         <h2>Page Loading Error</h2>
         <p>Could not load the requested page.</p>
-        <a href="/">Return to Home</a>
+        <a href="/" class="btn">Return to Home</a>
       </div>
     `;
   }
@@ -82,7 +80,5 @@ class Router {
 
 // Initialize router
 document.addEventListener('DOMContentLoaded', () => {
-  if (document.getElementById('main-content')) {
-    new Router();
-  }
+  new Router();
 });
