@@ -2,13 +2,14 @@ class Router {
   constructor() {
     this.routes = {
       '/': 'home',
-      '/tool': 'tool'
+      '/tool': 'tool',
+      '/api': 'api',
+      '/docs': 'docs'
     };
     this.init();
   }
 
   init() {
-    // Gestione click sui link
     document.addEventListener('click', e => {
       const link = e.target.closest('a[href^="/"]');
       if (link) {
@@ -17,12 +18,7 @@ class Router {
       }
     });
 
-    // Gestione pulsanti indietro/avanti
-    window.addEventListener('popstate', () => {
-      this.loadPage(window.location.pathname);
-    });
-
-    // Caricamento iniziale
+    window.addEventListener('popstate', () => this.loadPage(window.location.pathname));
     this.loadPage(window.location.pathname);
   }
 
@@ -35,40 +31,35 @@ class Router {
     const page = this.routes[path] || 'home';
     
     try {
-      // Carica il contenuto HTML
       const response = await fetch(`/${page}.html`);
       if (!response.ok) throw new Error('Page not found');
       
       const html = await response.text();
       document.getElementById('main-content').innerHTML = html;
-      
-      // Aggiorna titolo
       document.title = `BTC Finder | ${page.toUpperCase()}`;
-      
-      // Aggiorna link attivo
       this.updateActiveLink(path);
       
-      // Carica script specifico se esiste
-      await this.loadPageScript(page);
-      
+      // Load page-specific JS if exists
+      if (page !== 'home') {
+        await this.loadScript(`js/${page}.js`);
+      }
     } catch (error) {
-      console.error('Error loading page:', error);
-      this.showError(error);
+      console.error('Error:', error);
+      this.showError();
     }
   }
 
-  async loadPageScript(page) {
+  async loadScript(src) {
     try {
-      // Verifica se lo script esiste
-      const response = await fetch(`/js/${page}.js`);
+      const response = await fetch(src);
       if (response.ok) {
         const script = document.createElement('script');
-        script.src = `/js/${page}.js`;
+        script.src = src;
         script.type = 'module';
         document.body.appendChild(script);
       }
     } catch (error) {
-      console.log(`No ${page}.js script found, skipping`);
+      console.log(`Script ${src} not found, skipping`);
     }
   }
 
@@ -78,18 +69,20 @@ class Router {
     });
   }
 
-  showError(error) {
+  showError() {
     document.getElementById('main-content').innerHTML = `
-      <div class="error-message">
-        <h3>Error Loading Page</h3>
-        <p>${error.message}</p>
+      <div class="error">
+        <h2>Page Loading Error</h2>
+        <p>Could not load the requested page.</p>
         <a href="/">Return to Home</a>
       </div>
     `;
   }
 }
 
-// Inizializza il router
+// Initialize router
 document.addEventListener('DOMContentLoaded', () => {
-  new Router();
+  if (document.getElementById('main-content')) {
+    new Router();
+  }
 });
