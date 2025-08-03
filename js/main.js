@@ -1,4 +1,3 @@
-
 import {
   API_ENDPOINTS,
   cache,
@@ -42,6 +41,25 @@ async function performSearch() {
   }
 }
 
+// Input Validation
+function validateInput(type, query) {
+  if (!query) {
+    throw new Error('Please enter a search query');
+  }
+
+  if (type === 'tx' && !/^[a-fA-F0-9]{64}$/.test(query)) {
+    throw new Error('Invalid transaction hash');
+  }
+
+  if (type === 'address' && !/^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/.test(query)) {
+    throw new Error('Invalid Bitcoin address');
+  }
+
+  if (type === 'block' && !/^[0-9]+$/.test(query) && !/^[a-fA-F0-9]{64}$/.test(query)) {
+    throw new Error('Invalid block height or hash');
+  }
+}
+
 // UI State Management
 function showLoadingState() {
   defaultState.classList.add('hidden');
@@ -60,7 +78,7 @@ function showErrorState(message) {
   loadingState.classList.add('hidden');
   resultsContent.classList.remove('hidden');
   resultsContent.innerHTML = `
-    <div class="p-8 text-center text-red-600">
+    <div class="error-message">
       <strong>ERROR:</strong> ${message}
     </div>
   `;
@@ -92,9 +110,9 @@ async function searchTransaction(txid) {
 
 function renderTransaction(tx) {
   let html = `
-    <div class="p-6">
-      <h2 class="text-xl font-bold mb-4">TRANSACTION DETAILS</h2>
-      <div class="space-y-3">
+    <div class="transaction-details">
+      <h2>TRANSACTION DETAILS</h2>
+      <div class="data-grid">
         <div class="data-row">
           <div class="data-label">TXID:</div>
           <div>${tx.txid}</div>
@@ -109,9 +127,32 @@ function renderTransaction(tx) {
         </div>
   `;
   
-  // Continue building the transaction HTML...
+  if (tx.status.confirmed) {
+    html += `
+      <div class="data-row">
+        <div class="data-label">Confirmations:</div>
+        <div>${tx.status.block_height}</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Block Time:</div>
+        <div>${new Date(tx.status.block_time * 1000).toLocaleString()}</div>
+      </div>
+    `;
+  }
   
+  html += `
+    <div class="data-row">
+      <div class="data-label">Size:</div>
+      <div>${tx.size} bytes</div>
+    </div>
+  `;
+  
+  // Add more transaction details as needed...
+  
+  html += `</div></div>`;
   showResults(html);
 }
 
-// Additional search functions (searchAddress, searchBlock) would follow similar patterns
+// Additional search functions would be implemented similarly
+// async function searchAddress(address) { ... }
+// async function searchBlock(blockQuery) { ... }
