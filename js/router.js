@@ -13,16 +13,18 @@ class Router {
   }
 
   init() {
-    // Gestione click su link interni
+    const self = this;
+
+    // Navigazione tramite link
     document.addEventListener('click', e => {
       const link = e.target.closest('a[href^="/"]');
       if (link) {
         e.preventDefault();
-        this.navigateTo(link.getAttribute('href'));
+        self.navigateTo(link.getAttribute('href'));
       }
     });
 
-    // Gestione del form di ricerca
+    // Gestione form di ricerca
     const searchForm = document.getElementById('search-form');
     if (searchForm) {
       searchForm.addEventListener('submit', (e) => {
@@ -30,23 +32,23 @@ class Router {
         const query = document.getElementById('search-input').value.trim();
         const type = document.getElementById('search-type').value;
 
-        if (type === 'address' && this.validateBitcoinAddress(query)) {
-          this.navigateTo(`/address/${query}`);
+        if (type === 'address' && self.validateBitcoinAddress(query)) {
+          self.navigateTo(`/address/${query}`);
         } else if (type === 'transaction') {
-          this.navigateTo(`/tx/${query}`);
+          self.navigateTo(`/tx/${query}`);
         } else if (type === 'block') {
-          this.navigateTo(`/block/${query}`);
+          self.navigateTo(`/block/${query}`);
         } else {
-          alert('Input non valido');
+          alert("Input non valido o mancante.");
         }
       });
     }
 
-    // Gestione back/forward del browser
-    window.addEventListener('popstate', () => this.loadPage(window.location.pathname));
+    // Navigazione tramite pulsanti del browser
+    window.addEventListener('popstate', () => self.loadPage(window.location.pathname));
 
-    // Carica la pagina iniziale
-    this.loadPage(window.location.pathname);
+    // Caricamento iniziale
+    self.loadPage(window.location.pathname);
   }
 
   navigateTo(path) {
@@ -98,20 +100,27 @@ class Router {
         return res.text();
       })
       .then(html => {
-        document.getElementById('app').innerHTML = html;
-        // Puoi eseguire script aggiuntivi qui se necessario
+        const appContainer = document.getElementById('app');
+        if (appContainer) {
+          appContainer.innerHTML = html;
+        } else {
+          console.error("Elemento #app non trovato nell'HTML.");
+        }
       })
       .catch(err => {
         console.error(err);
-        document.getElementById('app').innerHTML = "<h1>Pagina non trovata</h1>";
+        const appContainer = document.getElementById('app');
+        if (appContainer) {
+          appContainer.innerHTML = "<h1>404 - Pagina non trovata</h1>";
+        }
       });
   }
 
   validateBitcoinAddress(address) {
-    const regex = /^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/;
+    const regex = /^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/i;
     return regex.test(address);
   }
 }
 
-// Inizializza il router
+// Avvia il router
 new Router();
