@@ -1,111 +1,42 @@
-import { fetchAddressData } from './api.js';
+function displayAddressData(data) {
+  // Popola i dati principali
+  document.getElementById('address-hash').textContent = data.address;
+  document.getElementById('address-balance').textContent = data.final_balance + ' BTC';
+  document.getElementById('total-transactions').textContent = data.n_tx;
+  document.getElementById('total-received').textContent = data.total_received + ' BTC';
+  document.getElementById('total-sent').textContent = data.total_sent + ' BTC';
+  document.getElementById('final-balance').textContent = data.final_balance + ' BTC';
+  document.getElementById('transactions-count').textContent = data.txs.length + ' transazioni';
 
-document.addEventListener('DOMContentLoaded', function() {
-  const searchForm = document.getElementById('search-form');
-  const searchInput = document.getElementById('search-input');
-  const resultsContainer = document.getElementById('search-results-container');
+  // Popola le transazioni
+  const transactionsList = document.getElementById('transactions-list');
+  transactionsList.innerHTML = '';
 
-  searchForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const address = searchInput.value.trim();
+  data.txs.forEach(tx => {
+    const txItem = document.createElement('li');
+    txItem.className = 'transaction-item';
     
-    if (!address) {
-      showError('Please enter a Bitcoin address');
-      return;
-    }
-
-    try {
-      showLoading();
-      const data = await fetchAddressData(address);
-      displayAddressData(address, data);
-    } catch (error) {
-      showError('Failed to fetch data. Please try again.');
-    }
+    txItem.innerHTML = `
+      <a href="/tx/${tx.hash}" class="tx-hash-link">${tx.hash}</a>
+      <div class="tx-details-grid">
+        <div class="tx-io-box">
+          <div class="stat-title">Input</div>
+          ${tx.inputs.map(input => `
+            <div class="tx-address">${input.prev_out.addr}</div>
+            <div class="tx-amount out">-${input.prev_out.value} BTC</div>
+          `).join('')}
+        </div>
+        <div class="tx-io-box">
+          <div class="stat-title">Output</div>
+          ${tx.out.map(output => `
+            <div class="tx-address">${output.addr}</div>
+            <div class="tx-amount">+${output.value} BTC</div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="tx-confirmations">${tx.block_height ? (currentBlockHeight - tx.block_height + 1) + ' conferme' : 'Non confermato'}</div>
+    `;
+    
+    transactionsList.appendChild(txItem);
   });
-
-  function showLoading() {
-    resultsContainer.innerHTML = `
-      <div class="status-message">
-        <div class="loader"></div>
-        <p>Searching blockchain...</p>
-      </div>
-    `;
-    resultsContainer.classList.remove('hidden');
-  }
-
-  function showError(message) {
-    resultsContainer.innerHTML = `
-      <div class="status-message error-message">
-        <p>${message}</p>
-      </div>
-    `;
-    resultsContainer.classList.remove('hidden');
-  }
-
-  function displayAddressData(address, data) {
-    const received = data.chain_stats.funded_txo_sum / 100000000;
-    const sent = data.chain_stats.spent_txo_sum / 100000000;
-    const balance = (received - sent).toFixed(8);
-    
-    resultsContainer.innerHTML = `
-      <div class="address-details">
-        <h2><span class="badge">ADDRESS</span> DETAILS</h2>
-        
-        <div class="address-info">
-          <div class="address-info-row">
-            <div class="address-label">Address:</div>
-            <div class="address-value monospace">${address}</div>
-          </div>
-          <div class="address-info-row">
-            <div class="address-label">Balance:</div>
-            <div class="address-value">${balance} BTC</div>
-          </div>
-        </div>
-        
-        <div class="transactions-section">
-          <h3><span class="badge">TRANSACTIONS</span> (${data.txs.length})</h3>
-          <ul class="transaction-list">
-            ${data.txs.slice(0, 25).map(tx => {
-              const amount = calculateTxAmount(tx, address);
-              return `
-              <li class="transaction-item tx-${amount > 0 ? 'incoming' : 'outgoing'}">
-                <div class="transaction-direction">
-                  ${amount > 0 ? '↓' : '↑'}
-                </div>
-                <a href="https://blockstream.info/tx/${tx.txid}" 
-                   target="_blank" 
-                   class="transaction-hash">
-                  ${tx.txid.substring(0, 20)}...
-                </a>
-                <div class="transaction-amount">
-                  ${amount > 0 ? '+' : ''}${amount} BTC
-                </div>
-              </li>
-              `;
-            }).join('')}
-          </ul>
-        </div>
-      </div>
-    `;
-  }
-
-  function calculateTxAmount(tx, address) {
-    let amount = 0;
-    
-    // Outputs (received)
-    tx.vout.forEach(output => {
-      if (output.scriptpubkey_address === address) {
-        amount += output.value;
-      }
-    });
-    
-    // Inputs (sent)
-    tx.vin.forEach(input => {
-      if (input.prevout?.scriptpubkey_address === address) {
-        amount -= input.prevout.value;
-      }
-    });
-    
-    return (amount / 100000000).toFixed(8);
-  }
-});
+}
