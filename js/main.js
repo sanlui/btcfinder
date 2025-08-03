@@ -1,42 +1,77 @@
-function displayAddressData(data) {
-  // Popola i dati principali
-  document.getElementById('address-hash').textContent = data.address;
-  document.getElementById('address-balance').textContent = data.final_balance + ' BTC';
-  document.getElementById('total-transactions').textContent = data.n_tx;
-  document.getElementById('total-received').textContent = data.total_received + ' BTC';
-  document.getElementById('total-sent').textContent = data.total_sent + ' BTC';
-  document.getElementById('final-balance').textContent = data.final_balance + ' BTC';
-  document.getElementById('transactions-count').textContent = data.txs.length + ' transazioni';
+async function searchBlockchain(type, query) {
+  const resultsContainer = document.getElementById('search-results-container');
+  resultsContainer.innerHTML = '<div class="status-message"><div class="loader"></div><p>Searching blockchain...</p></div>';
+  resultsContainer.classList.remove('hidden');
 
-  // Popola le transazioni
-  const transactionsList = document.getElementById('transactions-list');
-  transactionsList.innerHTML = '';
-
-  data.txs.forEach(tx => {
-    const txItem = document.createElement('li');
-    txItem.className = 'transaction-item';
-    
-    txItem.innerHTML = `
-      <a href="/tx/${tx.hash}" class="tx-hash-link">${tx.hash}</a>
-      <div class="tx-details-grid">
-        <div class="tx-io-box">
-          <div class="stat-title">Input</div>
-          ${tx.inputs.map(input => `
-            <div class="tx-address">${input.prev_out.addr}</div>
-            <div class="tx-amount out">-${input.prev_out.value} BTC</div>
-          `).join('')}
-        </div>
-        <div class="tx-io-box">
-          <div class="stat-title">Output</div>
-          ${tx.out.map(output => `
-            <div class="tx-address">${output.addr}</div>
-            <div class="tx-amount">+${output.value} BTC</div>
-          `).join('')}
-        </div>
+  try {
+    if (type === 'address') {
+      const data = await fetchAddressData(query);
+      displayAddressData(data);
+    } else if (type === 'tx') {
+      const data = await fetchTransactionData(query);
+      displayTransactionData(data); // Dovrai implementare questa funzione
+    } else if (type === 'block') {
+      const data = await fetchBlockData(query);
+      displayBlockData(data); // Dovrai implementare questa funzione
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    resultsContainer.innerHTML = `
+      <div class="error-message">
+        Error: ${error.message || 'Failed to fetch data'}
       </div>
-      <div class="tx-confirmations">${tx.block_height ? (currentBlockHeight - tx.block_height + 1) + ' conferme' : 'Non confermato'}</div>
     `;
-    
-    transactionsList.appendChild(txItem);
-  });
+  }
+}
+
+// Funzione per ottenere i dati di un indirizzo
+async function fetchAddressData(address) {
+  const response = await fetch(`https://blockchain.info/rawaddr/${address}`);
+  
+  if (!response.ok) {
+    throw new Error('Address not found or API error');
+  }
+  
+  const data = await response.json();
+  
+  // Formatta i dati come il tuo sistema si aspetta
+  return {
+    address: data.address,
+    final_balance: (data.final_balance / 100000000).toFixed(8),
+    n_tx: data.n_tx,
+    total_received: (data.total_received / 100000000).toFixed(8),
+    total_sent: (data.total_sent / 100000000).toFixed(8),
+    txs: data.txs.map(tx => ({
+      hash: tx.hash,
+      block_height: tx.block_height,
+      inputs: tx.inputs.map(input => ({
+        prev_out: {
+          addr: input.prev_out?.addr || 'Coinbase', // Le transazioni coinbase non hanno input
+          value: (input.prev_out?.value / 100000000).toFixed(8) || '0'
+        }
+      })),
+      out: tx.out.map(output => ({
+        addr: output.addr,
+        value: (output.value / 100000000).toFixed(8)
+      }))
+    }))
+  };
+}
+
+// Esempio per transazioni (da implementare)
+async function fetchTransactionData(txHash) {
+  const response = await fetch(`https://blockchain.info/rawtx/${txHash}`);
+  if (!response.ok) {
+    throw new Error('Transaction not found');
+  }
+  return await response.json();
+}
+
+// Esempio per blocchi (da implementare)
+async function fetchBlockData(blockHash) {
+  const response = await fetch(`https://blockchain.info/rawblock/${blockHash}`);
+  if (!response.ok) {
+    throw new Error('Block not found');
+  }
+  return await response.json();
 }
