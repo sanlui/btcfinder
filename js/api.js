@@ -1,3 +1,9 @@
+const API_PROXY = "https://cors-anywhere.herokuapp.com/";
+
+async function fetchAddressData(address) {
+  const response = await fetch(`${API_PROXY}https://blockchain.info/rawaddr/${address}?limit=50`);
+  // ... resto del codice
+}
 let currentBlockHeight = 0;
 
 // Funzioni API
