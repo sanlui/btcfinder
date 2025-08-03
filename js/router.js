@@ -49,9 +49,27 @@ class Router {
       // Aggiorna link attivo
       this.updateActiveLink(path);
       
+      // Carica eventuali script solo se esistono
+      this.tryLoadScript(page);
+      
     } catch (error) {
       console.error('Error loading page:', error);
       this.showError(error);
+    }
+  }
+
+  async tryLoadScript(page) {
+    try {
+      // Verifica se il file esiste
+      const response = await fetch(`/js/${page}.js`);
+      if (response.ok) {
+        const script = document.createElement('script');
+        script.src = `/js/${page}.js`;
+        script.type = 'module';
+        document.body.appendChild(script);
+      }
+    } catch (error) {
+      console.log(`No ${page}.js file found, skipping`);
     }
   }
 
