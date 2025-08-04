@@ -1,349 +1,619 @@
-import { 
-  fetchAddressData, 
-  fetchTransactionData, 
-  fetchBlockData, 
-  updateCurrentBlockHeight,
-  currentBlockHeight
-} from './api.js';
-
-// Cache per memorizzare le ricerche recenti
-const searchCache = new Map();
-const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minuti
-
-// Stato dell'applicazione
-const appState = {
-  currentPage: 1,
-  itemsPerPage: 10,
-  currentSearch: null
+// Cache system
+const cache = {
+  data: {},
+  get(key) {
+    return this.data[key] || null;
+  },
+  set(key, value) {
+    this.data[key] = value;
+    // Remove from cache after 5 minutes
+    setTimeout(() => delete this.data[key], 300000);
+  },
+  clear() {
+    this.data = {};
+  }
 };
 
-/**
- * Mostra lo stato di caricamento
- * @param {HTMLElement} container - Contenitore dei risultati
- */
-function showLoadingState(container) {
-  container.innerHTML = `
-    <div class="status-message" aria-live="polite" aria-busy="true">
-      <div class="loader" aria-hidden="true"></div>
-      <p>Searching blockchain...</p>
-    </div>
-  `;
-  container.classList.remove('hidden');
-}
-
-/**
- * Mostra lo stato di errore
- * @param {HTMLElement} container - Contenitore dei risultati
- * @param {Error} error - Oggetto errore
- */
-function showErrorState(container, error) {
-  let errorMessage = 'An error occurred';
+// Utility functions
+const utils = {
+  formatBTC(satoshi) {
+    return (satoshi / 1e8).toFixed(8) + ' BTC';
+  },
   
-  if (error.message.includes('Failed to fetch')) {
-    errorMessage = 'Network error. Please check your internet connection.';
-  } else if (error.message.includes('404')) {
-    errorMessage = 'Data not found. Please verify your search query.';
-  } else if (error.message.includes('400')) {
-    errorMessage = 'Invalid request. Please check your input.';
-  } else {
-    errorMessage = `Error: ${error.message}`;
-  }
-
-  container.innerHTML = `
-    <div class="error-message" role="alert">
-      <svg class="error-icon" aria-hidden="true" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-      </svg>
-      <p>${errorMessage}</p>
-      <button class="retry-btn">Try Again</button>
-    </div>
-  `;
-
-  // Aggiungi gestore eventi per il pulsante di riprova
-  container.querySelector('.retry-btn')?.addEventListener('click', () => {
-    if (appState.currentSearch) {
-      searchBlockchain(appState.currentSearch.type, appState.currentSearch.query);
+  formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  },
+  
+  shortenHash(hash, start = 10, end = 10) {
+    if (!hash) return '';
+    if (hash.length > start + end) {
+      return `${hash.substring(0, start)}...${hash.substring(hash.length - end)}`;
     }
-  });
-}
-
-/**
- * Cerca sulla blockchain
- * @param {string} type - Tipo di ricerca (address, tx, block)
- * @param {string} query - Termine di ricerca
- */
-async function searchBlockchain(type, query) {
-  const resultsContainer = document.getElementById('search-results-container');
-  appState.currentSearch = { type, query };
+    return hash;
+  },
   
-  // Verifica la cache prima di fare la richiesta
-  const cacheKey = `${type}:${query}`;
-  const cachedData = searchCache.get(cacheKey);
+  async copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      return false;
+    }
+  },
   
-  if (cachedData && (Date.now() - cachedData.timestamp < CACHE_EXPIRATION)) {
-    displaySearchResults(type, cachedData.data);
-    return;
+  showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
   }
+};
 
-  showLoadingState(resultsContainer);
+// Input validation
+const validator = {
+  tx(query) {
+    if (!/^[a-fA-F0-9]{64}$/.test(query)) {
+      throw new Error('Invalid TXID. Must be 64 hexadecimal characters');
+    }
+  },
+  
+  address(query) {
+    if (!/^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/.test(query)) {
+      throw new Error('Invalid Bitcoin address');
+    }
+  },
+  
+  block(query) {
+    if (!/^[0-9]+$/.test(query) && !/^[a-fA-F0-9]{64}$/.test(query)) {
+      throw new Error('Invalid block. Enter a number (height) or hash (64 hexadecimal characters)');
+    }
+  }
+};
 
+// API service
+const api = {
+  async getTransaction(txid) {
+    const [txRes, txStatusRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/tx/${txid}`),
+      fetch(`https://blockstream.info/api/tx/${txid}/status`)
+    ]);
+    
+    if (!txRes.ok || !txStatusRes.ok) throw new Error('Transaction not found');
+    
+    const tx = await txRes.json();
+    const txStatus = await txStatusRes.json();
+    tx.status = txStatus;
+    
+    return tx;
+  },
+  
+  async getAddress(address) {
+    const [addrRes, txsRes, priceRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/address/${address}`),
+      fetch(`https://blockstream.info/api/address/${address}/txs`),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+    ]);
+    
+    if (!addrRes.ok) throw new Error('Address not found');
+    
+    const addrInfo = await addrRes.json();
+    const txs = txsRes.ok ? await txsRes.json() : [];
+    const priceData = priceRes.ok ? await priceRes.json() : null;
+    
+    return { addrInfo, txs, priceData };
+  },
+  
+  async getBlock(blockQuery) {
+    let blockHash = blockQuery;
+    
+    // If it's a number (block height)
+    if (/^\d+$/.test(blockQuery)) {
+      const hashRes = await fetch(`https://blockstream.info/api/block-height/${blockQuery}`);
+      if (!hashRes.ok) throw new Error('Block not found');
+      blockHash = await hashRes.text();
+    }
+    
+    const [blockRes, txsRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/block/${blockHash}`),
+      fetch(`https://blockstream.info/api/block/${blockHash}/txs`)
+    ]);
+    
+    if (!blockRes.ok) throw new Error('Block not found');
+    
+    const block = await blockRes.json();
+    const txs = txsRes.ok ? await txsRes.json() : [];
+    
+    return { block, txs, blockHash };
+  },
+  
+  async getNetworkStats() {
+    const [blockRes, mempoolRes, priceRes, diffRes] = await Promise.all([
+      fetch('https://blockstream.info/api/blocks/tip/height'),
+      fetch('https://blockstream.info/api/mempool'),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'),
+      fetch('https://blockstream.info/api/blocks/tip')
+    ]);
+    
+    const blockHeight = await blockRes.text();
+    const mempool = await mempoolRes.json();
+    const price = priceRes.ok ? await priceRes.json() : { bitcoin: { usd: 'N/A' } };
+    const difficulty = diffRes.ok ? (await diffRes.json()).difficulty : 'N/A';
+    
+    return { blockHeight, mempool, price, difficulty };
+  }
+};
+
+// UI rendering functions
+const renderer = {
+  transaction(tx) {
+    let html = `<h2>Transaction Details</h2>`;
+    
+    // Basic info
+    html += this.renderDataRow('TXID:', tx.txid, true);
+    html += this.renderDataRow('Status:', tx.status.confirmed ? 
+      `<span class="badge confirmed">Confirmed</span> (Block #${tx.status.block_height})` : 
+      `<span class="badge unconfirmed">Unconfirmed</span>`);
+    
+    if (tx.status.confirmed) {
+      html += this.renderDataRow('Confirmations:', utils.formatNumber(tx.status.block_height));
+    }
+    
+    html += this.renderDataRow('Date/Time:', tx.status.confirmed ? 
+      new Date(tx.status.block_time * 1000).toLocaleString() : 
+      'In mempool (unconfirmed)');
+    
+    html += this.renderDataRow('Size:', `${utils.formatNumber(tx.size)} bytes`);
+    
+    // Calculate fee if available
+    if (tx.vin && tx.vout) {
+      const inputSum = tx.vin.reduce((sum, vin) => sum + (vin.prevout?.value || 0), 0);
+      const outputSum = tx.vout.reduce((sum, vout) => sum + vout.value, 0);
+      const fee = inputSum - outputSum;
+      
+      if (fee > 0) {
+        html += this.renderDataRow('Fee:', `${utils.formatBTC(fee)} (${utils.formatNumber(fee)} satoshis)`);
+        html += this.renderDataRow('Fee rate:', `${(fee / tx.size).toFixed(2)} satoshis/byte`);
+      }
+    }
+    
+    // Add to favorites button
+    html += `<button class="button secondary" onclick="saveFavorite('tx', '${tx.txid}', 'TX ${utils.shortenHash(tx.txid)}')">
+      ★ Save to Favorites
+    </button>`;
+    
+    // Inputs and Outputs tabs
+    html += `<div class="tabs">
+      <div class="tab active" onclick="switchTab('inputs', 'outputs')">Inputs (${tx.vin.length})</div>
+      <div class="tab" onclick="switchTab('outputs', 'inputs')">Outputs (${tx.vout.length})</div>
+    </div>`;
+    
+    // Inputs Tab
+    html += `<div id="inputs" class="tab-content active"><ul class="list">`;
+    tx.vin.forEach((vin, i) => {
+      const address = vin.prevout?.scriptpubkey_address || 'Coinbase (new coin generation)';
+      const value = vin.prevout?.value ? utils.formatBTC(vin.prevout.value) : 'N/A';
+      
+      html += `<li class="list-item">
+        <strong>Input #${i + 1}:</strong> 
+        ${address.startsWith('Coinbase') ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${value}
+        ${vin.txid ? `<br><small>From TX: <a href="#" class="tx-link" onclick="performSearchTx('${vin.txid}')">${utils.shortenHash(vin.txid)}</a></small>` : ''}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    // Outputs Tab
+    html += `<div id="outputs" class="tab-content"><ul class="list">`;
+    tx.vout.forEach((vout, i) => {
+      const address = vout.scriptpubkey_address || 'N/A (non-standard script)';
+      html += `<li class="list-item">
+        <strong>Output #${i + 1}:</strong> 
+        ${address === 'N/A (non-standard script)' ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${utils.formatBTC(vout.value)}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    return html;
+  },
+  
+  address(data, address) {
+    const { addrInfo, txs, priceData } = data;
+    
+    const confirmedBalance = (addrInfo.chain_stats.funded_txo_sum - addrInfo.chain_stats.spent_txo_sum) / 1e8;
+    const unconfirmedBalance = (addrInfo.mempool_stats.funded_txo_sum - addrInfo.mempool_stats.spent_txo_sum) / 1e8;
+    const totalReceived = addrInfo.chain_stats.funded_txo_sum / 1e8;
+    const totalSent = addrInfo.chain_stats.spent_txo_sum / 1e8;
+    
+    const usdValue = priceData ? (confirmedBalance * priceData.bitcoin.usd).toLocaleString() : null;
+    
+    let html = `<h2>Address Details</h2>`;
+    
+    // QR Code and Address
+    html += `<div style="display:flex; gap:20px; flex-wrap:wrap;">
+      <div class="qr-code">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:${address}" 
+             alt="QR Code for ${address}" width="200" height="200">
+      </div>
+      <div style="flex:1; min-width:200px;">
+        ${this.renderDataRow('Address:', address, true)}
+        
+        <div class="balance-highlight">
+          <span class="btc-symbol">₿</span> ${confirmedBalance.toFixed(8)} BTC
+          ${usdValue ? `<small>($${usdValue} USD)</small>` : ''}
+        </div>
+    `;
+    
+    if (unconfirmedBalance !== 0) {
+      html += this.renderDataRow('Unconfirmed:', `<span class="btc-symbol">₿</span> ${unconfirmedBalance.toFixed(8)} BTC`);
+    }
+    
+    // Add to favorites button
+    html += `<button class="button secondary" onclick="saveFavorite('address', '${address}', 'Address ${utils.shortenHash(address)}')" style="margin-top:10px;">
+      ★ Save to Favorites
+    </button>`;
+    
+    // Close QR code section
+    html += `</div></div>`;
+    
+    // Stats section
+    html += `<div class="advanced-options">
+      <h3>Address Statistics</h3>
+      ${this.renderDataRow('Total Received:', `<span class="btc-symbol">₿</span> ${totalReceived.toFixed(8)} BTC`)}
+      ${this.renderDataRow('Total Sent:', `<span class="btc-symbol">₿</span> ${totalSent.toFixed(8)} BTC`)}
+      ${this.renderDataRow('Transaction Count:', utils.formatNumber(addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count))}
+    </div>`;
+    
+    // Show recent transactions
+    html += `<h3>Recent Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions found</p>`;
+    } else {
+      html += `<ul class="list">`;
+      txs.slice(0, 10).forEach(tx => {
+        const isOutgoing = tx.vin.some(vin => vin.prevout?.scriptpubkey_address === address);
+        const amount = isOutgoing ? 
+          tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
+          tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0);
+        
+        html += `<li class="list-item">
+          <span class="badge ${isOutgoing ? 'unconfirmed' : 'confirmed'}">${isOutgoing ? 'Sent' : 'Received'}</span>
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${utils.shortenHash(tx.txid)}</a>
+          (<span class="btc-symbol">₿</span> ${utils.formatBTC(amount)})
+          ${tx.status.confirmed ? 
+            `<small>${new Date(tx.status.block_time * 1000).toLocaleDateString()}</small>` : 
+            '<small>In mempool</small>'}
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    return html;
+  },
+  
+  block(data) {
+    const { block, txs, blockHash } = data;
+    
+    let html = `<h2>Block Details</h2>`;
+    
+    // Basic block info
+    html += this.renderDataRow('Height:', utils.formatNumber(block.height));
+    html += this.renderDataRow('Hash:', blockHash, true);
+    html += this.renderDataRow('Date/Time:', new Date(block.timestamp * 1000).toLocaleString());
+    html += this.renderDataRow('Transaction Count:', utils.formatNumber(block.tx_count));
+    html += this.renderDataRow('Size:', `${utils.formatNumber(block.size)} bytes`);
+    html += this.renderDataRow('Difficulty:', utils.formatNumber(Math.round(block.difficulty)));
+    html += this.renderDataRow('Version:', `0x${block.version.toString(16)}`);
+    html += this.renderDataRow('Merkle Root:', block.merkle_root);
+    
+    // Add to favorites button
+    html += `<button class="button secondary" onclick="saveFavorite('block', '${blockHash}', 'Block ${block.height}')">
+      ★ Save to Favorites
+    </button>`;
+    
+    // Recent transactions in block
+    html += `<h3>Recent Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions available</p>`;
+    } else {
+      html += `<ul class="list">`;
+      txs.slice(0, 10).forEach(tx => {
+        html += `<li class="list-item">
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${utils.shortenHash(tx.txid)}</a>
+          (<span class="btc-symbol">₿</span> ${utils.formatBTC(tx.vout.reduce((sum, v) => sum + v.value, 0))})
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    return html;
+  },
+  
+  dashboard(stats) {
+    const { blockHeight, mempool, price, difficulty } = stats;
+    
+    return `
+      <h2>Bitcoin Network Dashboard</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Current Block Height</h3>
+          <div class="stat-value">${utils.formatNumber(blockHeight)}</div>
+        </div>
+        
+        <div class="stat-card">
+          <h3>Mempool Size</h3>
+          <div class="stat-value">${utils.formatNumber(mempool.count)} tx</div>
+        </div>
+        
+        <div class="stat-card">
+          <h3>Bitcoin Price</h3>
+          <div class="stat-value">$${price.bitcoin.usd.toLocaleString()}</div>
+        </div>
+        
+        <div class="stat-card">
+          <h3>Network Difficulty</h3>
+          <div class="stat-value">${utils.formatNumber(Math.round(difficulty))}</div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="networkChart"></canvas>
+      </div>
+    `;
+  },
+  
+  favorites(favorites) {
+    if (favorites.length === 0) return '';
+    
+    let html = `<div class="favorites-section">
+      <h3>Saved Favorites</h3>
+      <ul class="list">`;
+    
+    favorites.forEach(fav => {
+      html += `<li class="list-item">
+        <a href="#" onclick="loadFavorite('${fav.type}', '${fav.id}')">${fav.label}</a>
+        <small>(${fav.type}, ${new Date(fav.date).toLocaleDateString()})</small>
+      </li>`;
+    });
+    
+    html += `</ul></div>`;
+    return html;
+  },
+  
+  renderDataRow(label, value, copyable = false) {
+    let copyBtn = '';
+    if (copyable) {
+      copyBtn = `<button class="copy-btn" onclick="utils.copyToClipboard('${value.replace(/'/g, "\\'")}')">Copy</button>`;
+    }
+    
+    return `<div class="data-row">
+      <div class="data-label">${label}</div>
+      <div class="data-value">${value} ${copyBtn}</div>
+    </div>`;
+  },
+  
+  renderNetworkChart() {
+    const ctx = document.getElementById('networkChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Bitcoin Price (USD)',
+          data: [30000, 35000, 40000, 45000, 50000, 55000],
+          borderColor: 'rgba(247, 147, 26, 1)',
+          backgroundColor: 'rgba(247, 147, 26, 0.1)',
+          tension: 0.1,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Bitcoin Price History'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false
+          }
+        }
+      }
+    });
+  }
+};
+
+// Favorites system
+const favorites = {
+  get() {
+    return JSON.parse(localStorage.getItem('bitcoinFavorites') || '[]');
+  },
+  
+  save(type, id, label) {
+    const favorites = this.get();
+    if (!favorites.some(fav => fav.id === id)) {
+      favorites.push({ type, id, label, date: new Date().toISOString() });
+      localStorage.setItem('bitcoinFavorites', JSON.stringify(favorites));
+      utils.showToast('Added to favorites!', 'success');
+      return true;
+    } else {
+      utils.showToast('This item is already in your favorites', 'warning');
+      return false;
+    }
+  },
+  
+  remove(id) {
+    const updatedFavorites = this.get().filter(fav => fav.id !== id);
+    localStorage.setItem('bitcoinFavorites', JSON.stringify(updatedFavorites));
+    utils.showToast('Removed from favorites', 'success');
+    return updatedFavorites;
+  }
+};
+
+// Main application functions
+async function performSearch() {
+  const type = document.getElementById('searchType').value;
+  const query = document.getElementById('searchInput').value.trim();
+  const resultDiv = document.getElementById('result');
+  const originalContent = resultDiv.innerHTML;
+  
   try {
+    // Validate input
+    if (!query) throw new Error('Please enter a valid value');
+    validator[type](query);
+    
+    // Show loading state
+    resultDiv.innerHTML = '<div class="loader"></div><p style="text-align:center;">Loading data...</p>';
+    
+        // Check cache first
+    const cacheKey = `${type}:${query}`;
+    const cachedData = cache.get(cacheKey);
+    
+    if (cachedData) {
+      renderResult(type, cachedData, query);
+      return;
+    }
+    
+    // Fetch data from API
     let data;
     switch (type) {
-      case 'address':
-        data = await fetchAddressData(query);
-        break;
       case 'tx':
-        data = await fetchTransactionData(query);
+        data = await api.getTransaction(query);
+        break;
+      case 'address':
+        data = await api.getAddress(query);
         break;
       case 'block':
-        data = await fetchBlockData(query);
+        data = await api.getBlock(query);
         break;
       default:
         throw new Error('Invalid search type');
     }
-
-    // Aggiorna la cache
-    searchCache.set(cacheKey, {
-      data,
-      timestamp: Date.now()
-    });
-
-    displaySearchResults(type, data);
-  } catch (error) {
-    console.error('Search error:', error);
-    showErrorState(resultsContainer, error);
+    
+    // Cache the result
+    cache.set(cacheKey, data);
+    
+    // Render the result
+    renderResult(type, data, query);
+    
+  } catch (err) {
+    resultDiv.innerHTML = originalContent;
+    utils.showToast(err.message, 'error');
+    console.error(err);
   }
 }
 
-/**
- * Mostra i risultati della ricerca
- * @param {string} type - Tipo di ricerca
- * @param {Object} data - Dati da visualizzare
- */
-function displaySearchResults(type, data) {
-  const resultsContainer = document.getElementById('search-results-container');
+function renderResult(type, data, query) {
+  const resultDiv = document.getElementById('result');
   
   switch (type) {
-    case 'address':
-      displayAddressData(data);
-      break;
     case 'tx':
-      displayTransactionData(data);
+      resultDiv.innerHTML = renderer.transaction(data);
+      break;
+    case 'address':
+      resultDiv.innerHTML = renderer.address(data, query);
       break;
     case 'block':
-      displayBlockData(data);
+      resultDiv.innerHTML = renderer.block(data);
       break;
+    default:
+      resultDiv.innerHTML = '<p>Invalid result type</p>';
   }
-
-  // Scroll ai risultati
-  resultsContainer.scrollIntoView({ behavior: 'smooth' });
-}
-
-/**
- * Formatta un valore in BTC
- * @param {number} value - Valore in satoshi
- * @returns {string} Valore formattato in BTC
- */
-function formatBTC(value) {
-  return (value / 1e8).toFixed(8).replace(/\.?0+$/, '');
-}
-
-/**
- * Formatta un timestamp in data leggibile
- * @param {number} timestamp - Timestamp Unix
- * @returns {string} Data formattata
- */
-function formatDate(timestamp) {
-  return new Date(timestamp * 1000).toLocaleString();
-}
-
-/**
- * Mostra i dati di un indirizzo
- * @param {Object} data - Dati dell'indirizzo
- */
-function displayAddressData(data) {
-  const template = document.getElementById('address-results-template');
-  const clone = template.content.cloneNode(true);
-  const addressResults = clone.firstElementChild;
-
-  // Aggiorna i dati principali
-  addressResults.querySelector('#address-hash').textContent = data.address;
-  addressResults.querySelector('#address-balance').textContent = `${formatBTC(data.final_balance)} BTC`;
-  addressResults.querySelector('#total-transactions').textContent = data.n_tx.toLocaleString();
-  addressResults.querySelector('#total-received').textContent = `${formatBTC(data.total_received)} BTC`;
-  addressResults.querySelector('#total-sent').textContent = `${formatBTC(data.total_sent)} BTC`;
-  addressResults.querySelector('#final-balance').textContent = `${formatBTC(data.final_balance)} BTC`;
   
-  // Gestione della paginazione
-  const totalPages = Math.ceil(data.txs.length / appState.itemsPerPage);
-  updatePaginationControls(totalPages, data.txs.length);
-
-  // Mostra le transazioni per la pagina corrente
-  displayTransactionsPage(data.txs, 1);
-
-  // Sostituisci il contenuto del container
-  const resultsContainer = document.getElementById('search-results-container');
-  resultsContainer.innerHTML = '';
-  resultsContainer.appendChild(addressResults);
-  resultsContainer.classList.remove('hidden');
+  // Show favorites section
+  const favs = favorites.get();
+  if (favs.length > 0) {
+    resultDiv.insertAdjacentHTML('beforeend', renderer.favorites(favs));
+  }
 }
 
-/**
- * Mostra una pagina di transazioni
- * @param {Array} transactions - Lista di transazioni
- * @param {number} page - Numero di pagina
- */
-function displayTransactionsPage(transactions, page) {
-  const startIndex = (page - 1) * appState.itemsPerPage;
-  const endIndex = startIndex + appState.itemsPerPage;
-  const paginatedTransactions = transactions.slice(startIndex, endIndex);
+// Helper functions for UI interactions
+function performSearchTx(txid) {
+  document.getElementById('searchType').value = 'tx';
+  document.getElementById('searchInput').value = txid;
+  performSearch();
+}
 
-  const transactionsList = document.getElementById('transactions-list');
-  transactionsList.innerHTML = '';
+function performSearchAddress(address) {
+  document.getElementById('searchType').value = 'address';
+  document.getElementById('searchInput').value = address;
+  performSearch();
+}
 
-  paginatedTransactions.forEach(tx => {
-    const txItem = document.createElement('li');
-    txItem.className = 'transaction-item';
-    txItem.innerHTML = `
-      <div class="tx-header">
-        <a href="#${tx.hash}" class="tx-hash-link" aria-label="Transaction details">
-          ${shortenHash(tx.hash)}
-        </a>
-        <span class="tx-time">${formatDate(tx.time)}</span>
-      </div>
-      <div class="tx-details-grid">
-        <div class="tx-io-box">
-          <div class="stat-title">Inputs (${tx.inputs.length})</div>
-          ${tx.inputs.slice(0, 3).map(input => `
-            <div class="tx-address" title="${input.prev_out?.addr || 'Coinbase'}">
-              ${input.prev_out?.addr ? shortenAddress(input.prev_out.addr) : 'Coinbase'}
-            </div>
-            <div class="tx-amount out">
-              -${formatBTC(input.prev_out?.value || 0)} BTC
-            </div>
-          `).join('')}
-          ${tx.inputs.length > 3 ? `<div class="tx-more">+${tx.inputs.length - 3} more</div>` : ''}
-        </div>
-        <div class="tx-io-box">
-          <div class="stat-title">Outputs (${tx.out.length})</div>
-          ${tx.out.slice(0, 3).map(output => `
-            <div class="tx-address" title="${output.addr}">
-              ${output.addr ? shortenAddress(output.addr) : 'OP_RETURN'}
-            </div>
-            <div class="tx-amount">
-              +${formatBTC(output.value)} BTC
-            </div>
-          `).join('')}
-          ${tx.out.length > 3 ? `<div class="tx-more">+${tx.out.length - 3} more</div>` : ''}
-        </div>
-      </div>
-      <div class="tx-footer">
-        <span class="tx-fee">Fee: ${formatBTC(tx.fee)} BTC</span>
-        <span class="tx-confirmations">
-          ${tx.block_height ? `${currentBlockHeight - tx.block_height + 1} confirmations` : 'Unconfirmed'}
-        </span>
-      </div>
-    `;
-    transactionsList.appendChild(txItem);
+function switchTab(showId, hideId) {
+  document.getElementById(showId).classList.add('active');
+  document.getElementById(hideId).classList.remove('active');
+  
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    if (tab.textContent.includes(showId.charAt(0).toUpperCase() + showId.slice(1))) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
   });
-
-  // Aggiorna l'indicatore della pagina
-  document.getElementById('page-info').textContent = `Page ${page} of ${Math.ceil(transactions.length / appState.itemsPerPage)}`;
-  appState.currentPage = page;
 }
 
-/**
- * Accorcia un indirizzo/hash per la visualizzazione
- * @param {string} str - Indirizzo o hash
- * @returns {string} Versione accorciata
- */
-function shortenHash(str) {
-  return str.length > 20 ? `${str.substring(0, 10)}...${str.substring(str.length - 10)}` : str;
-}
-
-/**
- * Accorcia un indirizzo Bitcoin
- * @param {string} address - Indirizzo Bitcoin
- * @returns {string} Versione accorciata
- */
-function shortenAddress(address) {
-  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-}
-
-/**
- * Aggiorna i controlli di paginazione
- * @param {number} totalPages - Numero totale di pagine
- * @param {number} totalItems - Numero totale di elementi
- */
-function updatePaginationControls(totalPages, totalItems) {
-  const prevBtn = document.getElementById('prev-page');
-  const nextBtn = document.getElementById('next-page');
-
-  prevBtn.disabled = appState.currentPage <= 1;
-  nextBtn.disabled = appState.currentPage >= totalPages;
-
-  prevBtn.onclick = () => {
-    if (appState.currentPage > 1) {
-      displayTransactionsPage(appState.currentSearch.data.txs, appState.currentPage - 1);
+function saveFavorite(type, id, label) {
+  if (favorites.save(type, id, label)) {
+    // Update favorites display
+    const favs = favorites.get();
+    const favSection = document.querySelector('.favorites-section');
+    if (favSection) {
+      favSection.innerHTML = renderer.favorites(favs);
+    } else {
+      document.getElementById('result').insertAdjacentHTML('beforeend', renderer.favorites(favs));
     }
-  };
-
-  nextBtn.onclick = () => {
-    if (appState.currentPage < totalPages) {
-      displayTransactionsPage(appState.currentSearch.data.txs, appState.currentPage + 1);
-    }
-  };
-
-  // Mostra/nascondi i controlli se necessario
-  const paginationControls = document.querySelector('.transaction-controls');
-  paginationControls.style.display = totalItems > appState.itemsPerPage ? 'flex' : 'none';
+  }
 }
 
-// Inizializzazione dell'app
-document.addEventListener('DOMContentLoaded', () => {
-  // Imposta l'anno corrente nel footer
-  document.getElementById('current-year').textContent = new Date().getFullYear();
+function loadFavorite(type, id) {
+  document.getElementById('searchType').value = type;
+  document.getElementById('searchInput').value = id;
+  performSearch();
+}
 
-  // Gestore per il form di ricerca
-  document.getElementById('search-form').addEventListener('submit', async (e) => {
+// Initialize the app
+async function initApp() {
+  // Load dashboard by default
+  try {
+    const stats = await api.getNetworkStats();
+    document.getElementById('result').innerHTML = renderer.dashboard(stats);
+    renderer.renderNetworkChart();
+  } catch (err) {
+    console.error('Failed to load dashboard:', err);
+  }
+  
+  // Set up event listeners
+  document.getElementById('searchForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    const searchType = document.getElementById('search-type').value;
-    const searchQuery = document.getElementById('search-input').value.trim();
-
-    if (searchQuery) {
-      await searchBlockchain(searchType, searchQuery);
-      // Aggiungi alla cronologia delle ricerche
-      addToSearchHistory(searchType, searchQuery);
-    }
+    performSearch();
   });
-
-  // Aggiorna l'altezza del blocco corrente
-  updateCurrentBlockHeight().then(height => {
-    currentBlockHeight = height;
-    console.log(`Current block height: ${height}`);
-  }).catch(err => {
-    console.error('Failed to fetch block height:', err);
+  
+  document.getElementById('clearCache').addEventListener('click', () => {
+    cache.clear();
+    utils.showToast('Cache cleared', 'success');
   });
-
-  // Gestori per la modalità giorno/notte
-  document.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
-});
-
-/**
- * Aggiunge una ricerca alla cronologia
- */
-function addToSearchHistory(type, query) {
-  // Implementa la logica per salvare le ricerche recenti
-  // (es. in localStorage o in uno stato dell'app)
 }
 
-/**
- * Cambia il tema tra chiaro/scuro
- */
-function toggleTheme() {
-  const root = document.documentElement;
-  const newTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  root.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
-}
+// Start the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
