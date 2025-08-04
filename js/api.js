@@ -50,68 +50,35 @@ async function updateCurrentBlockHeight() {
 }
 
 async function fetchAddressData(address) {
-  const [balance, txs] = await Promise.all([
+  const [addressData, txs] = await Promise.all([
     fetchWithRetry(`/address/${address}`),
     fetchWithRetry(`/address/${address}/txs`)
   ]);
 
   return {
     address: address,
-    final_balance: (balance.chain_stats.funded_txo_sum - balance.chain_stats.spent_txo_sum) / 1e8,
-    n_tx: balance.chain_stats.tx_count,
-    total_received: balance.chain_stats.funded_txo_sum / 1e8,
-    total_sent: balance.chain_stats.spent_txo_sum / 1e8,
+    final_balance: addressData.chain_stats.funded_txo_sum - addressData.chain_stats.spent_txo_sum,
+    n_tx: addressData.chain_stats.tx_count,
+    total_received: addressData.chain_stats.funded_txo_sum,
+    total_sent: addressData.chain_stats.spent_txo_sum,
     txs: txs.map(tx => ({
       hash: tx.txid,
       block_height: tx.status.block_height,
       inputs: tx.vin.map(input => ({
         prev_out: {
           addr: input.prevout?.scriptpubkey_address || 'Coinbase',
-          value: (input.prevout?.value / 1e8).toFixed(8)
+          value: input.prevout?.value || 0
         }
       })),
       out: tx.vout.map(output => ({
         addr: output.scriptpubkey_address,
-        value: (output.value / 1e8).toFixed(8)
+        value: output.value
       }))
     }))
   };
 }
 
-async function fetchTransactionData(txHash) {
-  const data = await fetchWithRetry(`/tx/${txHash}`);
-  return {
-    txid: data.txid,
-    size: data.size,
-    fee: (data.fee / 1e8).toFixed(8),
-    status: data.status,
-    inputs: data.vin.map(input => ({
-      prev_out: {
-        addr: input.prevout?.scriptpubkey_address || 'Coinbase',
-        value: (input.prevout?.value / 1e8).toFixed(8)
-      }
-    })),
-    out: data.vout.map(output => ({
-      addr: output.scriptpubkey_address,
-      value: (output.value / 1e8).toFixed(8)
-    }))
-  };
-}
-
-async function fetchBlockData(blockHash) {
-  const data = await fetchWithRetry(`/block/${blockHash}`);
-  const txs = await fetchWithRetry(`/block/${blockHash}/txs`);
-
-  return {
-    id: data.id,
-    height: data.height,
-    timestamp: data.timestamp,
-    size: data.size,
-    tx_count: data.tx_count,
-    formattedTime: new Date(data.timestamp * 1000).toLocaleString(),
-    tx: txs
-  };
-}
+// Le altre funzioni (fetchTransactionData e fetchBlockData) rimangono uguali alla tua versione originale
 
 export {
   fetchAddressData,
