@@ -1,133 +1,634 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Finder | Bitcoin Blockchain Explorer</title>
-  <meta name="description" content="Free open-source Bitcoin blockchain explorer. Search addresses, transactions, and blocks with real-time data.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
+  <meta name="description" content="Explore the Bitcoin blockchain in detail. Analyze transactions, addresses, blocks with complete data on fees, confirmations, balances and history.">
+  <meta name="keywords" content="bitcoin explorer, blockchain explorer, analyze bitcoin transactions, search bitcoin address, bitcoin block details">
+  <meta name="author" content="Advanced Bitcoin Explorer">
   
-  <!-- Preload risorse critiche -->
-  <link rel="preload" href="css/styles.css" as="style">
-  <link rel="preload" href="js/main.js" as="script">
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="Advanced Bitcoin Explorer">
+  <meta property="og:description" content="Analyze Bitcoin transactions, addresses and blocks with complete detailed data">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourdomain.com">
+  <meta property="og:image" content="https://yourdomain.com/bitcoin-explorer-preview.jpg">
   
-  <!-- Favicon moderno -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23F7931A%22>₿</text></svg>">
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
   
-  <!-- CSS -->
-  <link rel="stylesheet" href="css/styles.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
+  <style>
+    :root {
+      --primary: #f7931a;
+      --primary-hover: #e07b0a;
+      --secondary: #f0f0f0;
+      --text: #333;
+      --error: #d32f2f;
+      --success: #388e3c;
+    }
+    
+    body { 
+      font-family: 'Segoe UI', Arial, sans-serif; 
+      max-width: 1000px; 
+      margin: 0 auto; 
+      padding: 20px; 
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    h1 { 
+      color: var(--primary); 
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .search-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 30px 0;
+    }
+    
+    input, button, select { 
+      padding: 10px 12px; 
+      font-size: 16px; 
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    
+    input { 
+      flex: 1; 
+      min-width: 250px;
+    }
+    
+    button { 
+      cursor: pointer; 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    
+    button:hover { background: var(--primary-hover); }
+    
+    .result { 
+      background: var(--secondary); 
+      padding: 20px; 
+      margin-top: 30px; 
+      border-radius: 8px; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    h2 { margin-top: 30px; color: var(--primary); }
+    h3 { margin-top: 20px; }
+    
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    
+    ul { padding-left: 20px; }
+    li { margin-bottom: 8px; }
+    
+    .tx-link { 
+      color: var(--primary); 
+      text-decoration: none;
+      font-family: monospace;
+    }
+    
+    .tx-link:hover { text-decoration: underline; }
+    
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .data-row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+    
+    .data-label {
+      font-weight: bold;
+      min-width: 180px;
+    }
+    
+    .shorten {
+      display: inline-block;
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+    
+    .confirmed { background: var(--success); color: white; }
+    .unconfirmed { background: #ff9800; color: white; }
+    
+    @media (max-width: 600px) {
+      .search-container { flex-direction: column; }
+      input { width: 100%; }
+      .data-row { flex-direction: column; }
+      .data-label { min-width: auto; margin-bottom: 4px; }
+    }
+    
+    .copy-btn {
+      background: #666;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+    
+    .copy-btn:hover { background: #555; }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom-color: var(--primary);
+      font-weight: bold;
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .btc-symbol {
+      font-weight: bold;
+      color: var(--primary);
+    }
+  </style>
 </head>
 <body>
-  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="header">
-    <div class="container">
-      <div class="header-content">
-        <a href="/" class="logo" aria-label="BTC Finder Home">
-          <span aria-hidden="true">₿</span>
-          <h1>BTC Finder</h1>
-        </a>
-        <button class="theme-toggle" aria-label="Toggle dark mode">
-          <span class="toggle-icon"></span>
-        </button>
-      </div>
-    </div>
-  </header>
+  <h1><span class="btc-symbol">₿</span> Advanced Bitcoin Explorer</h1>
 
-  <main id="main-content" class="main-content">
-    <div class="container">
-      <section class="hero-section">
-        <h1 class="hero-title">Bitcoin Blockchain Explorer</h1>
-        <p class="hero-subtitle">Explore transactions, addresses and blocks on the Bitcoin network</p>
-        
-        <form id="search-form" class="search-form" role="search">
-          <div class="search-input-group">
-            <label for="search-type" class="sr-only">Search type</label>
-            <select id="search-type" aria-label="Search type">
-              <option value="address" selected>Address</option>
-              <option value="tx">Transaction</option>
-              <option value="block">Block</option>
-            </select>
-            
-            <label for="search-input" class="sr-only">Search Bitcoin blockchain</label>
-            <input 
-              type="text" 
-              id="search-input" 
-              placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-              required
-              aria-describedby="search-hint"
-            >
-            <button type="submit" class="search-button">
-              <span class="button-text">Search</span>
-              <span class="search-icon" aria-hidden="true"></span>
-            </button>
-          </div>
-          <p id="search-hint" class="input-hint">Enter Bitcoin address, transaction hash, or block height</p>
-        </form>
-      </section>
+  <div class="search-container">
+    <select id="searchType">
+      <option value="tx">Transaction (TXID)</option>
+      <option value="address">Address</option>
+      <option value="block">Block (height or hash)</option>
+    </select>
+    
+    <input type="text" id="searchInput" placeholder="Enter TXID, address or block" />
+    
+    <button id="searchBtn" onclick="performSearch()">Search</button>
+  </div>
 
-      <section class="features-section" aria-labelledby="features-heading">
-        <h2 id="features-heading" class="section-heading">Explore the Blockchain</h2>
-        <div class="features-grid">
-          <article class="feature-card" aria-labelledby="feature1-heading">
-            <div class="feature-icon" aria-hidden="true">🔍</div>
-            <h3 id="feature1-heading">Address Lookup</h3>
-            <p>Track balances and full transaction history for any Bitcoin address with detailed analytics.</p>
-          </article>
-          
-          <article class="feature-card" aria-labelledby="feature2-heading">
-            <div class="feature-icon" aria-hidden="true">↔️</div>
-            <h3 id="feature2-heading">Transaction Details</h3>
-            <p>View complete transaction inputs, outputs, fees, and confirmation status in real-time.</p>
-          </article>
-          
-          <article class="feature-card" aria-labelledby="feature3-heading">
-            <div class="feature-icon" aria-hidden="true">⛏️</div>
-            <h3 id="feature3-heading">Block Explorer</h3>
-            <p>Examine block details, mining information, and included transactions with timestamps.</p>
-          </article>
-        </div>
-      </section>
+  <div id="result" class="result"></div>
 
-      <div id="search-results-container" class="search-results hidden" aria-live="polite">
-        <!-- Risultati verranno inseriti qui via JavaScript -->
-      </div>
-    </div>
-  </main>
+<script>
+  // Simple cache
+  const cache = {
+    data: {},
+    get(key) {
+      return this.data[key] || null;
+    },
+    set(key, value) {
+      this.data[key] = value;
+      // Remove from cache after 5 minutes
+      setTimeout(() => delete this.data[key], 300000);
+    }
+  };
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="/" class="footer-logo">₿ BTC Finder</a>
-          <p>Open-source Bitcoin blockchain explorer</p>
-        </div>
-        
-        <nav class="footer-nav" aria-label="Footer navigation">
-          <ul>
-            <li><a href="about.html">About</a></li>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms</a></li>
-            <li><a href="contact.html">Contact</a></li>
-          </ul>
-        </nav>
-        
-        <div class="footer-social">
-          <h3>Connect</h3>
-          <ul>
-            <li><a href="https://github.com/yourrepo" aria-label="GitHub">GitHub</a></li>
-            <li><a href="https://twitter.com/yourhandle" aria-label="Twitter">Twitter</a></li>
-          </ul>
-        </div>
-      </div>
+  // Number formatting
+  function formatBTC(satoshi) {
+    return (satoshi / 1e8).toFixed(8) + ' BTC';
+  }
+  
+  function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  
+  function shortenHash(hash) {
+    if (hash.length > 20) {
+      return `${hash.substring(0, 10)}...${hash.substring(hash.length - 10)}`;
+    }
+    return hash;
+  }
+  
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      // Show visual feedback
+      const btn = document.getElementById('copy-feedback');
+      if (btn) {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      }
+    });
+  }
+
+  // Support for Enter key in search box
+  document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') performSearch();
+  });
+  
+  // Input validation
+  function validateInput(type, query) {
+    if (!query) {
+      throw new Error('Please enter a valid value');
+    }
+    
+    if (type === 'tx') {
+      if (!/^[a-fA-F0-9]{64}$/.test(query)) {
+        throw new Error('Invalid TXID. Must be 64 hexadecimal characters');
+      }
+    } else if (type === 'address') {
+      if (!/^([13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{39,59})$/.test(query)) {
+        throw new Error('Invalid Bitcoin address');
+      }
+    } else if (type === 'block') {
+      if (!/^[0-9]+$/.test(query) && !/^[a-fA-F0-9]{64}$/.test(query)) {
+        throw new Error('Invalid block. Enter a number (height) or hash (64 hexadecimal characters)');
+      }
+    }
+  }
+
+  async function performSearch() {
+    const type = document.getElementById('searchType').value;
+    const query = document.getElementById('searchInput').value.trim();
+    const resultDiv = document.getElementById('result');
+    const originalContent = resultDiv.innerHTML;
+    
+    try {
+      validateInput(type, query);
       
-      <div class="footer-bottom">
-        <p>MIT License © <span id="current-year">2025</span> BTC Finder</p>
-        <p>Data provided by <a href="https://blockchain.com" target="_blank" rel="noopener noreferrer">Blockchain.com</a></p>
-      </div>
-    </div>
-  </footer>
+      resultDiv.innerHTML = '<div class="loader"></div><p style="text-align:center;">Loading data...</p>';
+      
+      if (type === 'tx') {
+        await searchTransaction(query, resultDiv);
+      } else if (type === 'address') {
+        await searchAddress(query, resultDiv);
+      } else if (type === 'block') {
+        await searchBlock(query, resultDiv);
+      }
+    } catch (e) {
+      resultDiv.innerHTML = `<p style="color:var(--error);"><strong>Error:</strong> ${e.message}</p>${originalContent}`;
+    }
+  }
 
-  <script src="js/main.js" defer></script>
+  async function searchTransaction(txid, container) {
+    // Check cache first
+    const cachedData = cache.get(`tx_${txid}`);
+    if (cachedData) {
+      renderTransaction(cachedData, container);
+      return;
+    }
+    
+    const [txRes, txStatusRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/tx/${txid}`),
+      fetch(`https://blockstream.info/api/tx/${txid}/status`)
+    ]);
+    
+    if (!txRes.ok || !txStatusRes.ok) throw new Error('Transaction not found');
+    
+    const tx = await txRes.json();
+    const txStatus = await txStatusRes.json();
+    
+    // Add status to transaction
+    tx.status = txStatus;
+    
+    // Save to cache
+    cache.set(`tx_${txid}`, tx);
+    
+    renderTransaction(tx, container);
+  }
+  
+  function renderTransaction(tx, container) {
+    let html = `<h2>Transaction Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">TXID:</div>
+      <div>${tx.txid} <button class="copy-btn" onclick="copyToClipboard('${tx.txid}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Status:</div>
+      <div>${tx.status.confirmed ? 
+        `<span class="badge confirmed">Confirmed</span> (Block #${tx.status.block_height})` : 
+        `<span class="badge unconfirmed">Unconfirmed</span>`}
+      </div>
+    </div>`;
+    
+    if (tx.status.confirmed) {
+      html += `<div class="data-row">
+        <div class="data-label">Confirmations:</div>
+        <div>${formatNumber(tx.status.block_height)}</div>
+      </div>`;
+    }
+    
+    html += `<div class="data-row">
+      <div class="data-label">Date/Time:</div>
+      <div>${tx.status.confirmed ? 
+        new Date(tx.status.block_time * 1000).toLocaleString() : 
+        'In mempool (unconfirmed)'}
+      </div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Size:</div>
+      <div>${formatNumber(tx.size)} bytes</div>
+    </div>`;
+    
+    // Calculate fee if available
+    if (tx.vin && tx.vout) {
+      const inputSum = tx.vin.reduce((sum, vin) => sum + (vin.prevout?.value || 0), 0);
+      const outputSum = tx.vout.reduce((sum, vout) => sum + vout.value, 0);
+      const fee = inputSum - outputSum;
+      
+      if (fee > 0) {
+        html += `<div class="data-row">
+          <div class="data-label">Fee:</div>
+          <div>${formatBTC(fee)} (${formatNumber(fee)} satoshis)</div>
+        </div>`;
+        
+        html += `<div class="data-row">
+          <div class="data-label">Fee rate:</div>
+          <div>${(fee / tx.size).toFixed(2)} satoshis/byte</div>
+        </div>`;
+      }
+    }
+    
+    // Inputs and Outputs
+    html += `<div class="tabs">
+      <div class="tab active" onclick="switchTab('inputs', 'outputs')">Inputs (${tx.vin.length})</div>
+      <div class="tab" onclick="switchTab('outputs', 'inputs')">Outputs (${tx.vout.length})</div>
+    </div>`;
+    
+    // Inputs Tab
+    html += `<div id="inputs" class="tab-content active"><ul>`;
+    tx.vin.forEach((vin, i) => {
+      const address = vin.prevout?.scriptpubkey_address || 'Coinbase (new coin generation)';
+      const value = vin.prevout?.value ? formatBTC(vin.prevout.value) : 'N/A';
+      
+      html += `<li>
+        <strong>Input #${i + 1}:</strong> 
+        ${address.startsWith('Coinbase') ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${value}
+        ${vin.txid ? `<br><small>From TX: <a href="#" class="tx-link" onclick="performSearchTx('${vin.txid}')">${shortenHash(vin.txid)}</a></small>` : ''}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    // Outputs Tab
+    html += `<div id="outputs" class="tab-content"><ul>`;
+    tx.vout.forEach((vout, i) => {
+      const address = vout.scriptpubkey_address || 'N/A (non-standard script)';
+      html += `<li>
+        <strong>Output #${i + 1}:</strong> 
+        ${address === 'N/A (non-standard script)' ? address : 
+          `<a href="#" class="tx-link" onclick="performSearchAddress('${address}')">${address}</a>`}
+        - ${formatBTC(vout.value)}
+      </li>`;
+    });
+    html += `</ul></div>`;
+    
+    container.innerHTML = html;
+  }
+
+  async function searchAddress(address, container) {
+    const cachedData = cache.get(`addr_${address}`);
+    if (cachedData) {
+      renderAddress(cachedData, address, container);
+      return;
+    }
+    
+    const [addrRes, txsRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/address/${address}`),
+      fetch(`https://blockstream.info/api/address/${address}/txs`)
+    ]);
+    
+    if (!addrRes.ok) throw new Error('Address not found');
+    
+    const addrInfo = await addrRes.json();
+    const txs = txsRes.ok ? await txsRes.json() : [];
+    
+    const data = { addrInfo, txs };
+    cache.set(`addr_${address}`, data);
+    
+    renderAddress(data, address, container);
+  }
+  
+  function renderAddress(data, address, container) {
+    const { addrInfo, txs } = data;
+    
+    const confirmedBalance = (addrInfo.chain_stats.funded_txo_sum - addrInfo.chain_stats.spent_txo_sum) / 1e8;
+    const unconfirmedBalance = (addrInfo.mempool_stats.funded_txo_sum - addrInfo.mempool_stats.spent_txo_sum) / 1e8;
+    const totalReceived = addrInfo.chain_stats.funded_txo_sum / 1e8;
+    const totalSent = addrInfo.chain_stats.spent_txo_sum / 1e8;
+    
+    let html = `<h2>Address Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Address:</div>
+      <div>${address} <button class="copy-btn" onclick="copyToClipboard('${address}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Confirmed Balance:</div>
+      <div><span class="btc-symbol">₿</span> ${confirmedBalance.toFixed(8)} BTC</div>
+    </div>`;
+    
+    if (unconfirmedBalance !== 0) {
+      html += `<div class="data-row">
+        <div class="data-label">Unconfirmed Balance:</div>
+        <div><span class="btc-symbol">₿</span> ${unconfirmedBalance.toFixed(8)} BTC</div>
+      </div>`;
+    }
+    
+    html += `<div class="data-row">
+      <div class="data-label">Total Received:</div>
+      <div><span class="btc-symbol">₿</span> ${totalReceived.toFixed(8)} BTC</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Total Sent:</div>
+      <div><span class="btc-symbol">₿</span> ${totalSent.toFixed(8)} BTC</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Transaction Count:</div>
+      <div>${formatNumber(addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count)}</div>
+    </div>`;
+    
+    // Show recent transactions
+    html += `<h3>Recent Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions found</p>`;
+    } else {
+      html += `<ul>`;
+      txs.slice(0, 10).forEach(tx => {
+        const isOutgoing = tx.vin.some(vin => vin.prevout?.scriptpubkey_address === address);
+        html += `<li>
+          <span class="badge ${isOutgoing ? 'unconfirmed' : 'confirmed'}">${isOutgoing ? 'Sent' : 'Received'}</span>
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${shortenHash(tx.txid)}</a>
+          (<span class="btc-symbol">₿</span> ${formatBTC(isOutgoing ? 
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
+            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0))})
+          ${tx.status.confirmed ? 
+            `<small>${new Date(tx.status.block_time * 1000).toLocaleDateString()}</small>` : 
+            '<small>In mempool</small>'}
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    container.innerHTML = html;
+  }
+
+  async function searchBlock(blockQuery, container) {
+    const cachedData = cache.get(`block_${blockQuery}`);
+    if (cachedData) {
+      renderBlock(cachedData, container);
+      return;
+    }
+    
+    let blockHash = blockQuery;
+    
+    // If it's a number (block height)
+    if (/^\d+$/.test(blockQuery)) {
+      const hashRes = await fetch(`https://blockstream.info/api/block-height/${blockQuery}`);
+      if (!hashRes.ok) throw new Error('Block not found');
+      blockHash = await hashRes.text();
+    }
+    
+    const [blockRes, txsRes] = await Promise.all([
+      fetch(`https://blockstream.info/api/block/${blockHash}`),
+      fetch(`https://blockstream.info/api/block/${blockHash}/txs`)
+    ]);
+    
+    if (!blockRes.ok) throw new Error('Block not found');
+    
+    const block = await blockRes.json();
+    const txs = txsRes.ok ? await txsRes.json() : [];
+    
+    const data = { block, txs, blockHash };
+    cache.set(`block_${blockQuery}`, data);
+    cache.set(`block_${blockHash}`, data);
+    
+    renderBlock(data, container);
+  }
+  
+  function renderBlock(data, container) {
+    const { block, txs, blockHash } = data;
+    
+    let html = `<h2>Block Details</h2>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Height:</div>
+      <div>${formatNumber(block.height)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Hash:</div>
+      <div>${blockHash} <button class="copy-btn" onclick="copyToClipboard('${blockHash}')" id="copy-feedback">Copy</button></div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Date/Time:</div>
+      <div>${new Date(block.timestamp * 1000).toLocaleString()}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Transaction Count:</div>
+      <div>${formatNumber(block.tx_count)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Size:</div>
+      <div>${formatNumber(block.size)} bytes</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Difficulty:</div>
+      <div>${formatNumber(Math.round(block.difficulty))}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Version:</div>
+      <div>0x${block.version.toString(16)}</div>
+    </div>`;
+    
+    html += `<div class="data-row">
+      <div class="data-label">Merkle Root:</div>
+      <div>${block.merkle_root}</div>
+    </div>`;
+    
+    // Recent transactions in block
+    html += `<h3>Recent Transactions</h3>`;
+    
+    if (txs.length === 0) {
+      html += `<p>No transactions available</p>`;
+    } else {
+      html += `<ul>`;
+      txs.slice(0, 10).forEach(tx => {
+        html += `<li>
+          <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${shortenHash(tx.txid)}</a>
+          (<span class="btc-symbol">₿</span> ${formatBTC(tx.vout.reduce((sum, v) => sum + v.value, 0))})
+        </li>`;
+      });
+      html += `</ul>`;
+    }
+    
+    container.innerHTML = html;
+  }
+
+  // Helper functions to search from links
+  function performSearchTx(txid) {
+    document.getElementById('searchType').value = 'tx';
+    document.getElementById('searchInput').value = txid;
+    performSearch();
+  }
+  
+  function performSearchAddress(address) {
+    document.getElementById('searchType').value = 'address';
+    document.getElementById('searchInput').value = address;
+    performSearch();
+  }
+  
+  function switchTab(showId, hideId) {
+    document.getElementById(showId).classList.add('active');
+    document.getElementById(hideId).classList.remove('active');
+    
+    document.querySelector(`.tab[onclick="switchTab('${showId}', '${hideId}')"]`).classList.add('active');
+    document.querySelector(`.tab[onclick="switchTab('${hideId}', '${showId}')"]`).classList.remove('active');
+  }
+</script>
+
 </body>
 </html>
