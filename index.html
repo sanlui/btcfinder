@@ -3,73 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Finder | Bitcoin Blockchain Explorer | Search Addresses, Transactions & Blocks</title>
-  <meta name="description" content="Explore the Bitcoin blockchain. Search addresses, transactions, and blocks. View balances, transaction history, and real-time details.">
-  <meta name="keywords" content="Bitcoin, BTC, blockchain explorer, Bitcoin explorer, search Bitcoin transactions, search Bitcoin address">
-  <meta name="author" content="BTC Finder">
+  <title>BTC Finder | Bitcoin Blockchain Explorer</title>
+  <meta name="description" content="Free open-source Bitcoin blockchain explorer. Search addresses, transactions, and blocks with real-time data.">
   
-  <!-- Preload/preconnect optimizations -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Preload risorse critiche -->
   <link rel="preload" href="css/styles.css" as="style">
   <link rel="preload" href="js/main.js" as="script">
-
+  
   <!-- Favicon moderno -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23F7931A%22>₿</text></svg>">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   
-  <!-- CSS esterno -->
+  <!-- CSS -->
   <link rel="stylesheet" href="css/styles.css" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
-
-  <!-- Metadata per social media -->
-  <meta property="og:title" content="₿ BTC Finder - Bitcoin Blockchain Explorer">
-  <meta property="og:description" content="Explore the Bitcoin blockchain. Search addresses, transactions, and blocks.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yourdomain.com">
-  <meta property="og:image" content="https://yourdomain.com/images/og-image.jpg">
-  <meta property="og:image:alt" content="BTC Finder Explorer Interface">
-  <meta name="twitter:card" content="summary_large_image">
-
-  <!-- Structured data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "BTC Finder",
-    "description": "Bitcoin Blockchain Explorer",
-    "url": "https://yourdomain.com",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    }
-  }
-  </script>
 </head>
 <body>
-  <!-- Skip to content link per accessibilità -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <a href="#main-content" class="skip-link">Skip to content</a>
 
-  <header class="header" role="banner">
+  <header class="header">
     <div class="container">
       <div class="header-content">
         <a href="/" class="logo" aria-label="BTC Finder Home">
           <span aria-hidden="true">₿</span>
-          <h1>BTC FINDER</h1>
+          <h1>BTC Finder</h1>
         </a>
-        
-        <nav class="desktop-nav" aria-label="Main navigation">
-          <ul>
-            <li><a href="index.html" class="nav-link active" aria-current="page">Home</a></li>
-            <li><a href="tool.html" class="nav-link">Explorer</a></li>
-            <li><a href="api.html" class="nav-link">API</a></li>
-            <li><a href="docs.html" class="nav-link">Docs</a></li>
-          </ul>
-        </nav>
-
         <button class="theme-toggle" aria-label="Toggle dark mode">
           <span class="toggle-icon"></span>
         </button>
@@ -77,131 +34,68 @@
     </div>
   </header>
 
-  <main id="main-content" class="main-content" role="main">
+  <main id="main-content" class="main-content">
     <div class="container">
-      <!-- Breadcrumb navigation -->
-      <nav aria-label="Breadcrumb" class="breadcrumb">
-        <ol>
-          <li><a href="/">Home</a></li>
-        </ol>
-      </nav>
-      
-      <!-- Search section -->
-      <section class="search-section" aria-labelledby="search-heading">
-        <div class="search-container">
-          <h1 id="search-heading">Bitcoin Blockchain Explorer</h1>
-          
-          <form id="search-form" class="search-input-group" role="search">
-            <div class="input-group">
-              <label for="search-type" class="sr-only">Search type</label>
-              <select id="search-type" aria-label="Search type">
-                <option value="address" selected>Address</option>
-                <option value="tx">Transaction</option>
-                <option value="block">Block</option>
-              </select>
-              
-              <label for="search-input" class="sr-only">Search Bitcoin blockchain</label>
-              <input 
-                type="text" 
-                id="search-input" 
-                placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-                required
-                pattern="^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^[a-fA-F0-9]{64}$|^[0-9]+$"
-                aria-describedby="search-hint"
-              >
-              <button type="submit" class="btn primary-btn">
-                <span class="btn-text">Search</span>
-                <span class="loader hidden" aria-hidden="true"></span>
-              </button>
-            </div>
-            <p id="search-hint" class="input-hint">Enter Bitcoin address, transaction hash, or block height</p>
-          </form>
-        </div>
+      <section class="hero-section">
+        <h1 class="hero-title">Bitcoin Blockchain Explorer</h1>
+        <p class="hero-subtitle">Explore transactions, addresses and blocks on the Bitcoin network</p>
+        
+        <form id="search-form" class="search-form" role="search">
+          <div class="search-input-group">
+            <label for="search-type" class="sr-only">Search type</label>
+            <select id="search-type" aria-label="Search type">
+              <option value="address" selected>Address</option>
+              <option value="tx">Transaction</option>
+              <option value="block">Block</option>
+            </select>
+            
+            <label for="search-input" class="sr-only">Search Bitcoin blockchain</label>
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+              required
+              aria-describedby="search-hint"
+            >
+            <button type="submit" class="search-button">
+              <span class="button-text">Search</span>
+              <span class="search-icon" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p id="search-hint" class="input-hint">Enter Bitcoin address, transaction hash, or block height</p>
+        </form>
       </section>
 
-      <!-- Features grid -->
       <section class="features-section" aria-labelledby="features-heading">
         <h2 id="features-heading" class="section-heading">Explore the Blockchain</h2>
         <div class="features-grid">
           <article class="feature-card" aria-labelledby="feature1-heading">
+            <div class="feature-icon" aria-hidden="true">🔍</div>
             <h3 id="feature1-heading">Address Lookup</h3>
-            <p>Track balances and transaction history for any Bitcoin address</p>
+            <p>Track balances and full transaction history for any Bitcoin address with detailed analytics.</p>
           </article>
+          
           <article class="feature-card" aria-labelledby="feature2-heading">
+            <div class="feature-icon" aria-hidden="true">↔️</div>
             <h3 id="feature2-heading">Transaction Details</h3>
-            <p>View complete transaction inputs, outputs, and confirmation status</p>
+            <p>View complete transaction inputs, outputs, fees, and confirmation status in real-time.</p>
           </article>
+          
           <article class="feature-card" aria-labelledby="feature3-heading">
+            <div class="feature-icon" aria-hidden="true">⛏️</div>
             <h3 id="feature3-heading">Block Explorer</h3>
-            <p>Examine block details, transactions, and mining information</p>
+            <p>Examine block details, mining information, and included transactions with timestamps.</p>
           </article>
         </div>
       </section>
 
-      <!-- Results template -->
-      <template id="address-results-template">
-        <div class="address-data-container" aria-live="polite">
-          <div class="address-header">
-            <h2>Bitcoin Address Details</h2>
-            <div class="address-hash-display" id="address-hash"></div>
-            <div class="address-balance-display" id="address-balance"></div>
-          </div>
-
-          <div class="address-stats-grid">
-            <div class="address-stat-card">
-              <div class="stat-title">Total Transactions</div>
-              <div class="stat-value" id="total-transactions"></div>
-            </div>
-            <div class="address-stat-card">
-              <div class="stat-title">BTC Received</div>
-              <div class="stat-value" id="total-received"></div>
-            </div>
-            <div class="address-stat-card">
-              <div class="stat-title">BTC Sent</div>
-              <div class="stat-value" id="total-sent"></div>
-            </div>
-            <div class="address-stat-card">
-              <div class="stat-title">Final Balance</div>
-              <div class="stat-value" id="final-balance"></div>
-            </div>
-          </div>
-
-          <div class="transactions-section">
-            <div class="transactions-header">
-              <h3>Transaction History</h3>
-              <div class="stat-title" id="transactions-count"></div>
-            </div>
-
-            <div class="transaction-controls">
-              <button class="btn outline-btn" id="prev-page" disabled>Previous</button>
-              <span id="page-info">Page 1</span>
-              <button class="btn outline-btn" id="next-page" disabled>Next</button>
-            </div>
-
-            <ul class="transaction-list" id="transactions-list" role="list">
-              <!-- Transactions will be inserted here -->
-            </ul>
-          </div>
-        </div>
-      </template>
-
-      <!-- Results container -->
-      <div id="search-results-container" class="hidden" aria-live="polite">
-        <!-- Results will be dynamically inserted here -->
-      </div>
-
-      <!-- Error display -->
-      <div id="error-container" class="error-container hidden" role="alert">
-        <div class="error-content">
-          <span class="error-icon" aria-hidden="true">!</span>
-          <p id="error-message"></p>
-          <button class="close-error" aria-label="Close error message">×</button>
-        </div>
+      <div id="search-results-container" class="search-results hidden" aria-live="polite">
+        <!-- Risultati verranno inseriti qui via JavaScript -->
       </div>
     </div>
   </main>
 
-  <footer class="footer" role="contentinfo">
+  <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
@@ -228,27 +122,12 @@
       </div>
       
       <div class="footer-bottom">
-        <p>MIT License © <span id="current-year"></span> BTC Finder</p>
-        <p>Data provided by <a href="https://blockchain.com" target="_blank" rel="noopener">Blockchain.com</a></p>
+        <p>MIT License © <span id="current-year">2025</span> BTC Finder</p>
+        <p>Data provided by <a href="https://blockchain.com" target="_blank" rel="noopener noreferrer">Blockchain.com</a></p>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script src="js/main.js" defer></script>
-  
-  <!-- Fallback for browsers that don't support defer -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (window.FontFaceObserver) {
-        new FontFaceObserver('Roboto Mono').load().then(function() {
-          document.documentElement.classList.add('fonts-loaded');
-        });
-      }
-      
-      // Set current year
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-    });
-  </script>
 </body>
 </html>
