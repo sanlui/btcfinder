@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,445 +8,139 @@
   <meta name="keywords" content="Bitcoin, BTC, blockchain explorer, Bitcoin explorer, search Bitcoin transactions, search Bitcoin address">
   <meta name="author" content="BTC Finder">
   
-  <!-- Open Graph / Social Media Meta Tags -->
+  <!-- Preload/preconnect optimizations -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="css/styles.css" as="style">
+  <link rel="preload" href="js/main.js" as="script">
+
+  <!-- Favicon moderno -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22%23F7931A%22>₿</text></svg>">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  <!-- CSS esterno -->
+  <link rel="stylesheet" href="css/styles.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
+
+  <!-- Metadata per social media -->
   <meta property="og:title" content="₿ BTC Finder - Bitcoin Blockchain Explorer">
   <meta property="og:description" content="Explore the Bitcoin blockchain. Search addresses, transactions, and blocks.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yoursite.com">
-  <meta property="og:image" content="https://yoursite.com/images/btc-finder-preview.png">
-  
-  <!-- Favicon with Bitcoin symbol -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
-  
-  <!-- Preload fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap"></noscript>
+  <meta property="og:url" content="https://yourdomain.com">
+  <meta property="og:image" content="https://yourdomain.com/images/og-image.jpg">
+  <meta property="og:image:alt" content="BTC Finder Explorer Interface">
+  <meta name="twitter:card" content="summary_large_image">
 
-  <!-- CSS Styles -->
-  <style>
-    :root {
-      --btc-orange: #F7931A; --btc-orange-hover: #E07B0A; --bg-dark: #111; --bg-darker: #0A0A0A;
-      --bg-light: #f5f5f5; --text-light: #E5E5E5; --text-dark: #333; --border-gray: #374151;
-      --success: #10B981; --warning: #F59E0B; --error: #EF4444;
-    }
-
-    *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Roboto Mono', monospace, system-ui; 
-      background: var(--bg-light); 
-      color: var(--text-dark); 
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .container {
-      width: 100%; 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      padding: 0 1rem;
-    }
-
-    /* Header */
-    .header {
-      position: sticky; 
-      top: 0; 
-      z-index: 100;
-      background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-darker) 100%); 
-      padding: 1rem 0;
-    }
-
-    .header-content {
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-    }
-
-    .logo {
-      display: flex; 
-      align-items: center; 
-      gap: 0.75rem;
-    }
-
-    .logo h1 {
-      color: var(--text-light); 
-      font-size: 1.25rem; 
-      font-weight: 500; 
-      letter-spacing: 0.05em;
-    }
-
-    .desktop-nav ul {
-      display: flex; 
-      gap: 1.5rem; 
-      list-style: none;
-    }
-
-    .desktop-nav a {
-      color: var(--text-light); 
-      text-decoration: none; 
-      font-size: 0.875rem; 
-      font-weight: 500;
-      transition: color 0.2s; 
-      text-transform: uppercase; 
-      letter-spacing: 0.05em; 
-      position: relative;
-    }
-
-    .desktop-nav a:hover, .desktop-nav a.active { color: var(--btc-orange); }
-    .desktop-nav a.active::after {
-      content: ''; 
-      position: absolute; 
-      bottom: -5px; 
-      left: 0; 
-      width: 100%; 
-      height: 2px; 
-      background: var(--btc-orange);
-    }
-
-    /* Main Content */
-    .main-content { 
-      padding: 2rem 0;
-      flex: 1;
-    }
-
-    /* Search Section */
-    .search-container {
-      background: var(--bg-dark); 
-      border-radius: 0.5rem; 
-      padding: 1.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); 
-      margin-bottom: 3rem;
-    }
-
-    .search-container h2 {
-      color: var(--text-light); 
-      font-size: 1.125rem; 
-      margin-bottom: 1rem; 
-      text-transform: uppercase; 
-      letter-spacing: 0.05em;
-    }
-
-    .search-input-group {
-      display: flex; 
-      flex-direction: column; 
-      gap: 0.75rem;
-    }
-
-    #search-type, #search-input {
-      background: #1E1E1E; 
-      color: var(--text-light); 
-      padding: 0.75rem;
-      border: 1px solid var(--border-gray); 
-      border-radius: 0.375rem; 
-      font-family: inherit;
-    }
-
-    #search-btn {
-      background: var(--btc-orange); 
-      color: var(--bg-dark); 
-      font-weight: bold; 
-      padding: 0.75rem 1.5rem;
-      border: none; 
-      border-radius: 0.375rem; 
-      cursor: pointer; 
-      transition: background 0.2s; 
-      text-transform: uppercase;
-    }
-
-    #search-btn:hover { background: var(--btc-orange-hover); }
-
-    /* Features */
-    .features {
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-
-    .feature-card {
-      background: white; 
-      border-radius: 0.5rem; 
-      padding: 1.5rem; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      transition: transform 0.2s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .feature-card h3 {
-      color: var(--btc-orange); 
-      margin-bottom: 0.75rem;
-    }
-
-    /* Address results styling */
-    .address-data-container {
-      background: white; 
-      border-radius: 0.5rem; 
-      padding: 1.5rem;
-      margin-top: 1rem; 
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    .address-header {
-      padding-bottom: 1rem; 
-      margin-bottom: 1.5rem; 
-      border-bottom: 1px solid #eee;
-    }
-
-    .address-hash-display {
-      font-family: 'Roboto Mono', monospace; 
-      font-size: 1.1rem;
-      color: var(--btc-orange); 
-      word-break: break-all; 
-      margin-bottom: 0.5rem;
-    }
-
-    .address-balance-display {
-      font-size: 1.5rem; 
-      font-weight: bold; 
-      color: var(--btc-orange);
-      margin: 1rem 0;
-    }
-
-    .address-stats-grid {
-      display: grid; 
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem; 
-      margin-bottom: 2rem;
-    }
-
-    .address-stat-card {
-      background: #f9f9f9; 
-      border-radius: 0.5rem; 
-      padding: 1rem;
-    }
-
-    .stat-title {
-      font-size: 0.85rem; 
-      color: var(--text-dark); 
-      opacity: 0.8;
-      margin-bottom: 0.5rem; 
-      text-transform: uppercase;
-    }
-
-    .stat-value {
-      font-family: 'Roboto Mono', monospace; 
-      font-weight: bold;
-    }
-
-    .transactions-section {
-      margin-top: 2rem;
-    }
-
-    .transactions-header {
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-
-    .transaction-list {
-      list-style: none;
-    }
-
-    .transaction-item {
-      padding: 1.25rem 0; 
-      border-bottom: 1px solid #eee;
-    }
-
-    .tx-hash-link {
-      color: var(--btc-orange); 
-      text-decoration: none;
-      font-family: 'Roboto Mono', monospace; 
-      word-break: break-all;
-      display: block; 
-      margin-bottom: 0.75rem;
-    }
-
-    .tx-hash-link:hover {
-      text-decoration: underline;
-    }
-
-    .tx-details-grid {
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 1rem;
-    }
-
-    .tx-io-box {
-      background: #f8f8f8; 
-      border-radius: 0.375rem; 
-      padding: 0.75rem;
-    }
-
-    .tx-address {
-      font-family: 'Roboto Mono', monospace; 
-      font-size: 0.85rem;
-      word-break: break-all; 
-      margin-bottom: 0.5rem;
-    }
-
-    .tx-amount {
-      font-family: 'Roboto Mono', monospace; 
-      font-weight: bold;
-      color: var(--success);
-    }
-
-    .tx-amount.out {
-      color: var(--error);
-    }
-
-    .tx-confirmations {
-      font-size: 0.8rem; 
-      color: #666; 
-      margin-top: 0.75rem;
-    }
-
-    /* Footer */
-    .footer {
-      background: var(--bg-dark); 
-      color: var(--text-light);
-      padding: 1.5rem 0; 
-      text-align: center;
-      margin-top: auto;
-    }
-
-    .footer p {
-      margin-bottom: 0.5rem; 
-      font-size: 0.875rem;
-    }
-
-    /* Animations */
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .hidden { display: none; }
-
-    /* Loader */
-    .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid var(--btc-orange);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Schema.org / Rich Snippet */
-    .breadcrumb {
-      font-size: 0.8rem;
-      padding: 0.5rem 0;
-      color: #666;
-    }
-
-    /* Responsive */
-    @media (min-width: 768px) {
-      .search-input-group { flex-direction: row; }
-    }
-
-    @media (max-width: 768px) {
-      .header-content { flex-direction: column; gap: 1rem; }
-      .desktop-nav ul { gap: 1rem; }
-      .tx-details-grid { grid-template-columns: 1fr; gap: 0.75rem; }
-    }
-  </style>
-  
-  <!-- Schema.org markup for Google -->
+  <!-- Structured data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "BTC Finder",
-    "description": "Bitcoin Blockchain Explorer to search addresses, transactions and blocks",
-    "url": "https://yoursite.com",
+    "description": "Bitcoin Blockchain Explorer",
+    "url": "https://yourdomain.com",
     "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web"
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
   }
   </script>
 </head>
 <body>
-  <header class="header">
+  <!-- Skip to content link per accessibilità -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="header" role="banner">
     <div class="container">
       <div class="header-content">
-        <div class="logo">
-          <h1>₿ BTC FINDER</h1>
-        </div>
-        <nav class="desktop-nav" aria-label="Main menu">
+        <a href="/" class="logo" aria-label="BTC Finder Home">
+          <span aria-hidden="true">₿</span>
+          <h1>BTC FINDER</h1>
+        </a>
+        
+        <nav class="desktop-nav" aria-label="Main navigation">
           <ul>
-            <li><a href="index.html" class="nav-link active">HOME</a></li>
-            <li><a href="tool.html" class="nav-link">TOOL</a></li>
+            <li><a href="index.html" class="nav-link active" aria-current="page">Home</a></li>
+            <li><a href="tool.html" class="nav-link">Explorer</a></li>
             <li><a href="api.html" class="nav-link">API</a></li>
-            <li><a href="docs.html" class="nav-link">DOCS</a></li>
+            <li><a href="docs.html" class="nav-link">Docs</a></li>
           </ul>
         </nav>
+
+        <button class="theme-toggle" aria-label="Toggle dark mode">
+          <span class="toggle-icon"></span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="main-content">
+  <main id="main-content" class="main-content" role="main">
     <div class="container">
+      <!-- Breadcrumb navigation -->
       <nav aria-label="Breadcrumb" class="breadcrumb">
-        <span>Home</span>
+        <ol>
+          <li><a href="/">Home</a></li>
+        </ol>
       </nav>
       
-      <section class="search-section fade-in">
+      <!-- Search section -->
+      <section class="search-section" aria-labelledby="search-heading">
         <div class="search-container">
-          <h1>Bitcoin Blockchain Explorer</h1>
-          <form id="search-form" class="search-input-group">
-            <select id="search-type" aria-label="Search type">
-              <option value="tx">Transaction</option>
-              <option value="address" selected>Address</option>
-              <option value="block">Block</option>
-            </select>
-            <input 
-              type="text" 
-              id="search-input" 
-              placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
-              required
-              aria-label="Search the Bitcoin blockchain"
-            >
-            <button type="submit" id="search-btn" class="btn">Search</button>
+          <h1 id="search-heading">Bitcoin Blockchain Explorer</h1>
+          
+          <form id="search-form" class="search-input-group" role="search">
+            <div class="input-group">
+              <label for="search-type" class="sr-only">Search type</label>
+              <select id="search-type" aria-label="Search type">
+                <option value="address" selected>Address</option>
+                <option value="tx">Transaction</option>
+                <option value="block">Block</option>
+              </select>
+              
+              <label for="search-input" class="sr-only">Search Bitcoin blockchain</label>
+              <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+                required
+                pattern="^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^[a-fA-F0-9]{64}$|^[0-9]+$"
+                aria-describedby="search-hint"
+              >
+              <button type="submit" class="btn primary-btn">
+                <span class="btn-text">Search</span>
+                <span class="loader hidden" aria-hidden="true"></span>
+              </button>
+            </div>
+            <p id="search-hint" class="input-hint">Enter Bitcoin address, transaction hash, or block height</p>
           </form>
         </div>
       </section>
 
-      <section class="features fade-in">
-        <h2 class="hidden">Features</h2>
-        <div class="features">
-          <article class="feature-card">
-            <h3>Transactions</h3>
-            <p>Search by transaction ID with full details</p>
+      <!-- Features grid -->
+      <section class="features-section" aria-labelledby="features-heading">
+        <h2 id="features-heading" class="section-heading">Explore the Blockchain</h2>
+        <div class="features-grid">
+          <article class="feature-card" aria-labelledby="feature1-heading">
+            <h3 id="feature1-heading">Address Lookup</h3>
+            <p>Track balances and transaction history for any Bitcoin address</p>
           </article>
-          <article class="feature-card">
-            <h3>Addresses</h3>
-            <p>Track balances and transaction history</p>
+          <article class="feature-card" aria-labelledby="feature2-heading">
+            <h3 id="feature2-heading">Transaction Details</h3>
+            <p>View complete transaction inputs, outputs, and confirmation status</p>
           </article>
-          <article class="feature-card">
-            <h3>Blocks</h3>
-            <p>Explore block details and confirmations</p>
+          <article class="feature-card" aria-labelledby="feature3-heading">
+            <h3 id="feature3-heading">Block Explorer</h3>
+            <p>Examine block details, transactions, and mining information</p>
           </article>
         </div>
       </section>
 
-      <!-- Template per i risultati -->
+      <!-- Results template -->
       <template id="address-results-template">
-        <div class="address-data-container">
+        <div class="address-data-container" aria-live="polite">
           <div class="address-header">
             <h2>Bitcoin Address Details</h2>
             <div class="address-hash-display" id="address-hash"></div>
@@ -474,30 +168,87 @@
 
           <div class="transactions-section">
             <div class="transactions-header">
-              <h3>Transactions</h3>
+              <h3>Transaction History</h3>
               <div class="stat-title" id="transactions-count"></div>
             </div>
 
-            <ul class="transaction-list" id="transactions-list">
-              <!-- Transactions will be dynamically added here -->
+            <div class="transaction-controls">
+              <button class="btn outline-btn" id="prev-page" disabled>Previous</button>
+              <span id="page-info">Page 1</span>
+              <button class="btn outline-btn" id="next-page" disabled>Next</button>
+            </div>
+
+            <ul class="transaction-list" id="transactions-list" role="list">
+              <!-- Transactions will be inserted here -->
             </ul>
           </div>
         </div>
       </template>
 
+      <!-- Results container -->
       <div id="search-results-container" class="hidden" aria-live="polite">
-        <!-- I risultati verranno inseriti qui dinamicamente -->
+        <!-- Results will be dynamically inserted here -->
+      </div>
+
+      <!-- Error display -->
+      <div id="error-container" class="error-container hidden" role="alert">
+        <div class="error-content">
+          <span class="error-icon" aria-hidden="true">!</span>
+          <p id="error-message"></p>
+          <button class="close-error" aria-label="Close error message">×</button>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer class="footer">
+  <footer class="footer" role="contentinfo">
     <div class="container">
-      <p>BTC Finder - Open-source Bitcoin blockchain explorer</p>
-      <p>MIT License © <span id="current-year"></span></p>
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="footer-logo">₿ BTC Finder</a>
+          <p>Open-source Bitcoin blockchain explorer</p>
+        </div>
+        
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <ul>
+            <li><a href="about.html">About</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        
+        <div class="footer-social">
+          <h3>Connect</h3>
+          <ul>
+            <li><a href="https://github.com/yourrepo" aria-label="GitHub">GitHub</a></li>
+            <li><a href="https://twitter.com/yourhandle" aria-label="Twitter">Twitter</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>MIT License © <span id="current-year"></span> BTC Finder</p>
+        <p>Data provided by <a href="https://blockchain.com" target="_blank" rel="noopener">Blockchain.com</a></p>
+      </div>
     </div>
   </footer>
 
-  <script type="module" src="js/main.js"></script>
+  <!-- Scripts -->
+  <script src="js/main.js" defer></script>
+  
+  <!-- Fallback for browsers that don't support defer -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.FontFaceObserver) {
+        new FontFaceObserver('Roboto Mono').load().then(function() {
+          document.documentElement.classList.add('fonts-loaded');
+        });
+      }
+      
+      // Set current year
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+    });
+  </script>
 </body>
 </html>
