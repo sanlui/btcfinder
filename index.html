@@ -401,11 +401,52 @@
 
   <main class="main-content">
     <div class="container">
-      <!-- Breadcrumb e search section rimangono uguali -->
+      <nav aria-label="Breadcrumb" class="breadcrumb">
+        <span>Home</span>
+      </nav>
+      
+      <section class="search-section fade-in">
+        <div class="search-container">
+          <h1>Bitcoin Blockchain Explorer</h1>
+          <form id="search-form" class="search-input-group">
+            <select id="search-type" aria-label="Search type">
+              <option value="tx">Transaction</option>
+              <option value="address" selected>Address</option>
+              <option value="block">Block</option>
+            </select>
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Example: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"
+              required
+              aria-label="Search the Bitcoin blockchain"
+            >
+            <button type="submit" id="search-btn" class="btn">Search</button>
+          </form>
+        </div>
+      </section>
 
-      <!-- Aggiungi il template qui, fuori dal container nascosto -->
-      <template id="address-results-template">
-        <div class="address-data-container">
+      <section class="features fade-in">
+        <h2 class="hidden">Features</h2>
+        <div class="features">
+          <article class="feature-card">
+            <h3>Transactions</h3>
+            <p>Search by transaction ID with full details</p>
+          </article>
+          <article class="feature-card">
+            <h3>Addresses</h3>
+            <p>Track balances and transaction history</p>
+          </article>
+          <article class="feature-card">
+            <h3>Blocks</h3>
+            <p>Explore block details and confirmations</p>
+          </article>
+        </div>
+      </section>
+
+      <div id="search-results-container" class="hidden" aria-live="polite">
+        <!-- Template for address results -->
+        <div class="address-data-container" id="address-results-template">
           <div class="address-header">
             <h2>Bitcoin Address Details</h2>
             <div class="address-hash-display" id="address-hash"></div>
@@ -442,16 +483,18 @@
             </ul>
           </div>
         </div>
-      </template>
-
-      <div id="search-results-container" class="hidden" aria-live="polite">
-        <!-- I risultati verranno inseriti qui dinamicamente -->
       </div>
     </div>
   </main>
 
-  <!-- Footer rimane uguale -->
+  <footer class="footer">
+    <div class="container">
+      <p>BTC Finder - Open-source Bitcoin blockchain explorer</p>
+      <p>MIT License © <span id="current-year"></span></p>
+    </div>
+  </footer>
 
+  <!-- Only external JavaScript reference remains -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
