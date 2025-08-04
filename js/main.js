@@ -638,7 +638,41 @@ const favorites = {
     }
 };
 
-// Funzioni principali dell'applicazione
+function toggleDashboard() {
+  const dashboard = document.getElementById("dashboard");
+  const resultDiv = document.getElementById("result");
+
+  if (!dashboard) return;
+
+  if (dashboard.style.display === "none" || dashboard.style.display === "") {
+    dashboard.style.display = "block";
+    resultDiv.style.display = "none"; // nascondi i risultati principali
+    loadDashboard(); // carica contenuto
+  } else {
+    dashboard.style.display = "none";
+    resultDiv.style.display = "block"; // mostra i risultati principali
+  }
+}
+
+async function loadDashboard() {
+  const dashboard = document.getElementById("dashboard");
+  dashboard.innerHTML = '<div class="loader"></div><p style="text-align:center;">Caricamento dashboard...</p>';
+
+  try {
+    const stats = await api.getNetworkStats(); // usa la tua funzione già presente
+    dashboard.innerHTML = renderer.dashboard(stats); // visualizza
+    renderer.renderNetworkChart(); // mostra il grafico (già esistente)
+  } catch (err) {
+    dashboard.innerHTML = `
+      <div class="error-message">
+        <p>Impossibile caricare i dati della dashboard.</p>
+        <button onclick="loadDashboard()">Riprova</button>
+      </div>
+    `;
+    console.error("Errore nel caricamento della dashboard:", err);
+  }
+}
+
 async function performSearch() {
     const type = document.getElementById('searchType').value;
     const query = document.getElementById('searchInput').value.trim();
