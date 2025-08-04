@@ -18,6 +18,9 @@
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
   
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <style>
     :root {
       --primary: #f7931a;
@@ -73,11 +76,14 @@
       border: none; 
       font-weight: bold;
       transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     button:hover { background: var(--primary-hover); }
     
-    .result { 
+    .result, #dashboard { 
       background: var(--secondary); 
       padding: 20px; 
       margin-top: 30px; 
@@ -147,11 +153,72 @@
     .confirmed { background: var(--success); color: white; }
     .unconfirmed { background: #ff9800; color: white; }
     
+    .balance-highlight {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: var(--primary);
+      background: rgba(247, 147, 26, 0.1);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .qr-code {
+      margin: 15px 0;
+      padding: 10px;
+      background: white;
+      display: inline-block;
+      border-radius: 8px;
+    }
+
+    .advanced-options {
+      margin: 15px 0;
+      padding: 15px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 8px;
+    }
+
+    .chart-container {
+      height: 300px;
+      margin: 20px 0;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: bold;
+      color: var(--primary);
+      margin-top: 5px;
+    }
+    
+    .favorites-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 8px;
+    }
+    
     @media (max-width: 600px) {
       .search-container { flex-direction: column; }
       input { width: 100%; }
       .data-row { flex-direction: column; }
       .data-label { min-width: auto; margin-bottom: 4px; }
+      .stats-grid { grid-template-columns: 1fr; }
     }
     
     .copy-btn {
@@ -190,6 +257,20 @@
       font-weight: bold;
       color: var(--primary);
     }
+    
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    .btn-secondary {
+      background: #666;
+    }
+    
+    .btn-secondary:hover {
+      background: #555;
+    }
   </style>
 </head>
 <body>
@@ -205,9 +286,21 @@
     
     <input type="text" id="searchInput" placeholder="Enter TXID, address or block" />
     
-    <button id="searchBtn" onclick="performSearch()">Search</button>
+    <button id="searchBtn" onclick="performSearch()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      Search
+    </button>
   </div>
 
+  <div class="btn-group">
+    <button onclick="toggleDashboard()" id="dashboardBtn">Show Network Dashboard</button>
+    <button class="btn-secondary" onclick="showFavorites()">Show Favorites</button>
+  </div>
+
+  <div id="dashboard" class="result" style="display:none;"></div>
   <div id="result" class="result"></div>
 
 <script>
@@ -382,6 +475,11 @@
       }
     }
     
+    // Add to favorites button
+    html += `<button class="btn-secondary" onclick="saveFavorite('tx', '${tx.txid}', 'TX ${shortenHash(tx.txid)}')">
+      ★ Save to Favorites
+    </button>`;
+    
     // Inputs and Outputs
     html += `<div class="tabs">
       <div class="tab active" onclick="switchTab('inputs', 'outputs')">Inputs (${tx.vin.length})</div>
@@ -427,62 +525,85 @@
       return;
     }
     
-    const [addrRes, txsRes] = await Promise.all([
+    const [addrRes, txsRes, priceRes] = await Promise.all([
       fetch(`https://blockstream.info/api/address/${address}`),
-      fetch(`https://blockstream.info/api/address/${address}/txs`)
+      fetch(`https://blockstream.info/api/address/${address}/txs`),
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
     ]);
     
     if (!addrRes.ok) throw new Error('Address not found');
     
     const addrInfo = await addrRes.json();
     const txs = txsRes.ok ? await txsRes.json() : [];
+    const priceData = priceRes.ok ? await priceRes.json() : null;
     
-    const data = { addrInfo, txs };
+    const data = { addrInfo, txs, priceData };
     cache.set(`addr_${address}`, data);
     
     renderAddress(data, address, container);
   }
   
   function renderAddress(data, address, container) {
-    const { addrInfo, txs } = data;
+    const { addrInfo, txs, priceData } = data;
     
     const confirmedBalance = (addrInfo.chain_stats.funded_txo_sum - addrInfo.chain_stats.spent_txo_sum) / 1e8;
     const unconfirmedBalance = (addrInfo.mempool_stats.funded_txo_sum - addrInfo.mempool_stats.spent_txo_sum) / 1e8;
     const totalReceived = addrInfo.chain_stats.funded_txo_sum / 1e8;
     const totalSent = addrInfo.chain_stats.spent_txo_sum / 1e8;
     
+    const usdValue = priceData ? (confirmedBalance * priceData.bitcoin.usd).toLocaleString() : null;
+    
     let html = `<h2>Address Details</h2>`;
     
-    html += `<div class="data-row">
-      <div class="data-label">Address:</div>
-      <div>${address} <button class="copy-btn" onclick="copyToClipboard('${address}')" id="copy-feedback">Copy</button></div>
-    </div>`;
+    // QR Code and Address
+    html += `<div style="display:flex; gap:20px; flex-wrap:wrap;">
+      <div class="qr-code">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=bitcoin:${address}" 
+             alt="QR Code for ${address}" width="200" height="200">
+      </div>
+      <div style="flex:1; min-width:200px;">
+        <div class="data-row">
+          <div class="data-label">Address:</div>
+          <div>${address} <button class="copy-btn" onclick="copyToClipboard('${address}')">Copy</button></div>
+        </div>
+    `;
     
-    html += `<div class="data-row">
-      <div class="data-label">Confirmed Balance:</div>
-      <div><span class="btc-symbol">₿</span> ${confirmedBalance.toFixed(8)} BTC</div>
+    // Balance with USD value if available
+    html += `<div class="balance-highlight">
+      <span class="btc-symbol">₿</span> ${confirmedBalance.toFixed(8)} BTC
+      ${usdValue ? `<small>($${usdValue} USD)</small>` : ''}
     </div>`;
     
     if (unconfirmedBalance !== 0) {
       html += `<div class="data-row">
-        <div class="data-label">Unconfirmed Balance:</div>
+        <div class="data-label">Unconfirmed:</div>
         <div><span class="btc-symbol">₿</span> ${unconfirmedBalance.toFixed(8)} BTC</div>
       </div>`;
     }
     
-    html += `<div class="data-row">
-      <div class="data-label">Total Received:</div>
-      <div><span class="btc-symbol">₿</span> ${totalReceived.toFixed(8)} BTC</div>
-    </div>`;
+    // Add to favorites button
+    html += `<button class="btn-secondary" onclick="saveFavorite('address', '${address}', 'Address ${shortenHash(address)}')" style="margin-top:10px;">
+      ★ Save to Favorites
+    </button>`;
     
-    html += `<div class="data-row">
-      <div class="data-label">Total Sent:</div>
-      <div><span class="btc-symbol">₿</span> ${totalSent.toFixed(8)} BTC</div>
-    </div>`;
+    // Close QR code section
+    html += `</div></div>`;
     
-    html += `<div class="data-row">
-      <div class="data-label">Transaction Count:</div>
-      <div>${formatNumber(addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count)}</div>
+    // Stats section
+    html += `<div class="advanced-options">
+      <h3>Address Statistics</h3>
+      <div class="data-row">
+        <div class="data-label">Total Received:</div>
+        <div><span class="btc-symbol">₿</span> ${totalReceived.toFixed(8)} BTC</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Total Sent:</div>
+        <div><span class="btc-symbol">₿</span> ${totalSent.toFixed(8)} BTC</div>
+      </div>
+      <div class="data-row">
+        <div class="data-label">Transaction Count:</div>
+        <div>${formatNumber(addrInfo.chain_stats.tx_count + addrInfo.mempool_stats.tx_count)}</div>
+      </div>
     </div>`;
     
     // Show recent transactions
@@ -494,12 +615,14 @@
       html += `<ul>`;
       txs.slice(0, 10).forEach(tx => {
         const isOutgoing = tx.vin.some(vin => vin.prevout?.scriptpubkey_address === address);
+        const amount = isOutgoing ? 
+          tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
+          tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0);
+        
         html += `<li>
           <span class="badge ${isOutgoing ? 'unconfirmed' : 'confirmed'}">${isOutgoing ? 'Sent' : 'Received'}</span>
           <a href="#" class="tx-link" onclick="performSearchTx('${tx.txid}')">${shortenHash(tx.txid)}</a>
-          (<span class="btc-symbol">₿</span> ${formatBTC(isOutgoing ? 
-            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address !== address ? v.value : 0), 0) :
-            tx.vout.reduce((sum, v) => sum + (v.scriptpubkey_address === address ? v.value : 0), 0))})
+          (<span class="btc-symbol">₿</span> ${formatBTC(amount)})
           ${tx.status.confirmed ? 
             `<small>${new Date(tx.status.block_time * 1000).toLocaleDateString()}</small>` : 
             '<small>In mempool</small>'}
@@ -507,6 +630,9 @@
       });
       html += `</ul>`;
     }
+    
+    // Show favorites section
+    html += renderFavorites();
     
     container.innerHTML = html;
   }
@@ -589,6 +715,11 @@
       <div>${block.merkle_root}</div>
     </div>`;
     
+    // Add to favorites button
+    html += `<button class="btn-secondary" onclick="saveFavorite('block', '${blockHash}', 'Block ${block.height}')">
+      ★ Save to Favorites
+    </button>`;
+    
     // Recent transactions in block
     html += `<h3>Recent Transactions</h3>`;
     
@@ -606,6 +737,162 @@
     }
     
     container.innerHTML = html;
+  }
+
+  // Dashboard functions
+  async function loadDashboard() {
+    const dashboard = document.getElementById('dashboard');
+    dashboard.innerHTML = '<div class="loader"></div><p style="text-align:center;">Loading network data...</p>';
+    
+    try {
+      const [blockRes, mempoolRes, priceRes, diffRes] = await Promise.all([
+        fetch('https://blockstream.info/api/blocks/tip/height'),
+        fetch('https://blockstream.info/api/mempool'),
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'),
+        fetch('https://blockstream.info/api/blocks/tip')
+      ]);
+      
+      const blockHeight = await blockRes.text();
+      const mempool = await mempoolRes.json();
+      const price = priceRes.ok ? await priceRes.json() : { bitcoin: { usd: 'N/A' } };
+      const difficulty = diffRes.ok ? (await diffRes.json()).difficulty : 'N/A';
+      
+      dashboard.innerHTML = `
+        <h2>Bitcoin Network Dashboard</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Current Block Height</h3>
+            <div class="stat-value">${formatNumber(blockHeight)}</div>
+          </div>
+          
+          <div class="stat-card">
+            <h3>Mempool Size</h3>
+            <div class="stat-value">${formatNumber(mempool.count)} tx</div>
+          </div>
+          
+          <div class="stat-card">
+            <h3>Bitcoin Price</h3>
+            <div class="stat-value">$${price.bitcoin.usd.toLocaleString()}</div>
+          </div>
+          
+          <div class="stat-card">
+            <h3>Network Difficulty</h3>
+            <div class="stat-value">${formatNumber(Math.round(difficulty))}</div>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="networkChart"></canvas>
+        </div>
+      `;
+      
+      // Render network chart
+      renderNetworkChart();
+      
+    } catch (e) {
+      dashboard.innerHTML = `<p style="color:var(--error);">Error loading dashboard: ${e.message}</p>`;
+    }
+  }
+  
+  function renderNetworkChart() {
+    const ctx = document.getElementById('networkChart').getContext('2d');
+    // This is a simplified example - you would need real historical data
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Bitcoin Price (USD)',
+          data: [30000, 35000, 40000, 45000, 50000, 55000],
+          borderColor: 'rgba(247, 147, 26, 1)',
+          backgroundColor: 'rgba(247, 147, 26, 0.1)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: true,
+            text: 'Bitcoin Price History'
+          }
+        }
+      }
+    });
+  }
+  
+  function toggleDashboard() {
+    const dashboard = document.getElementById('dashboard');
+    const result = document.getElementById('result');
+    const btn = document.getElementById('dashboardBtn');
+    
+    if (dashboard.style.display === 'none') {
+      dashboard.style.display = 'block';
+      result.style.display = 'none';
+      btn.textContent = 'Hide Dashboard';
+      loadDashboard();
+    } else {
+      dashboard.style.display = 'none';
+      result.style.display = 'block';
+      btn.textContent = 'Show Network Dashboard';
+    }
+  }
+
+  // Favorites system
+  function saveFavorite(type, id, label) {
+    const favorites = JSON.parse(localStorage.getItem('bitcoinFavorites') || '[]');
+    if (!favorites.some(fav => fav.id === id)) {
+      favorites.push({ type, id, label, date: new Date().toISOString() });
+      localStorage.setItem('bitcoinFavorites', JSON.stringify(favorites));
+      alert('Added to favorites!');
+    } else {
+      alert('This item is already in your favorites');
+    }
+  }
+  
+  function getFavorites() {
+    return JSON.parse(localStorage.getItem('bitcoinFavorites') || '[]');
+  }
+  
+  function renderFavorites() {
+    const favorites = getFavorites();
+    if (favorites.length === 0) return '';
+    
+    let html = `<div class="favorites-section">
+      <h3>Saved Favorites</h3>
+      <ul>`;
+    
+    favorites.forEach(fav => {
+      html += `<li>
+        <a href="#" onclick="loadFavorite('${fav.type}', '${fav.id}')">${fav.label}</a>
+        <small>(${fav.type}, ${new Date(fav.date).toLocaleDateString()})</small>
+      </li>`;
+    });
+    
+    html += `</ul></div>`;
+    return html;
+  }
+  
+  function loadFavorite(type, id) {
+    document.getElementById('searchType').value = type;
+    document.getElementById('searchInput').value = id;
+    performSearch();
+  }
+  
+  function showFavorites() {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `<h2>Your Favorites</h2>`;
+    
+    const favorites = getFavorites();
+    if (favorites.length === 0) {
+      resultDiv.innerHTML += `<p>You don't have any favorites yet. Save addresses, transactions or blocks to see them here.</p>`;
+    } else {
+      resultDiv.innerHTML += renderFavorites();
+    }
   }
 
   // Helper functions to search from links
@@ -628,6 +915,14 @@
     document.querySelector(`.tab[onclick="switchTab('${showId}', '${hideId}')"]`).classList.add('active');
     document.querySelector(`.tab[onclick="switchTab('${hideId}', '${showId}')"]`).classList.remove('active');
   }
+  
+  // Initialize with favorites if any
+  document.addEventListener('DOMContentLoaded', () => {
+    const favorites = getFavorites();
+    if (favorites.length > 0) {
+      document.getElementById('result').innerHTML += renderFavorites();
+    }
+  });
 </script>
 
 </body>
