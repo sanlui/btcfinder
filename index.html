@@ -444,9 +444,9 @@
         </div>
       </section>
 
-      <div id="search-results-container" class="hidden" aria-live="polite">
-        <!-- Template for address results -->
-        <div class="address-data-container" id="address-results-template">
+      <!-- Template per i risultati -->
+      <template id="address-results-template">
+        <div class="address-data-container">
           <div class="address-header">
             <h2>Bitcoin Address Details</h2>
             <div class="address-hash-display" id="address-hash"></div>
@@ -483,6 +483,10 @@
             </ul>
           </div>
         </div>
+      </template>
+
+      <div id="search-results-container" class="hidden" aria-live="polite">
+        <!-- I risultati verranno inseriti qui dinamicamente -->
       </div>
     </div>
   </main>
@@ -494,7 +498,6 @@
     </div>
   </footer>
 
-  <!-- Only external JavaScript reference remains -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
