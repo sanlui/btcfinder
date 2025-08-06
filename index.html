@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
+  <meta name="description" content="Explore the Bitcoin blockchain in detail. Analyze transactions, addresses, blocks with complete data on fees, confirmations, balances and history.">
+  <meta name="keywords" content="bitcoin explorer, blockchain explorer, analyze bitcoin transactions, search bitcoin address, bitcoin block details">
+  <meta name="author" content="Advanced Bitcoin Explorer">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="Advanced Bitcoin Explorer">
+  <meta property="og:description" content="Analyze Bitcoin transactions, addresses and blocks with complete detailed data">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourdomain.com">
+  <meta property="og:image" content="https://yourdomain.com/bitcoin-explorer-preview.jpg">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title"><span class="btc-symbol">₿</span> Advanced Bitcoin Explorer</h1>
+      <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
+    </header>
+
+    <main class="main-content">
+      <div class="search-container">
+        <div class="search-controls">
+          <select id="searchType" class="search-select">
+            <option value="tx">Transaction (TXID)</option>
+            <option value="address">Address</option>
+            <option value="block">Block (height or hash)</option>
+          </select>
+          
+          <div class="search-input-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
+            <button id="searchBtn" class="search-button" onclick="performSearch()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Search
+            </button>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
+          <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
+        </div>
+      </div>
+
+      <div id="dashboard" class="dashboard-container" style="display:none;"></div>
+      <div id="result" class="result-container"></div>
+    </main>
+
+    <footer class="footer">
+      <p>Advanced Bitcoin Explorer &copy; ${new Date().getFullYear()}</p>
+      <p>Data provided by Blockstream API</p>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
