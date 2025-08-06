@@ -3,44 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Meta Tags Security -->
-  <meta http-equiv="Content-Security-Policy" 
-        content="default-src 'self';
-                 script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
-                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-                 img-src 'self' data: https:;
-                 font-src 'self' https://fonts.gstatic.com;
-                 connect-src 'self' https://blockstream.info https://api.blockchain.info;
-                 frame-src 'none';
-                 base-uri 'self';
-                 form-action 'self'">
-  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-
-  <!-- Primary Meta Tags -->
   <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
-  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data">
-  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer">
+  
+  <!-- Meta Tags Migliorati -->
+  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data on fees, confirmations, balances and historical trends.">
+  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer, address monitor, block details, mempool stats, bitcoin analytics">
   <meta name="author" content="Advanced Bitcoin Explorer Team">
   <meta name="robots" content="index, follow">
-
-  <!-- Open Graph / Facebook -->
+  
+  <!-- Open Graph / Social Media Migliorati -->
+  <meta property="og:title" content="Advanced Bitcoin Explorer | Real-time Blockchain Analytics">
+  <meta property="og:description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics for transactions, addresses and blocks">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://btcfinder.xyz/">
-  <meta property="og:title" content="Advanced Bitcoin Explorer">
-  <meta property="og:description" content="Real-time Bitcoin blockchain analytics tool">
   <meta property="og:image" content="https://btcfinder.xyz/images/social-preview.jpg">
-
-  <!-- Twitter -->
+  <meta property="og:site_name" content="Advanced Bitcoin Explorer">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Advanced Bitcoin Explorer">
-  <meta name="twitter:description" content="Bitcoin blockchain explorer with advanced features">
-  <meta name="twitter:image" content="https://btcfinder.xyz/images/social-preview.jpg">
+  
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E₿%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -54,24 +35,8 @@
 <body>
   <div class="container">
     <header class="header">
-      <div class="header-left">
-        <!-- Logo -->
-        <a href="https://btcfinder.xyz/" class="btc-logo-link" aria-label="Home">
-          <svg class="btc-logo" width="32" height="32" viewBox="0 0 64 64">
-            <path fill="#F7931A" d="M63.04 39.22c-4.1 16.36-20.76 26.57-37.12 22.46C9.56 57.57-.66 40.91 3.44 24.55 7.54 8.19 24.2-2.02 40.56 2.09c16.36 4.1 26.57 20.76 22.46 37.12l.02.01z"/>
-            <path fill="#FFF" d="M46.14 27.22c.64-4.24-2.58-6.52-6.98-8.04l1.43-5.72-3.49-.87-1.39 5.56c-.92-.23-1.86-.45-2.8-.67l1.4-5.62-3.48-.87-1.43 5.71c-.76-.18-1.51-.35-2.24-.54l.01-.05-4.81-1.2-.93 3.72s2.58.59 2.53.63c1.41.35 1.66 1.28 1.62 2.02l-1.62 6.5c.1.02.22.06.35.1l-.36-.09-2.24 8.97c-.17.43-.6 1.08-1.56.83.03.05-2.54-.63-2.54-.63l-1.74 4.07 4.55 1.13c.85.21 1.68.43 2.5.65l-1.44 5.77 3.48.87 1.43-5.72c.95.26 1.87.5 2.78.72l-1.42 5.68 3.49.87 1.44-5.75c5.98 1.13 10.48.68 12.38-4.74 1.52-4.36-.07-6.87-3.22-8.51 2.29-.53 4.01-2.04 4.48-5.16zm-8.02 11.25c-1.08 4.32-8.43 1.98-10.81 1.4l1.93-7.72c2.38.59 10.01 1.77 8.88 6.32zm1.09-11.3c-.99 3.96-7.1 1.95-9.08 1.46l1.75-7.01c1.98.49 8.34 1.41 7.33 5.55z"/>
-          </svg>
-        </a>
-
-        <div class="header-titles">
-          <h1 class="title"><span class="btc-symbol"></span> Advanced Bitcoin Explorer</h1>
-          <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
-        </div>
-      </div>
-      
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <span class="toggle-icon"></span>
-      </button>
+      <h1 class="title"><span class="btc-symbol">₿</span> Advanced Bitcoin Explorer</h1>
+      <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
     </header>
 
     <main class="main-content">
@@ -105,22 +70,7 @@
       <div id="result" class="result-container"></div>
     </main>
 
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-disclaimer">
-          <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
-          <p>All data is provided for informational purposes only.</p>
-        </div>
-
-        <div class="footer-resources">
-          <p>Official Resources:
-            <a href="https://bitcoin.org" target="_blank" rel="noopener">Bitcoin.org</a> •
-            <a href="https://github.com/bitcoin" target="_blank" rel="noopener">GitHub</a> •
-            <a href="https://bitcointalk.org" target="_blank" rel="noopener">BitcoinTalk</a>
-          </p>
-        </div>
-
-        <div class="footer-legal">
+    <div class="footer-legal">
           <p>&copy; <span id="current-year">2025</span> Advanced Bitcoin Explorer</p>
           <p>
             Blockchain data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
