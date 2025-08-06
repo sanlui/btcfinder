@@ -7,44 +7,44 @@
   <meta name="description" content="Explore the Bitcoin blockchain in detail. Analyze transactions, addresses, blocks with complete data on fees, confirmations, balances and history.">
   <meta name="keywords" content="bitcoin explorer, blockchain explorer, analyze bitcoin transactions, search bitcoin address, bitcoin block details">
   <meta name="author" content="Advanced Bitcoin Explorer">
-  <meta name="robots" content="index, follow">
-  <meta name="google-site-verification" content="VGJ-tT2_y62pGyeewDjZJPAuCaTEFRU-KM9-l0z-j24" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; img-src 'self' https://api.qrserver.com data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://blockstream.info https://api.coingecko.com">
+  <meta name="theme-color" content="#121212">
+  <link rel="canonical" href="https://btcfinder.xyz" />
+  
+  <!-- Preload risorse critiche -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"></noscript>
+  
+  <!-- Favicon moderno -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
 
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Advanced Bitcoin Explorer">
-  <meta property="og:description" content="Analyze Bitcoin transactions, addresses and blocks with complete detailed data">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://btcfinder.xyz">
-  <meta property="og:image" content="https://btcfinder.xyz/bitcoin-explorer-preview.jpg">
-
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%E2%82%BF%3C/text%3E%3C/svg%3E">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Advanced Bitcoin Explorer",
+    "description": "Bitcoin blockchain explorer with detailed transaction analysis",
+    "applicationCategory": "Blockchain",
+    "operatingSystem": "Web"
+  }
+  </script>
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <h1 class="title"><span class="btc-symbol">₿</span> Advanced Bitcoin Explorer</h1>
+    <header class="header" role="banner">
+      <h1 class="title"><span class="btc-symbol" aria-hidden="true">₿</span> Advanced Bitcoin Explorer</h1>
       <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
     </header>
 
-    <main class="main-content">
-      <!-- SEARCH FORM -->
-      <form id="searchForm" class="search-container" onsubmit="performSearch(); return false;">
+    <main class="main-content" role="main">
+      <form id="searchForm" class="search-container" onsubmit="performSearch(); return false;" aria-label="Bitcoin search form">
         <div class="search-controls">
           <label for="searchType" class="visually-hidden">Search Type</label>
-        <select id="searchType" class="search-select" aria-label="Search Type">
+          <select id="searchType" class="search-select" aria-label="Search Type">
             <option value="address">Address</option>
             <option value="tx">Transaction (TXID)</option>
             <option value="block">Block (height or hash)</option>
@@ -64,42 +64,39 @@
         </div>
 
         <div class="action-buttons">
-          <button type="button" id="dashboardToggle" onclick="toggleDashboard()" class="button primary" aria-label="Show or Hide Network Dashboard">Toggle Network Dashboard</button>
+          <button type="button" id="dashboardToggle" onclick="toggleDashboard()" class="button primary" aria-label="Toggle Network Dashboard">Toggle Network Dashboard</button>
           <button type="button" id="favoritesButton" onclick="showFavorites()" class="button secondary" aria-label="Show Favorites">Show Favorites</button>
+          <button type="button" id="themeToggle" class="button secondary" aria-label="Toggle Dark Mode">🌓</button>
         </div>
       </form>
 
-      <!-- DASHBOARD -->
       <section id="dashboard" class="dashboard-container" hidden></section>
-
-      <!-- RESULT -->
       <section id="result" class="result-container" role="region" aria-live="polite"></section>
     </main>
 
-    <footer class="footer">
-      <p id="footerYear">Advanced Bitcoin Explorer &copy; 2025</p>
+    <footer class="footer" role="contentinfo">
+      <p id="footerYear">Advanced Bitcoin Explorer &copy; <span id="currentYear"></span></p>
       <p>Data provided by <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a></p>
     </footer>
   </div>
 
-  <!-- Accessibility helper -->
-  <style>
-    .visually-hidden {
-      position: absolute;
-      left: -9999px;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-    }
-  </style>
-
-  <!-- Main Script -->
-  <script src="js/main.js" defer></script>
-
-  <!-- Dynamic footer year -->
+  <!-- Load scripts efficiently -->
+  <script src="js/main.js" type="module"></script>
   <script>
-    document.getElementById("footerYear").innerHTML =
-      `Advanced Bitcoin Explorer &copy; ${new Date().getFullYear()}`;
+    // Inline critical JS
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+    // Theme switcher
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    });
+    
+    // Set initial theme
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-mode');
+    }
   </script>
 </body>
 </html>
