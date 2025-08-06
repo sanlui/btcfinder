@@ -1,14 +1,14 @@
 :root {
   /* Colors */
-  --primary: #f7931a;
+  --primary: #000000;
   --primary-light: rgba(247, 147, 26, 0.1);
-  --primary-dark: #e07b0a;
+  --primary-dark: #000000;
   --secondary: #4a5568;
   --background: #f8f9fa;
   --surface: #ffffff;
   --error: #e53e3e;
   --success: #38a169;
-  --warning: #dd6b20;
+  --warning: #000000;
   --info: #3182ce;
   --text-primary: #1a202c;
   --text-secondary: #4a5568;
