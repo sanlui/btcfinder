@@ -101,8 +101,30 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Header */
 .header {
+  display: flex;
+  justify-content: center; /* Centra il contenuto principale */
+  align-items: flex-start;
   margin-bottom: var(--space-xl);
+  position: relative; /* Necessario per il posizionamento assoluto del logo */
+}
+
+/* Logo BTC posizionato assolutamente a sinistra */
+.btc-logo-link {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Contenitore per titolo e sottotitolo (centrato) */
+.header-titles {
   text-align: center;
+}
+
+/* Stile del pulsante tema (destra) */
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 /* Search container */
