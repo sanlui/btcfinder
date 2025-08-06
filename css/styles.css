@@ -100,12 +100,36 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Header */
+/* Header */
 .header {
   display: flex;
-  justify-content: center; /* Centra il contenuto principale */
+  justify-content: center;
   align-items: flex-start;
   margin-bottom: var(--space-xl);
-  position: relative; /* Necessario per il posizionamento assoluto del logo */
+  position: relative;
+  padding-top: var(--space-xl); /* Spazio per il logo */
+}
+
+.btc-symbol-link {
+  position: absolute;
+  left: var(--space-xl);
+  top: var(--space-xl);
+  font-size: var(--font-size-3xl);
+  color: var(--primary);
+  text-decoration: none;
+  transition: transform var(--transition-fast);
+  z-index: 10;
+}
+
+.btc-symbol-link:hover {
+  transform: scale(1.1);
+  color: #f7931a; /* Arancione Bitcoin */
+}
+
+.header-titles {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 80%;
 }
 
 /* Logo BTC posizionato assolutamente a sinistra */
