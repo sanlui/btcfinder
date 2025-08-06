@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Meta tags -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
+  <meta name="description" content="Explore the Bitcoin blockchain in detail. Analyze transactions, addresses, blocks with complete data on fees, confirmations, balances and history.">
   
   <!-- CSS -->
-  <link rel="stylesheet" href="/css/styles.css"> <!-- AGGIUNGI QUESTA RIGA -->
+  <link rel="stylesheet" href="/css/styles.css">
   
   <!-- Preload font -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter..." as="style">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter..." media="print" onload="this.media='all'">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
   
   <!-- Favicon -->
-  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  
-  <!-- Scripts inline critici -->
+
+  <!-- Critical inline JS -->
   <script>
-    // Gestione tema
-    if (localStorage.getItem('theme') === 'light') {
-      document.documentElement.classList.add('light-mode');
-    }
+    // Set theme immediately to prevent FOUC
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-mode');
+      }
+    })();
   </script>
 </head>
 <body>
-  <!-- Contenuto -->
-
-  <!-- Caricamento JS principale -->
-  <script src="/js/main.js" type="module"></script>
-</body>
   <div class="container">
     <header class="header" role="banner">
       <h1 class="title"><span class="btc-symbol" aria-hidden="true">₿</span> Advanced Bitcoin Explorer</h1>
@@ -37,7 +38,7 @@
     </header>
 
     <main class="main-content" role="main">
-      <form id="searchForm" class="search-container" onsubmit="performSearch(); return false;" aria-label="Bitcoin search form">
+      <form id="searchForm" class="search-container" aria-label="Bitcoin search form">
         <div class="search-controls">
           <label for="searchType" class="visually-hidden">Search Type</label>
           <select id="searchType" class="search-select" aria-label="Search Type">
@@ -48,7 +49,7 @@
 
           <div class="search-input-container">
             <label for="searchInput" class="visually-hidden">Search Input</label>
-            <input type="text" id="searchInput" class="search-input" placeholder="e.g. TXID, address, or block height" aria-label="Search Input" required />
+            <input type="text" id="searchInput" class="search-input" placeholder="e.g. TXID, address, or block height" aria-label="Search Input" required>
             <button id="searchButton" class="search-button" type="submit" aria-label="Search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -60,8 +61,8 @@
         </div>
 
         <div class="action-buttons">
-          <button type="button" id="dashboardToggle" onclick="toggleDashboard()" class="button primary" aria-label="Toggle Network Dashboard">Toggle Network Dashboard</button>
-          <button type="button" id="favoritesButton" onclick="showFavorites()" class="button secondary" aria-label="Show Favorites">Show Favorites</button>
+          <button type="button" id="dashboardToggle" class="button primary" aria-label="Toggle Network Dashboard">Toggle Network Dashboard</button>
+          <button type="button" id="favoritesButton" class="button secondary" aria-label="Show Favorites">Show Favorites</button>
           <button type="button" id="themeToggle" class="button secondary" aria-label="Toggle Dark Mode">🌓</button>
         </div>
       </form>
@@ -76,23 +77,21 @@
     </footer>
   </div>
 
-  <!-- Load scripts efficiently -->
-  <script src="js/main.js" type="module"></script>
+  <!-- Main JS -->
+  <script src="/js/main.js" type="module"></script>
+  
+  <!-- Inline JS for critical functionality -->
   <script>
-    // Inline critical JS
+    // Set current year
     document.getElementById('currentYear').textContent = new Date().getFullYear();
     
     // Theme switcher
-    const themeToggle = document.getElementById('themeToggle');
-    themeToggle.addEventListener('click', () => {
-      document.body.classList.toggle('light-mode');
-      localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.documentElement.classList.toggle('light-mode');
+      localStorage.setItem('theme', 
+        document.documentElement.classList.contains('light-mode') ? 'light' : 'dark'
+      );
     });
-    
-    // Set initial theme
-    if (localStorage.getItem('theme') === 'light') {
-      document.body.classList.add('light-mode');
-    }
   </script>
 </body>
 </html>
