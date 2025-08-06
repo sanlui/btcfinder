@@ -1,43 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
-  <meta name="description" content="Explore the Bitcoin blockchain in detail. Analyze transactions, addresses, blocks with complete data on fees, confirmations, balances and history.">
+  
+  <!-- Primary Meta Tags -->
+  <title>Bitcoin Explorer | Live Blockchain Transactions & Address Analysis</title>
+  <meta name="description" content="Real-time Bitcoin blockchain explorer. Analyze transactions, addresses, blocks with detailed data including fees, confirmations, balances and full transaction history.">
+  <meta name="keywords" content="bitcoin explorer, blockchain explorer, bitcoin transactions, btc address, block details, bitcoin analytics">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sanlui.github.io/btcfinder/">
+  <meta property="og:title" content="Bitcoin Explorer | Live Blockchain Analytics">
+  <meta property="og:description" content="Real-time Bitcoin blockchain data explorer with advanced transaction analysis">
+  <meta property="og:image" content="https://sanlui.github.io/btcfinder/preview-image.jpg">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://sanlui.github.io/btcfinder/">
+  <meta property="twitter:title" content="Bitcoin Explorer | Live Blockchain Analytics">
+  <meta property="twitter:description" content="Real-time Bitcoin blockchain data explorer with advanced transaction analysis">
+  <meta property="twitter:image" content="https://sanlui.github.io/btcfinder/preview-image.jpg">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://sanlui.github.io/btcfinder/">
   
   <!-- CSS -->
-  <link rel="stylesheet" href="css/styles.css">  
+  <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
+  
   <!-- Preload font -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  </noscript>
   
   <!-- Favicon -->
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
 
-  <!-- Critical inline JS -->
-  <script>
-    // Set theme immediately to prevent FOUC
-    (function() {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'light') {
-        document.documentElement.classList.add('light-mode');
-      }
-    })();
+  <!-- Schema.org markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Bitcoin Explorer",
+    "url": "https://sanlui.github.io/btcfinder/",
+    "description": "Advanced Bitcoin blockchain explorer with real-time transaction analysis",
+    "applicationCategory": "Blockchain",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
   </script>
+
+  <!-- Critical inline CSS -->
+  <style>
+    /* Basic layout to prevent layout shift */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .header {
+      padding: 1rem 0;
+      text-align: center;
+    }
+    .btc-symbol {
+      font-weight: 700;
+    }
+    /* Fallback for non-JS users */
+    html:not(.js) .js-only {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <header class="header" role="banner">
-      <h1 class="title"><span class="btc-symbol" aria-hidden="true">₿</span> Advanced Bitcoin Explorer</h1>
-      <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
+      <h1 class="title"><span class="btc-symbol" aria-hidden="true">₿</span> <span itemprop="name">Advanced Bitcoin Explorer</span></h1>
+      <p class="subtitle" itemprop="description">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
     </header>
 
     <main class="main-content" role="main">
-      <form id="searchForm" class="search-container" aria-label="Bitcoin search form">
+      <form id="searchForm" class="search-container" aria-label="Bitcoin search form" itemscope itemtype="https://schema.org/SearchAction">
+        <meta itemprop="target" content="https://sanlui.github.io/btcfinder/?q={search_term}">
         <div class="search-controls">
           <label for="searchType" class="visually-hidden">Search Type</label>
           <select id="searchType" class="search-select" aria-label="Search Type">
@@ -48,7 +103,8 @@
 
           <div class="search-input-container">
             <label for="searchInput" class="visually-hidden">Search Input</label>
-            <input type="text" id="searchInput" class="search-input" placeholder="e.g. TXID, address, or block height" aria-label="Search Input" required>
+            <input type="text" id="searchInput" class="search-input" placeholder="e.g. TXID, address, or block height" 
+                   aria-label="Search Input" required itemprop="query-input">
             <button id="searchButton" class="search-button" type="submit" aria-label="Search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -59,7 +115,7 @@
           </div>
         </div>
 
-        <div class="action-buttons">
+        <div class="action-buttons js-only">
           <button type="button" id="dashboardToggle" class="button primary" aria-label="Toggle Network Dashboard">Toggle Network Dashboard</button>
           <button type="button" id="favoritesButton" class="button secondary" aria-label="Show Favorites">Show Favorites</button>
           <button type="button" id="themeToggle" class="button secondary" aria-label="Toggle Dark Mode">🌓</button>
@@ -72,24 +128,38 @@
 
     <footer class="footer" role="contentinfo">
       <p id="footerYear">Advanced Bitcoin Explorer &copy; <span id="currentYear"></span></p>
-      <p>Data provided by <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a></p>
+      <p>Data provided by <a href="https://blockstream.info/" target="_blank" rel="noopener nofollow">Blockstream API</a></p>
     </footer>
   </div>
 
   <!-- Main JS -->
   <script src="js/main.js" type="module"></script>
+  
   <!-- Inline JS for critical functionality -->
   <script>
+    // Add JS class for progressive enhancement
+    document.documentElement.classList.add('js');
+    
     // Set current year
     document.getElementById('currentYear').textContent = new Date().getFullYear();
     
-    // Theme switcher
-    document.getElementById('themeToggle').addEventListener('click', () => {
-      document.documentElement.classList.toggle('light-mode');
-      localStorage.setItem('theme', 
-        document.documentElement.classList.contains('light-mode') ? 'light' : 'dark'
-      );
-    });
+    // Theme switcher with localStorage
+    (function() {
+      const themeToggle = document.getElementById('themeToggle');
+      const savedTheme = localStorage.getItem('theme');
+      
+      if (savedTheme === 'light') {
+        document.documentElement.classList.add('light-mode');
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+      
+      themeToggle.addEventListener('click', () => {
+        document.documentElement.classList.toggle('light-mode');
+        const isLight = document.documentElement.classList.contains('light-mode');
+        document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      });
+    })();
   </script>
 </body>
 </html>
