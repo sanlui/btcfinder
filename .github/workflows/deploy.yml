@@ -2,19 +2,32 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Verify Required Files
+        run: |
+          [ -f "index.html" ] || { echo "❌ Missing index.html"; exit 1; }
+          [ -f "css/styles.css" ] || { echo "❌ Missing styles.css"; exit 1; }
+          [ -f "js/main.js" ] || { echo "❌ Missing main.js"; exit 1; }
+          
       - name: Setup Pages
         uses: actions/configure-pages@v3
+        
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: './'
+          path: "./"
+          
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v2
