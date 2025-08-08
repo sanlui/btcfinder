@@ -32,26 +32,39 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <div class="container">
-  <header class="header">
-    <a href="/" class="btc-symbol-link" aria-label="Home">
-      ₿
-    </a>
-    
-    <div class="header-titles">
-      <h1 class="title">Advanced Bitcoin Explorer</h1>
-      <p class="subtitle">Explore the Bitcoin blockchain</p>
+<header class="header">
+  <div class="header-container">
+    <!-- Parte sinistra con logo e titolo -->
+    <div class="header-left">
+      <a href="/" class="btc-symbol-link" aria-label="Home">
+        <span class="btc-symbol">₿</span>
+      </a>
+      <div class="header-titles">
+        <h1 class="title">Advanced Bitcoin Explorer</h1>
+        <p class="subtitle">Explore the Bitcoin blockchain</p>
+      </div>
     </div>
-    
+
+    <!-- Parte centrale con navigazione -->
+    <nav class="header-center">
+      <a href="#dashboard" class="nav-link active">Network Dashboard</a>
+      <a href="#favorites" class="nav-link">Favorites</a>
+      <a href="#charts" class="nav-link">Charts</a>
+      <a href="#api" class="nav-link">API</a>
+    </nav>
+
+    <!-- Parte destra con strumenti -->
     <div class="header-right">
-      <a href="tool.html" class="nav-link" id="toolLink">Tool</a>
+      <a href="tool.html" class="nav-link tool-link" id="toolLink">
+        <span class="tool-icon">🛠️</span>
+        <span class="tool-text">Tools</span>
+      </a>
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
         <span class="toggle-icon">🌓</span>
       </button>
     </div>
-  </header>
+  </div>
+</header>
 
     <main class="main-content">
       <div class="search-container">
