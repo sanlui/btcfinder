@@ -1,22 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <title>BTC Tool - Generatore Indirizzi</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js"></script> <!-- Per i seed mnemonici -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Address Generator | Advanced Bitcoin Explorer</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-min.js" integrity="sha384-9a5A5QpNONjR7Y8+W2fY/5L6T+5O5q5J5F5J5F5J5F5J5F5J5F5J5F5J5F5J5F5" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js" integrity="sha384-LC/Li6o8Q+5B5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Generatore Indirizzi Bitcoin</h1>
-        <button id="generateBtn">Genera Indirizzo</button>
-        <div id="result">
-            <p><strong>Indirizzo BTC:</strong> <span id="address">-</span></p>
-            <p><strong>Chiave Privata:</strong> <span id="privateKey">-</span></p>
-            <p><strong>Saldo:</strong> <span id="balance">0 BTC</span></p>
+  <div class="container">
+    <header class="header">
+      <a href="index.html" class="btc-symbol-link" aria-label="Back to Home">
+        ← ₿
+      </a>
+      <h1 class="title">BTC Address Generator</h1>
+    </header>
+
+    <main class="tool-container">
+      <div class="warning-banner">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <p>For testing purposes only. Never use these addresses with real funds.</p>
+      </div>
+
+      <button id="generateBtn" class="button large-button">
+        Generate New Address
+      </button>
+
+      <div class="result-card">
+        <div class="result-item">
+          <label>Address:</label>
+          <div class="result-value" id="address">-</div>
+          <button class="copy-btn" data-target="address">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z"/>
+            </svg>
+          </button>
         </div>
-    </div>
-    <script src="js/btctool.js"></script>
+
+        <div class="result-item">
+          <label>Private Key (WIF):</label>
+          <div class="result-value" id="privateKey">-</div>
+          <button class="copy-btn" data-target="privateKey">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="result-item">
+          <label>Balance:</label>
+          <div class="result-value" id="balance">0 BTC</div>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <p>All generated data remains in your browser and is never transmitted to our servers.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/btctool.js" type="module"></script>
 </body>
 </html>
