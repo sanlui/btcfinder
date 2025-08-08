@@ -3,39 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Aggiunto X-Content-Type-Options -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000">
-  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:;">
+  <title>Advanced Bitcoin Explorer | Address Generator & Blockchain Analysis</title>
   
-  <!-- Preload per CSS e font -->
+  <!-- Preload -->
   <link rel="preload" href="css/styles.css" as="style">
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" as="style">
   
-  <!-- Meta Tags -->
-  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data on fees, confirmations, balances and historical trends.">
-  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer, address monitor, block details, mempool stats, bitcoin analytics">
-  <meta name="author" content="Advanced Bitcoin Explorer Team">
-  <meta name="robots" content="index, follow">
+  <!-- Meta -->
+  <meta name="description" content="Generate Bitcoin addresses and analyze blockchain data. Comprehensive explorer with real-time transaction, address and block monitoring.">
   
-  <!-- Open Graph -->
-  <meta property="og:title" content="Advanced Bitcoin Explorer | Real-time Blockchain Analytics">
-  <meta property="og:description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics for transactions, addresses and blocks">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://btcfinder.xyz/">
-  <meta property="og:image" content="https://btcfinder.xyz/images/social-preview.jpg">
-  <meta property="og:site_name" content="Advanced Bitcoin Explorer">
-  <meta name="twitter:card" content="summary_large_image">
-  
-  <!-- Favicon Moderno -->
+  <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
-  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
   
-  <!-- Fonts con fallback -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Chart.js con integrità subresource -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" integrity="sha384-9c9CqHAIjR8Zo+U4Uh6AXsA0dUQyR6K6Xk6NyZ1fQv1xQJ9Q1xJ6R6Xf1F6f1U6" crossorigin="anonymous"></script>
   
   <!-- CSS -->
   <link rel="stylesheet" href="css/styles.css">
@@ -43,57 +26,56 @@
 <body>
   <div class="container">
     <header class="header" role="banner">
-      <a href="/" class="btc-symbol-link" aria-label="Home" role="button">
+      <a href="/" class="btc-symbol-link" aria-label="Home">
         ₿
       </a>
       
-      <!-- Navbar modificata -->
-      <nav class="main-nav">
-        <a href="index.html" class="nav-link" data-active="true">Explorer</a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link active">Explorer</a>
         <a href="tool.html" class="nav-link">Address Generator</a>
       </nav>
 
       <div class="header-titles">
         <h1 class="title">Advanced Bitcoin Explorer</h1>
-        <p class="subtitle">Generate addresses & analyze blockchain data</p>
+        <p class="subtitle">Tools for Bitcoin developers and analysts</p>
       </div>
 
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <span class="toggle-icon" aria-hidden="true"></span>
+        <span class="toggle-icon"></span>
       </button>
     </header>
 
     <main class="main-content" role="main">
-      <!-- Nuova sezione promo (userà le classi CSS esistenti) -->
-      <section class="feature-card">
+      <section class="tool-card" aria-labelledby="tool-heading">
         <div class="card-content">
-          <h2>BTC Address Generator</h2>
-          <p>Generate valid Bitcoin addresses with private keys (for testing purposes only).</p>
-          <a href="tool.html" class="button primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-              <path d="M12 2v20M22 12H2"></path>
-            </svg>
-            Open Generator Tool
-          </a>
+          <h2 id="tool-heading">BTC Address Generator</h2>
+          <p>Generate testnet addresses with corresponding private keys for development purposes.</p>
+          <div class="button-group">
+            <a href="tool.html" class="button primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path d="M12 2v20M22 12H2"></path>
+              </svg>
+              Open Generator
+            </a>
+            <button class="button secondary" id="learnMoreBtn">Learn About Wallet Safety</button>
+          </div>
         </div>
       </section>
 
-      <!-- Form di ricerca esistente -->
+      <!-- Existing search form -->
       <form class="search-container" role="search">
-        <!-- ... (mantieni il form esistente) ... -->
+        <!-- ... -->
       </form>
 
-      <!-- Dashboard e risultati -->
-      <div id="dashboard" class="dashboard-container" style="display:none;"></div>
+      <div id="dashboard" class="dashboard-container" hidden></div>
       <div id="result" class="result-container"></div>
     </main>
 
     <footer class="footer" role="contentinfo">
-      <!-- ... (footer esistente) ... -->
+      <!-- ... -->
     </footer>
   </div>
 
-  <!-- Scripts esistenti -->
-  <script src="js/main.js" defer></script>
+  <script src="js/main.js" type="module"></script>
 </body>
 </html>
