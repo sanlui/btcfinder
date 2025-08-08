@@ -1,67 +1,274 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Address Generator | Advanced Bitcoin Explorer</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs-min.js" integrity="sha384-9a5A5QpNONjR7Y8+W2fY/5L6T+5O5q5J5F5J5F5J5F5J5F5J5F5J5F5J5F5J5F5" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/index.min.js" integrity="sha384-LC/Li6o8Q+5B5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f" crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Wallet Generator - Network Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="container">
     <header class="header">
-      <a href="index.html" class="btc-symbol-link" aria-label="Back to Home">
-        ← ₿
-      </a>
-      <h1 class="title">BTC Address Generator</h1>
+        <div class="header-container">
+            <div class="header-left">
+                <span class="btc-symbol">₿</span>
+                <div class="header-titles">
+                    <h1 class="title">Wallet Generator</h1>
+                    <p class="subtitle">Secure Bitcoin wallet creation</p>
+                </div>
+            </div>
+            <nav class="header-center">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="explorer.html" class="nav-link">Explorer</a>
+                <a href="tools.html" class="nav-link active">Tools</a>
+                <a href="resources.html" class="nav-link">Resources</a>
+            </nav>
+            <div class="header-right">
+                <button class="theme-toggle">🌓</button>
+            </div>
+        </div>
     </header>
 
-    <main class="tool-container">
-      <div class="warning-banner">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
-        <p>For testing purposes only. Never use these addresses with real funds.</p>
-      </div>
+    <main class="main">
+        <div class="container">
+            <!-- Security Warning -->
+            <div class="warning-card">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                    <h3>Security Notice</h3>
+                    <p>This tool generates Bitcoin wallets client-side. For maximum security:</p>
+                    <ul>
+                        <li>Use offline when generating production wallets</li>
+                        <li>Never share your private keys</li>
+                        <li>Consider using a hardware wallet for large amounts</li>
+                    </ul>
+                </div>
+            </div>
 
-      <button id="generateBtn" class="button large-button">
-        Generate New Address
-      </button>
+            <!-- Wallet Generation Section -->
+            <section class="wallet-generator">
+                <h2><span>⚡</span> Bitcoin Wallet Generator <span>⚡</span></h2>
+                
+                <div class="generator-options">
+                    <div class="option-card">
+                        <h3>Generation Method</h3>
+                        <select id="generationMethod" class="select-input">
+                            <option value="random">Random Generation</option>
+                            <option value="mnemonic">From Mnemonic (BIP39)</option>
+                            <option value="entropy">From Entropy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-card" id="mnemonicOptions" style="display:none;">
+                        <h3>Mnemonic Phrase</h3>
+                        <textarea id="mnemonicPhrase" placeholder="Enter 12-24 word mnemonic phrase" rows="2"></textarea>
+                        <div class="button-group">
+                            <button id="generateMnemonic" class="button secondary">Generate New</button>
+                            <button id="validateMnemonic" class="button secondary">Validate</button>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card" id="entropyOptions" style="display:none;">
+                        <h3>Custom Entropy</h3>
+                        <input type="text" id="customEntropy" placeholder="Hex entropy (64 chars)">
+                        <p class="small-text">For advanced users only</p>
+                    </div>
+                    
+                    <div class="option-card">
+                        <h3>Network</h3>
+                        <div class="radio-group">
+                            <label><input type="radio" name="network" value="mainnet" checked> Mainnet</label>
+                            <label><input type="radio" name="network" value="testnet"> Testnet</label>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card">
+                        <h3>Derivation Path</h3>
+                        <select id="derivationPath" class="select-input">
+                            <option value="m/84'/0'/0'/0/0">Native SegWit (BIP84)</option>
+                            <option value="m/49'/0'/0'/0/0">Nested SegWit (BIP49)</option>
+                            <option value="m/44'/0'/0'/0/0">Legacy (BIP44)</option>
+                            <option value="custom">Custom Path</option>
+                        </select>
+                        <input type="text" id="customPath" class="hidden" placeholder="Enter custom BIP32 path">
+                    </div>
+                </div>
+                
+                <div class="generate-button">
+                    <button id="generateWallet" class="button primary large">Generate Bitcoin Wallet</button>
+                </div>
+            </section>
 
-      <div class="result-card">
-        <div class="result-item">
-          <label>Address:</label>
-          <div class="result-value" id="address">-</div>
-          <button class="copy-btn" data-target="address">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z"/>
-            </svg>
-          </button>
+            <!-- Results Section -->
+            <section class="wallet-results hidden">
+                <h2><span>🔒</span> Generated Wallet Details <span>🔒</span></h2>
+                
+                <div class="wallet-display">
+                    <!-- Address QR -->
+                    <div class="wallet-qr">
+                        <h3>Receiving Address</h3>
+                        <div id="addressQr" class="qr-code"></div>
+                        <div class="address-display" id="bitcoinAddress"></div>
+                        <button class="button secondary copy-btn" data-target="bitcoinAddress">Copy</button>
+                    </div>
+                    
+                    <!-- Key Details -->
+                    <div class="wallet-details">
+                        <div class="detail-card">
+                            <h3>Public Key</h3>
+                            <div class="detail-value" id="publicKey"></div>
+                            <button class="button secondary copy-btn" data-target="publicKey">Copy</button>
+                        </div>
+                        
+                        <div class="detail-card warning">
+                            <h3>Private Key (WIF)</h3>
+                            <div class="detail-value" id="privateKey"></div>
+                            <div class="button-group">
+                                <button class="button secondary copy-btn" data-target="privateKey">Copy</button>
+                                <button id="showQrPrivate" class="button secondary">Show QR</button>
+                                <div id="privateQr" class="qr-code hidden"></div>
+                            </div>
+                            <p class="warning-text">⚠️ Never share this with anyone!</p>
+                        </div>
+                        
+                        <div class="detail-card" id="mnemonicDisplay">
+                            <h3>Mnemonic Phrase</h3>
+                            <div class="detail-value" id="mnemonicDisplayText"></div>
+                            <button class="button secondary copy-btn" data-target="mnemonicDisplayText">Copy</button>
+                            <p class="small-text">Write this down and store securely</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="wallet-actions">
+                    <button id="newWallet" class="button primary">Generate Another</button>
+                    <button id="printWallet" class="button secondary">Print Paper Wallet</button>
+                    <button id="saveEncrypted" class="button secondary">Save Encrypted</button>
+                </div>
+            </section>
+
+            <!-- Security Tips -->
+            <section class="security-tips">
+                <h2><span>🔐</span> Security Best Practices <span>🔐</span></h2>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <div class="tip-icon">📝</div>
+                        <h3>Backup Securely</h3>
+                        <p>Always write down your mnemonic phrase on paper and store it in multiple secure locations.</p>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">🖥️</div>
+                        <h3>Use Offline</h3>
+                        <p>For maximum security, generate wallets on an air-gapped computer disconnected from the internet.</p>
+                    </div>
+                    <div class="tip-card">
+                        <div class="tip-icon">💽</div>
+                        <h3>Test Small Amounts</h3>
+                        <p>Before sending large amounts, test with small transactions to verify your backup works.</p>
+                    </div>
+                </div>
+            </section>
         </div>
-
-        <div class="result-item">
-          <label>Private Key (WIF):</label>
-          <div class="result-value" id="privateKey">-</div>
-          <button class="copy-btn" data-target="privateKey">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M8 17.929H6c-1.105 0-2-.912-2-2.036V5.036C4 3.91 4.895 3 6 3h8c1.105 0 2 .911 2 2.036v1.866m-6 .17h8c1.105 0 2 .91 2 2.035v10.857C20 21.09 19.105 22 18 22h-8c-1.105 0-2-.911-2-2.036V9.107c0-1.124.895-2.036 2-2.036z"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="result-item">
-          <label>Balance:</label>
-          <div class="result-value" id="balance">0 BTC</div>
-        </div>
-      </div>
-
-      <div class="disclaimer">
-        <p>All generated data remains in your browser and is never transmitted to our servers.</p>
-      </div>
     </main>
-  </div>
 
-  <script src="js/btctool.js" type="module"></script>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#" class="footer-link">Documentation</a>
+                <span class="footer-separator">•</span>
+                <a href="#" class="footer-link">API</a>
+                <span class="footer-separator">•</span>
+                <a href="#" class="footer-link">GitHub</a>
+            </div>
+            <div class="footer-legal">
+                <span>© 2023 Bitcoin Network Dashboard</span>
+                <span class="footer-separator">•</span>
+                <span>For educational purposes only</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const generationMethod = document.getElementById('generationMethod');
+        const mnemonicOptions = document.getElementById('mnemonicOptions');
+        const entropyOptions = document.getElementById('entropyOptions');
+        const derivationPath = document.getElementById('derivationPath');
+        const customPath = document.getElementById('customPath');
+        const generateBtn = document.getElementById('generateWallet');
+        const walletResults = document.querySelector('.wallet-results');
+        
+        // Toggle options based on generation method
+        generationMethod.addEventListener('change', function() {
+            mnemonicOptions.style.display = this.value === 'mnemonic' ? 'block' : 'none';
+            entropyOptions.style.display = this.value === 'entropy' ? 'block' : 'none';
+        });
+        
+        // Toggle custom path input
+        derivationPath.addEventListener('change', function() {
+            customPath.classList.toggle('hidden', this.value !== 'custom');
+        });
+        
+        // Generate wallet function
+        generateBtn.addEventListener('click', function() {
+            // Placeholder for actual generation logic
+            // In a real implementation, you would use bitcoinjs-lib to generate keys
+            
+            // Mock data for demonstration
+            document.getElementById('bitcoinAddress').textContent = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq';
+            document.getElementById('publicKey').textContent = '02d0de0aaeaefad02b8bdc8a01a1b8b11c696bd3d66a2c5f10780d95b7df42645c';
+            document.getElementById('privateKey').textContent = 'L5EZftvrYaSudiozVRzTqLcHLNDoVn7H5HSfM9BAN6tMJX8oTWz6';
+            document.getElementById('mnemonicDisplayText').textContent = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+            
+            // Generate QR codes
+            QRCode.toCanvas(document.getElementById('addressQr'), 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', {
+                width: 150,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            });
+            
+            // Show results section
+            walletResults.classList.remove('hidden');
+            
+            // Scroll to results
+            walletResults.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        // Copy buttons functionality
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const textToCopy = document.getElementById(targetId).textContent;
+                navigator.clipboard.writeText(textToCopy);
+                
+                // Visual feedback
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        });
+        
+        // Toggle private key QR
+        document.getElementById('showQrPrivate').addEventListener('click', function() {
+            const qrElement = document.getElementById('privateQr');
+            qrElement.classList.toggle('hidden');
+            
+            if (!qrElement.classList.contains('hidden')) {
+                QRCode.toCanvas(qrElement, 'L5EZftvrYaSudiozVRzTqLcHLNDoVn7H5HSfM9BAN6tMJX8oTWz6', {
+                    width: 150,
+                    color: {
+                        dark: '#000000',
+                        light: '#ffffff'
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
