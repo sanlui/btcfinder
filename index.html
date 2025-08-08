@@ -13,6 +13,7 @@
   
   <!-- Meta -->
   <meta name="description" content="Generate Bitcoin addresses and analyze blockchain data. Comprehensive explorer with real-time transaction, address and block monitoring.">
+  <meta name="keywords" content="Bitcoin, Explorer, Blockchain, Address Generator, BTC">
   
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
@@ -27,12 +28,15 @@
   <div class="container">
     <header class="header" role="banner">
       <a href="/" class="btc-symbol-link" aria-label="Home">
-        ₿
+        <span aria-hidden="true">₿</span>
+        <span class="sr-only">Home</span>
       </a>
       
       <nav class="main-nav" aria-label="Main navigation">
-        <a href="index.html" class="nav-link active">Explorer</a>
-        <a href="tool.html" class="nav-link">Address Generator</a>
+        <ul>
+          <li><a href="index.html" class="nav-link active" aria-current="page">Explorer</a></li>
+          <li><a href="tool.html" class="nav-link">Address Generator</a></li>
+        </ul>
       </nav>
 
       <div class="header-titles">
@@ -41,7 +45,8 @@
       </div>
 
       <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-        <span class="toggle-icon"></span>
+        <span class="toggle-icon" aria-hidden="true"></span>
+        <span class="sr-only">Toggle dark mode</span>
       </button>
     </header>
 
@@ -49,7 +54,7 @@
       <section class="tool-card" aria-labelledby="tool-heading">
         <div class="card-content">
           <h2 id="tool-heading">BTC Address Generator</h2>
-          <p>Generate testnet addresses with corresponding private keys for development purposes.</p>
+          <p class="tool-description">Generate testnet addresses with corresponding private keys for development purposes.</p>
           <div class="button-group">
             <a href="tool.html" class="button primary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -57,14 +62,19 @@
               </svg>
               Open Generator
             </a>
-            <button class="button secondary" id="learnMoreBtn">Learn About Wallet Safety</button>
+            <button class="button secondary" id="learnMoreBtn" aria-expanded="false" aria-controls="safetyInfo">
+              Learn About Wallet Safety
+            </button>
+          </div>
+          <div id="safetyInfo" class="safety-info" hidden>
+            <!-- Content will be shown when button is clicked -->
           </div>
         </div>
       </section>
 
-      <!-- Existing search form -->
+      <!-- Search form -->
       <form class="search-container" role="search">
-        <!-- ... -->
+        <!-- ... existing search form ... -->
       </form>
 
       <div id="dashboard" class="dashboard-container" hidden></div>
@@ -72,7 +82,7 @@
     </main>
 
     <footer class="footer" role="contentinfo">
-      <!-- ... -->
+      <!-- ... existing footer ... -->
     </footer>
   </div>
 
