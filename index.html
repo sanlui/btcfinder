@@ -32,10 +32,7 @@
   
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <div class="container">
- <header class="header">
+<header class="header">
   <!-- Simbolo BTC cliccabile -->
   <a href="/" class="btc-symbol-link" aria-label="Home">
     ₿
@@ -47,10 +44,16 @@
     <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
   </div>
 
-  <!-- Pulsante tema (se presente) -->
-  <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-    <span class="toggle-icon"></span>
-  </button>
+  <!-- Nuovo: Contenitore per elementi a destra -->
+  <div class="header-right">
+    <!-- Link "Tool" aggiunto qui -->
+    <a href="tool/index.html" class="tool-link">Tool</a>
+    
+    <!-- Pulsante tema (esistente) -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+      <span class="toggle-icon"></span>
+    </button>
+  </div>
 </header>
 
     <main class="main-content">
