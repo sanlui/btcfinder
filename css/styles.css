@@ -1,143 +1,127 @@
-:root {
-  /* Colori */
-  --primary: #f7931a;
-  --primary-light: rgba(247, 147, 26, 0.1);
-  --background: #ffffff;
-  --surface: #ffffff;
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a5568;
-  --border: #e2e8f0;
-  
-  /* Spazi */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-}
-
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: var(--background);
-  color: var(--text-primary);
-}
-
-/* HEADER - Stile specifico richiesto */
+/* Header - Versione migliorata */
 .header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: var(--space-sm) var(--space-md);
-  background-color: #000000; /* Barra nera */
+  padding: var(--space-md) var(--space-xl);
+  background-color: var(--surface);
+  box-shadow: var(--shadow);
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid #333;
+  margin-bottom: var(--space-xl);
 }
 
 .btc-symbol-link {
-  font-size: 1.8rem;
-  color: var(--primary); /* Simbolo BTC arancione */
-  text-decoration: none;
-  margin-right: var(--space-sm);
   display: flex;
   align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-3xl);
+  color: var(--primary);
+  text-decoration: none;
+  transition: all var(--transition-normal);
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+}
+
+.btc-symbol-link:hover {
+  color: #f7931a;
+  transform: rotate(10deg);
 }
 
 .header-titles {
-  flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--space-md);
 }
 
 .title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: white; /* Titolo bianco */
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
 }
 
 .subtitle {
-  font-size: 0.8rem;
-  color: #ccc; /* Sottotitolo grigio chiaro */
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-md);
 }
 
 .nav-link {
-  color: white !important; /* Testo bianco */
-  text-decoration: none;
-  font-size: 0.9rem;
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: 4px;
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.nav-link.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tool-icon {
+  font-size: var(--font-size-lg);
 }
 
 .theme-toggle {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
-  color: white;
-  font-size: 1.2rem;
   cursor: pointer;
-  padding: var(--space-xs);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
 }
 
-/* Contenuto principale - Bordi ridotti */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-sm); /* Spaziatura ridotta */
+.theme-toggle:hover {
+  background-color: var(--primary-light);
 }
 
-.main-content {
-  padding: var(--space-md) 0;
+.toggle-icon {
+  font-size: var(--font-size-lg);
 }
 
-/* Componenti esistenti preservati */
-.search-container {
-  margin-bottom: var(--space-lg);
-}
-
-.search-controls {
-  display: flex;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-md);
-}
-
-.search-input {
-  flex: 1;
-  padding: var(--space-sm);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-
-/* Responsive */
+/* Header responsive */
 @media (max-width: 768px) {
   .header {
-    flex-wrap: wrap;
-    padding: var(--space-sm);
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-md);
+    gap: var(--space-md);
+  }
+  
+  .btc-symbol-link {
+    align-self: flex-start;
   }
   
   .header-titles {
-    order: 1;
-    width: 100%;
-    margin: var(--space-sm) 0;
+    margin-left: 0;
+    text-align: center;
   }
   
-  .container {
-    padding: var(--space-xs);
+  .header-right {
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
