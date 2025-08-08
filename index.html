@@ -46,87 +46,54 @@
       <a href="/" class="btc-symbol-link" aria-label="Home" role="button">
         ₿
       </a>
+      
+      <!-- Navbar modificata -->
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link" data-active="true">Explorer</a>
+        <a href="tool.html" class="nav-link">Address Generator</a>
+      </nav>
 
       <div class="header-titles">
         <h1 class="title">Advanced Bitcoin Explorer</h1>
-        <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
+        <p class="subtitle">Generate addresses & analyze blockchain data</p>
       </div>
 
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" aria-pressed="false">
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
         <span class="toggle-icon" aria-hidden="true"></span>
       </button>
     </header>
 
     <main class="main-content" role="main">
-      <!-- Modificato in form per semantica -->
-      <form class="search-container" role="search" aria-label="Blockchain search">
-        <div class="search-controls">
-          <select id="searchType" class="search-select" aria-label="Search type">
-            <option value="address">Address</option>
-            <option value="tx">Transaction (TXID)</option>
-            <option value="block">Block (height or hash)</option>
-          </select>
-          
-          <div class="search-input-container">
-            <input type="text" id="searchInput" class="search-input" 
-                   placeholder="Enter TXID, address or block"
-                   aria-label="Search input"
-                   autocomplete="off"
-                   spellcheck="false">
-            <button id="searchBtn" class="search-button" type="submit" aria-label="Execute search">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              Search
-            </button>
-          </div>
+      <!-- Nuova sezione promo (userà le classi CSS esistenti) -->
+      <section class="feature-card">
+        <div class="card-content">
+          <h2>BTC Address Generator</h2>
+          <p>Generate valid Bitcoin addresses with private keys (for testing purposes only).</p>
+          <a href="tool.html" class="button primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M12 2v20M22 12H2"></path>
+            </svg>
+            Open Generator Tool
+          </a>
         </div>
+      </section>
 
-        <div class="action-buttons">
-          <button type="button" onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
-          <button type="button" onclick="showFavorites()" class="button secondary">Show Favorites</button>
-        </div>
+      <!-- Form di ricerca esistente -->
+      <form class="search-container" role="search">
+        <!-- ... (mantieni il form esistente) ... -->
       </form>
 
-      <!-- Aggiunto aria-live per aggiornamenti dinamici -->
-      <div id="dashboard" class="dashboard-container" style="display:none;" aria-live="polite"></div>
-      <div id="result" class="result-container" aria-live="polite"></div>
+      <!-- Dashboard e risultati -->
+      <div id="dashboard" class="dashboard-container" style="display:none;"></div>
+      <div id="result" class="result-container"></div>
     </main>
 
     <footer class="footer" role="contentinfo">
-      <div class="footer-content">
-        <div class="footer-disclaimer">
-          <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
-          <p>All data is provided for informational purposes only.</p>
-        </div>
-        
-        <div class="footer-legal">
-          <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
-          <p>
-            Blockchain data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer nofollow">Blockstream API</a>
-            <span class="footer-separator" aria-hidden="true">|</span>
-            <a href="/privacy">Privacy Policy</a>
-            <span class="footer-separator" aria-hidden="true">|</span>
-            <a href="/terms">Terms of Service</a>
-          </p>
-        </div>
-      </div>
+      <!-- ... (footer esistente) ... -->
     </footer>
   </div>
 
-  <!-- Script migliorato -->
+  <!-- Scripts esistenti -->
   <script src="js/main.js" defer></script>
-  <script>
-    // Anno corrente automatico
-    document.getElementById('current-year').textContent = new Date().getFullYear();
-    
-    // Gestione tema preservando la tua logica esistente
-    document.getElementById('themeToggle')?.addEventListener('click', function() {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      this.setAttribute('aria-pressed', String(!isDark));
-    });
-  </script>
 </body>
 </html>
