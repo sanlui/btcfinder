@@ -21,6 +21,10 @@
   <meta property="og:site_name" content="Advanced Bitcoin Explorer">
   <meta name="twitter:card" content="summary_large_image">
   
+  <!-- Preload Risorse Critiche -->
+  <link rel="preload" href="css/styles.css" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" as="style">
+  
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
   
@@ -30,42 +34,44 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
-  <!-- Styles -->
+  <!-- Main CSS -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="container">
- <header class="header">
-  <!-- Simbolo BTC cliccabile -->
-  <a href="/" class="btc-symbol-link" aria-label="Home">
-    ₿
-  </a>
+    <header class="header" role="banner" aria-label="Intestazione del sito">
+      <!-- Simbolo BTC cliccabile -->
+      <a href="/" class="btc-symbol-link" aria-label="Home">
+        ₿
+      </a>
 
-  <!-- Titolo centrato -->
-  <div class="header-titles">
-    <h1 class="title">Advanced Bitcoin Explorer</h1>
-    <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
-  </div>
+      <!-- Titolo centrato -->
+      <div class="header-titles">
+        <h1 class="title">Advanced Bitcoin Explorer</h1>
+        <p class="subtitle">Explore the Bitcoin blockchain with detailed transaction, address, and block analysis</p>
+      </div>
 
-  <!-- Pulsante tema (se presente) -->
-  <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-    <span class="toggle-icon"></span>
-  </button>
-</header>
+      <!-- Pulsante tema -->
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" aria-pressed="false">
+        <span class="toggle-icon" aria-hidden="true"></span>
+      </button>
+    </header>
 
-    <main class="main-content">
-      <div class="search-container">
+    <main class="main-content" role="main">
+      <form class="search-container" role="search" aria-label="Cerca nella blockchain">
         <div class="search-controls">
-          <select id="searchType" class="search-select">
+          <select id="searchType" class="search-select" aria-label="Tipo di ricerca">
             <option value="address">Address</option>
             <option value="tx">Transaction (TXID)</option>
             <option value="block">Block (height or hash)</option>
           </select>
           
           <div class="search-input-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
-            <button id="searchBtn" class="search-button" onclick="performSearch()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <input type="text" id="searchInput" class="search-input" 
+                   placeholder="Enter TXID, address or block"
+                   aria-label="Inserisci TXID, indirizzo o blocco" />
+            <button id="searchBtn" class="search-button" type="submit" aria-label="Cerca">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -75,36 +81,53 @@
         </div>
 
         <div class="action-buttons">
-          <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
-          <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
+          <button type="button" onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
+          <button type="button" onclick="showFavorites()" class="button secondary">Show Favorites</button>
         </div>
-      </div>
+      </form>
 
-      <div id="dashboard" class="dashboard-container" style="display:none;"></div>
-      <div id="result" class="result-container"></div>
+      <div id="dashboard" class="dashboard-container" style="display:none;" aria-live="polite"></div>
+      <div id="result" class="result-container" aria-live="polite"></div>
     </main>
 
-    <div class="footer class="footer">
-  <div class="footer-content">
-    <div class="footer-disclaimer">
-      <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
-      <p>All data is provided for informational purposes only.</p>
-    </div>
-    
-    <div class="footer-legal">
-      <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
-      <p>
-        Blockchain data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
-        <span class="footer-separator">|</span>
-        <a href="/privacy">Privacy Policy</a>
-        <span class="footer-separator">|</span>
-        <a href="/terms">Terms of Service</a>
-      </p>
-    </div>
-  </div>
-</footer>
+    <footer class="footer" role="contentinfo">
+      <div class="footer-content">
+        <div class="footer-disclaimer">
+          <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
+          <p>All data is provided for informational purposes only.</p>
+        </div>
+        
+        <div class="footer-legal">
+          <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
+          <p>
+            Blockchain data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
+            <span class="footer-separator" aria-hidden="true">|</span>
+            <a href="/privacy">Privacy Policy</a>
+            <span class="footer-separator" aria-hidden="true">|</span>
+            <a href="/terms">Terms of Service</a>
+          </p>
+        </div>
+      </div>
+    </footer>
   </div>
 
-  <script src="js/main.js"></script>
+  <!-- Scripts -->
+  <script src="js/main.js" defer></script>
+  <script>
+    // Inizializzazione anno corrente
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    
+    // Caricamento differito delle risorse non critiche
+    window.addEventListener('load', function() {
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+          this.setAttribute('aria-pressed', String(!isDark));
+        });
+      }
+    });
+  </script>
 </body>
 </html>
