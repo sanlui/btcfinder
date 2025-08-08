@@ -20,3 +20,5 @@ A technical Bitcoin blockchain explorer tool.
 
 ## License
 MIT
+
+Note: I’m just getting started in this space, so any feedback, suggestions, or contributions to the project are greatly appreciated!
