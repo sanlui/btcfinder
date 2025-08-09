@@ -1,93 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Wallet Generator</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Finder - Wallet Generator</title>
+  <!-- Collegamento allo STESSO CSS della home -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="header-left">
-                <span class="btc-symbol">₿</span>
-                <div class="header-titles">
-                    <h1 class="title">Wallet Generator</h1>
-                    <p class="subtitle">Secure Bitcoin wallet creation</p>
-                </div>
-            </div>
-            <nav class="header-center">
-                <a href="tool.html" class="nav-link active">Wallet Generator</a>
-            </nav>
-            <div class="header-right">
-                <button class="theme-toggle">🌓</button>
-            </div>
+  <!-- Header identico alla home -->
+  <header class="header">
+    <div class="container header-container">
+      <div class="header-left">
+        <span class="btc-symbol">₿</span>
+        <div class="header-titles">
+          <h1 class="title">BTC Finder</h1>
+          <p class="subtitle">Genera wallet Bitcoin</p>
         </div>
-    </header>
+      </div>
+      <nav class="header-center">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="tool.html" class="nav-link active">Wallet Generator</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="main">
-        <div class="container">
-            <!-- Security Warning -->
-            <div class="warning-card">
-                <div class="warning-icon">⚠️</div>
-                <div class="warning-content">
-                    <h3>Security Notice</h3>
-                    <p>This tool generates Bitcoin wallets client-side. For maximum security:</p>
-                    <ul>
-                        <li>Use offline when generating production wallets</li>
-                        <li>Never share your private keys</li>
-                        <li>Consider using a hardware wallet for large amounts</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Wallet Generator Form -->
-            <section class="wallet-generator">
-                <h2><span>⚡</span> Bitcoin Wallet Generator <span>⚡</span></h2>
-                
-                <div class="generator-options">
-                    <!-- Generator options form... -->
-                </div>
-                
-                <div class="generate-button">
-                    <button id="generateWallet" class="button primary large">Generate Bitcoin Wallet</button>
-                </div>
-            </section>
-
-            <!-- Results Section -->
-            <section class="wallet-results hidden">
-                <!-- Wallet results display... -->
-            </section>
-
-            <!-- Security Tips -->
-            <section class="security-tips">
-                <!-- Security tips content... -->
-            </section>
+  <!-- Contenuto principale -->
+  <main class="main">
+    <div class="container">
+      <!-- Card per il generatore -->
+      <div class="card wallet-generator">
+        <h2 class="card-title">Genera Wallet Bitcoin</h2>
+        
+        <!-- Sezione avviso -->
+        <div class="warning-card">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M12 2L2 22h20L12 2z"></path>
+          </svg>
+          <p>Backup your private key securely. Lost keys = lost funds!</p>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="https://github.com/sanlui/btcfinder" class="footer-link">GitHub</a>
-            </div>
-            <div class="footer-legal">
-                <span>© 2023 Bitcoin Wallet Generator</span>
-                <span class="footer-separator">•</span>
-                <span>For educational purposes only</span>
-            </div>
+        <!-- Pulsante generazione -->
+        <button id="generateBtn" class="button primary">
+          Genera Nuovo Wallet
+        </button>
+
+        <!-- Risultato -->
+        <div id="walletResult" class="wallet-display" style="display:none;">
+          <div class="qr-container" id="qrCode"></div>
+          <p>Indirizzo pubblico:</p>
+          <p id="walletAddress" class="wallet-address"></p>
+          <p>Chiave privata (WIF):</p>
+          <p id="privateKey" class="wallet-address"></p>
         </div>
-    </footer>
+      </div>
+    </div>
+  </main>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    
-    <!-- Main Wallet Generator Script -->
-    <script src="js/wallet-generator.js"></script>
+  <!-- Footer identico alla home -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-links">
+        <a href="#" class="footer-link">GitHub</a>
+        <a href="#" class="footer-link">Documentazione</a>
+      </div>
+      <p class="footer-legal">© 2023 BTC Finder</p>
+    </div>
+  </footer>
+
+  <!-- Script JS -->
+  <script src="js/app.js"></script>
 </body>
 </html>
