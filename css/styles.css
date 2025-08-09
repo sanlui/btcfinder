@@ -629,52 +629,58 @@ body {
 /* Aggiungi queste regole in fondo al tuo CSS */
 
 /* Stili per il Wallet Generator */
+/* Stile avanzato per il generatore di portafogli */
 .wallet-generator {
-  background-color: var(--surface);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(247, 147, 26, 0.15);
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 800px;
+  border: 1px solid #f0b76c;
 }
 
 .warning-card {
+  background: rgba(247, 147, 26, 0.08);
+  border-left: 4px solid #f7931a;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
   display: flex;
-  gap: var(--space-md);
-  background-color: rgba(247, 147, 26, 0.1);
-  border-left: 4px solid var(--warning);
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  margin-bottom: var(--space-lg);
+  gap: 1rem;
 }
 
-.warning-icon {
-  font-size: var(--font-size-2xl);
-  color: var(--warning);
+/* Stile per i pulsanti */
+.button {
+  background: #f7931a;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+.button:hover {
+  background: #e08217;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
+}
+
+/* Stile per i QR code */
 .qr-code {
   background: white;
-  padding: var(--space-sm);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
   margin: 0 auto;
+  width: 150px;
+  height: 150px;
 }
 
-.hidden {
-  display: none !important;
-}
-
-/* Stili per i pulsanti e card */
-.option-card {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  margin-bottom: var(--space-md);
-}
-
-.button-group {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-sm);
+/* Stile per le sezioni private */
+.warning {
+  background: rgba(231, 76, 60, 0.08);
+  border-left: 4px solid #e74c3c;
 }
