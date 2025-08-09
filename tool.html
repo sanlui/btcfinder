@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BTC Finder - Wallet Generator</title>
-  <!-- Collegamento allo STESSO CSS della home -->
-  <link rel="stylesheet" href="css/styles.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css">
   
-  <!-- Aggiungi queste librerie PRIMA del tuo CSS -->
+  <!-- Librerie ESSENZIALI (caricate prima dello script) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bip39/3.0.4/bip39.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </head>
 <body>
-  <!-- Header identico alla home -->
+  <!-- Header -->
   <header class="header">
     <div class="container header-container">
       <div class="header-left">
@@ -32,14 +32,14 @@
     </div>
   </header>
 
-  <!-- Contenuto principale -->
+  <!-- Main Content -->
   <main class="main">
     <div class="container">
-      <!-- Card per il generatore -->
+      <!-- Wallet Generator Card -->
       <div class="card wallet-generator">
         <h2 class="card-title">Genera Wallet Bitcoin</h2>
         
-        <!-- Sezione avviso -->
+        <!-- Warning Section -->
         <div class="warning-card">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M12 2L2 22h20L12 2z"></path>
@@ -47,12 +47,12 @@
           <p>Backup your private key securely. Lost keys = lost funds!</p>
         </div>
 
-        <!-- Pulsante generazione -->
+        <!-- Generation Button -->
         <button id="generateBtn" class="button primary">
           Genera Nuovo Wallet
         </button>
 
-        <!-- Risultato -->
+        <!-- Results (hidden by default) -->
         <div id="walletResult" class="wallet-display" style="display:none;">
           <div class="qr-container" id="qrCode"></div>
           <p>Indirizzo pubblico:</p>
@@ -64,18 +64,18 @@
     </div>
   </main>
 
-  <!-- Footer identico alla home -->
+  <!-- Footer -->
   <footer class="footer">
     <div class="container footer-content">
       <div class="footer-links">
         <a href="#" class="footer-link">GitHub</a>
         <a href="#" class="footer-link">Documentazione</a>
       </div>
-      <p class="footer-legal">© 2023 BTC Finder</p>
+      <p class="footer-legal">© 2025 BTCFinder</p>
     </div>
   </footer>
 
-  <!-- Script JS - Deve venire DOPO le dipendenze -->
+  <!-- Script JS - Caricato alla fine -->
   <script src="js/app.js"></script>
 </body>
 </html>
