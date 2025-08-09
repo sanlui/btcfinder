@@ -3,129 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Wallet Generator - Network Dashboard</title>
+    <title>Bitcoin Wallet Generator</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Tutto il tuo contenuto HTML... -->
-    
-    <!-- Scripts alla fine del body, PRIMA della chiusura </body> -->
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="header-left">
+                <span class="btc-symbol">₿</span>
+                <div class="header-titles">
+                    <h1 class="title">Wallet Generator</h1>
+                    <p class="subtitle">Secure Bitcoin wallet creation</p>
+                </div>
+            </div>
+            <nav class="header-center">
+                <a href="tool.html" class="nav-link active">Wallet Generator</a>
+            </nav>
+            <div class="header-right">
+                <button class="theme-toggle">🌓</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Security Warning -->
+            <div class="warning-card">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                    <h3>Security Notice</h3>
+                    <p>This tool generates Bitcoin wallets client-side. For maximum security:</p>
+                    <ul>
+                        <li>Use offline when generating production wallets</li>
+                        <li>Never share your private keys</li>
+                        <li>Consider using a hardware wallet for large amounts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Wallet Generator Form -->
+            <section class="wallet-generator">
+                <h2><span>⚡</span> Bitcoin Wallet Generator <span>⚡</span></h2>
+                
+                <div class="generator-options">
+                    <!-- Generator options form... -->
+                </div>
+                
+                <div class="generate-button">
+                    <button id="generateWallet" class="button primary large">Generate Bitcoin Wallet</button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section class="wallet-results hidden">
+                <!-- Wallet results display... -->
+            </section>
+
+            <!-- Security Tips -->
+            <section class="security-tips">
+                <!-- Security tips content... -->
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/sanlui/btcfinder" class="footer-link">GitHub</a>
+            </div>
+            <div class="footer-legal">
+                <span>© 2023 Bitcoin Wallet Generator</span>
+                <span class="footer-separator">•</span>
+                <span>For educational purposes only</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script>
-        // Il tuo codice JavaScript qui...
-        // DOM Elements
-        const generationMethod = document.getElementById('generationMethod');
-        const mnemonicOptions = document.getElementById('mnemonicOptions');
-        const entropyOptions = document.getElementById('entropyOptions');
-        const derivationPath = document.getElementById('derivationPath');
-        const customPath = document.getElementById('customPath');
-        const generateBtn = document.getElementById('generateWallet');
-        const walletResults = document.querySelector('.wallet-results');
-        
-        // Toggle options based on generation method
-        generationMethod.addEventListener('change', function() {
-            mnemonicOptions.style.display = this.value === 'mnemonic' ? 'block' : 'none';
-            entropyOptions.style.display = this.value === 'entropy' ? 'block' : 'none';
-        });
-        
-        // Toggle custom path input
-        derivationPath.addEventListener('change', function() {
-            customPath.classList.toggle('hidden', this.value !== 'custom');
-        });
-        
-        // Generate wallet function
-        generateBtn.addEventListener('click', function() {
-            // Implementazione reale della generazione del wallet
-            try {
-                const method = generationMethod.value;
-                const network = document.querySelector('input[name="network"]:checked').value;
-                const path = derivationPath.value === 'custom' ? customPath.value : derivationPath.value;
-                
-                let mnemonic, seed;
-                
-                if (method === 'random') {
-                    mnemonic = bip39.generateMnemonic();
-                    seed = bip39.mnemonicToSeedSync(mnemonic);
-                } else if (method === 'mnemonic') {
-                    mnemonic = document.getElementById('mnemonicPhrase').value.trim();
-                    if (!bip39.validateMnemonic(mnemonic)) {
-                        alert('Invalid mnemonic phrase!');
-                        return;
-                    }
-                    seed = bip39.mnemonicToSeedSync(mnemonic);
-                } else if (method === 'entropy') {
-                    const entropy = document.getElementById('customEntropy').value.trim();
-                    mnemonic = bip39.entropyToMnemonic(entropy);
-                    seed = bip39.mnemonicToSeedSync(mnemonic);
-                }
-                
-                const root = bitcoin.bip32.fromSeed(seed, network === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet);
-                const child = root.derivePath(path);
-                
-                const { address } = bitcoin.payments.p2wpkh({
-                    pubkey: child.publicKey,
-                    network: network === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet
-                });
-                
-                // Mostra i risultati
-                document.getElementById('bitcoinAddress').textContent = address;
-                document.getElementById('publicKey').textContent = child.publicKey.toString('hex');
-                document.getElementById('privateKey').textContent = child.toWIF();
-                
-                if (method === 'random' || method === 'entropy') {
-                    document.getElementById('mnemonicDisplayText').textContent = mnemonic;
-                    document.getElementById('mnemonicDisplay').classList.remove('hidden');
-                } else {
-                    document.getElementById('mnemonicDisplay').classList.add('hidden');
-                }
-                
-                // Genera QR Code
-                QRCode.toCanvas(document.getElementById('addressQr'), address, {
-                    width: 150,
-                    color: { dark: '#000000', light: '#ffffff' }
-                });
-                
-                // Mostra risultati
-                walletResults.classList.remove('hidden');
-                walletResults.scrollIntoView({ behavior: 'smooth' });
-                
-            } catch (error) {
-                console.error('Error generating wallet:', error);
-                alert('Error generating wallet: ' + error.message);
-            }
-        });
-        
-        // Copy buttons functionality
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-                const textToCopy = document.getElementById(targetId).textContent;
-                navigator.clipboard.writeText(textToCopy);
-                
-                // Visual feedback
-                const originalText = this.textContent;
-                this.textContent = 'Copied!';
-                setTimeout(() => {
-                    this.textContent = originalText;
-                }, 2000);
-            });
-        });
-        
-        // Toggle private key QR
-        document.getElementById('showQrPrivate').addEventListener('click', function() {
-            const qrElement = document.getElementById('privateQr');
-            qrElement.classList.toggle('hidden');
-            
-            if (!qrElement.classList.contains('hidden')) {
-                const privateKey = document.getElementById('privateKey').textContent;
-                QRCode.toCanvas(qrElement, privateKey, {
-                    width: 150,
-                    color: { dark: '#000000', light: '#ffffff' }
-                });
-            }
-        });
-    </script>
+    
+    <!-- Main Wallet Generator Script -->
+    <script src="js/wallet-generator.js"></script>
 </body>
 </html>
