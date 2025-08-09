@@ -44,7 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Mostra/nascondi QR privato
-        dom.showQrPrivateBtn.addEventListener('click', togglePrivateQR);
+        if (dom.showQrPrivateBtn) {
+            dom.showQrPrivateBtn.addEventListener('click', togglePrivateQR);
+        }
     }
 
     async function generateWallet() {
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let mnemonic, seed;
             
             if (method === 'random') {
-                mnemonic = bip39.generateMnemonic(256); // 24 parole
+                mnemonic = bip39.generateMnemonic(); // Genera mnemonico casuale (12 parole di default)
                 seed = await bip39.mnemonicToSeed(mnemonic);
             } 
             else if (method === 'mnemonic') {
@@ -130,22 +132,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateQR(elementId, data) {
         const element = document.getElementById(elementId);
         element.innerHTML = '';
-        QRCode.toCanvas(element, data, {
+        new QRCode(element, {
+            text: data,
             width: 150,
-            color: { dark: '#000000', light: '#ffffff' }
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
         });
     }
 
     function copyToClipboard(e) {
         const target = e.target.getAttribute('data-target');
         const text = document.getElementById(target).textContent;
-        navigator.clipboard.writeText(text);
-        
-        // Feedback visivo
-        e.target.textContent = 'Copiato!';
-        setTimeout(() => {
-            e.target.textContent = 'Copy';
-        }, 2000);
+        navigator.clipboard.writeText(text).then(() => {
+            // Feedback visivo
+            const originalText = e.target.textContent;
+            e.target.textContent = 'Copiato!';
+            setTimeout(() => {
+                e.target.textContent = originalText;
+            }, 2000);
+        }).catch(err => {
+            console.error('Errore nella copia:', err);
+        });
     }
 
     function togglePrivateQR() {
