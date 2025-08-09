@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let mnemonic, seed;
             
             if (method === 'random') {
-                mnemonic = bip39.generateMnemonic(); // Genera mnemonico casuale (12 parole di default)
+                mnemonic = bip39.generateMnemonic(256); // 24 parole
                 seed = await bip39.mnemonicToSeed(mnemonic);
             } 
             else if (method === 'mnemonic') {
