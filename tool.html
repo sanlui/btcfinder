@@ -134,7 +134,19 @@
       <p class="footer-legal">© 2023 BTC Finder</p>
     </div>
   </footer>
-
+<script>
+  // Verifica il caricamento delle librerie
+  function checkLibs() {
+    if(typeof bip39 === 'undefined' || typeof bitcoin === 'undefined') {
+      alert("ERRORE: Librerie critiche non caricate. Ricarica la pagina o usa un browser diverso.");
+      console.error("Librerie mancanti:", {
+        bip39: typeof bip39,
+        bitcoin: typeof bitcoin
+      });
+    }
+  }
+  window.addEventListener('load', checkLibs);
+</script>
   <!-- Script JS -->
   <script src="./js/app.js"></script>
 </body>
