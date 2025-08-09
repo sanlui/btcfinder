@@ -1,10 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Configurazione
-    const NETWORKS = {
-        mainnet: bitcoin.networks.bitcoin,
-        testnet: bitcoin.networks.testnet
-    };
-
+document.addEventListener('DOMContentLoaded', function() {
     // Elementi DOM
     const dom = {
         generationMethod: document.getElementById('generationMethod'),
@@ -18,7 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
         publicKey: document.getElementById('publicKey'),
         privateKey: document.getElementById('privateKey'),
         mnemonicDisplay: document.getElementById('mnemonicDisplay'),
-        mnemonicDisplayText: document.getElementById('mnemonicDisplayText')
+        mnemonicDisplayText: document.getElementById('mnemonicDisplayText'),
+        addressQr: document.getElementById('addressQr'),
+        privateQr: document.getElementById('privateQr'),
+        showQrPrivateBtn: document.getElementById('showQrPrivate')
     };
 
     // Inizializzazione
@@ -47,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Mostra/nascondi QR privato
-        document.getElementById('showQrPrivate').addEventListener('click', togglePrivateQR);
+        dom.showQrPrivateBtn.addEventListener('click', togglePrivateQR);
     }
 
     async function generateWallet() {
@@ -61,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let mnemonic, seed;
             
             if (method === 'random') {
-                mnemonic = bip39.generateMnemonic(256);
+                mnemonic = bip39.generateMnemonic(256); // 24 parole
                 seed = await bip39.mnemonicToSeed(mnemonic);
             } 
             else if (method === 'mnemonic') {
@@ -81,13 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3. Deriva il wallet
-            const root = bitcoin.bip32.fromSeed(seed, NETWORKS[network]);
+            const root = bitcoin.bip32.fromSeed(seed, getNetwork(network));
             const child = root.derivePath(path);
             
             // 4. Genera indirizzo
             const { address } = bitcoin.payments.p2wpkh({ 
                 pubkey: child.publicKey,
-                network: NETWORKS[network]
+                network: getNetwork(network)
             });
 
             // 5. Mostra risultati
@@ -99,9 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
         } catch (error) {
-            console.error('Errore generazione wallet:', error);
+            console.error('Errore nella generazione:', error);
             alert(`Errore: ${error.message}`);
         }
+    }
+
+    function getNetwork(network) {
+        return network === 'mainnet' ? bitcoin.networks.bitcoin : bitcoin.networks.testnet;
     }
 
     function displayResults({ address, publicKey, privateKey, mnemonic }) {
@@ -129,42 +130,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateQR(elementId, data) {
         const element = document.getElementById(elementId);
         element.innerHTML = '';
-        new QRCode(element, {
-            text: data,
+        QRCode.toCanvas(element, data, {
             width: 150,
-            height: 150,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+            color: { dark: '#000000', light: '#ffffff' }
         });
     }
 
     function copyToClipboard(e) {
         const target = e.target.getAttribute('data-target');
         const text = document.getElementById(target).textContent;
-        navigator.clipboard.writeText(text)
-            .then(() => {
-                e.target.textContent = 'Copiato!';
-                setTimeout(() => {
-                    e.target.textContent = 'Copia';
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Errore durante la copia:', err);
-            });
+        navigator.clipboard.writeText(text);
+        
+        // Feedback visivo
+        e.target.textContent = 'Copiato!';
+        setTimeout(() => {
+            e.target.textContent = 'Copy';
+        }, 2000);
     }
 
     function togglePrivateQR() {
-        const qrElement = document.getElementById('privateQr');
-        const btn = document.getElementById('showQrPrivate');
-        
-        if (qrElement.classList.contains('hidden')) {
-            generateQR('privateQr', dom.privateKey.textContent);
-            btn.textContent = 'Nascondi QR Privato';
-        } else {
-            btn.textContent = 'Mostra QR Privato';
-        }
-        
+        const qrElement = dom.privateQr;
         qrElement.classList.toggle('hidden');
+        
+        if (!qrElement.classList.contains('hidden')) {
+            generateQR('privateQr', dom.privateKey.textContent);
+        }
     }
 });
