@@ -627,3 +627,55 @@ body {
     display: none;
   }
 }
+/* Aggiungi queste regole in fondo al tuo CSS */
+
+/* Stili per il Wallet Generator */
+.wallet-generator {
+  background-color: var(--surface);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  border: 1px solid var(--border);
+}
+
+.warning-card {
+  display: flex;
+  gap: var(--space-md);
+  background-color: rgba(247, 147, 26, 0.1);
+  border-left: 4px solid var(--warning);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.warning-icon {
+  font-size: var(--font-size-2xl);
+  color: var(--warning);
+}
+
+.qr-code {
+  background: white;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin: 0 auto;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Stili per i pulsanti e card */
+.option-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.button-group {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
