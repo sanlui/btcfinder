@@ -27,26 +27,36 @@
     };
 
     function generateWallet() {
-      // 1. Genera mnemonico 12 parole
-      const mnemonic = bip39.generateMnemonic(128);
+      console.log('Generazione wallet iniziata');
 
-      // 2. Ottieni seed da mnemonico
-      const seed = bip39.mnemonicToSeedSync(mnemonic);
+      try {
+        // 1. Genera mnemonico 12 parole
+        const mnemonic = bip39.generateMnemonic(128);
+        console.log('Mnemonic:', mnemonic);
 
-      // 3. Crea root dalla seed (mainnet di default)
-      const root = bitcoin.bip32.fromSeed(seed, NETWORKS.mainnet);
+        // 2. Ottieni seed da mnemonico
+        const seed = bip39.mnemonicToSeedSync(mnemonic);
 
-      // 4. Deriva percorso standard BIP84 (p2wpkh native segwit)
-      const path = "m/84'/0'/0'/0/0";
-      const child = root.derivePath(path);
+        // 3. Crea root dalla seed (mainnet di default)
+        const root = bitcoin.bip32.fromSeed(seed, NETWORKS.mainnet);
 
-      // 5. Crea indirizzo bitcoin p2wpkh
-      const { address } = bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: NETWORKS.mainnet });
+        // 4. Deriva percorso standard BIP84 (p2wpkh native segwit)
+        const path = "m/84'/0'/0'/0/0";
+        const child = root.derivePath(path);
 
-      // 6. Mostra tutto nella pagina
-      document.getElementById('mnemonic').textContent = mnemonic;
-      document.getElementById('address').textContent = address;
-      document.getElementById('privateKey').textContent = child.toWIF();
+        // 5. Crea indirizzo bitcoin p2wpkh
+        const { address } = bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: NETWORKS.mainnet });
+
+        // 6. Mostra tutto nella pagina
+        document.getElementById('mnemonic').textContent = mnemonic;
+        document.getElementById('address').textContent = address;
+        document.getElementById('privateKey').textContent = child.toWIF();
+
+        console.log('Wallet generato con successo');
+      } catch (err) {
+        console.error('Errore:', err);
+        alert('Errore durante la generazione: ' + err.message);
+      }
     }
 
     document.getElementById('generateBtn').addEventListener('click', generateWallet);
