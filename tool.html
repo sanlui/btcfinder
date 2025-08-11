@@ -1,139 +1,55 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC Finder - Wallet Generator</title>
-  
-  <!-- CSS (verifica il percorso) -->
-  <link rel="stylesheet" href="./css/styles.css">
-
-  <!-- Librerie ESSENZIALI -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Simple BTC Wallet Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bip39/3.0.4/bip39.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
 </head>
 <body>
-  <!-- Header -->
-  <header class="header">
-    <div class="container header-container">
-      <div class="header-left">
-        <a href="index.html" class="btc-link">
-          <span class="btc-symbol">₿</span>
-        </a>
-        <div class="header-titles">
-          <h1 class="title">BTC Finder</h1>
-          <p class="subtitle">Genera wallet Bitcoin</p>
-        </div>
-      </div>
-      <nav class="header-center">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="tool.html" class="nav-link active">Wallet Generator</a>
-      </nav>
-    </div>
-  </header>
+  <h1>Genera Wallet Bitcoin Semplice</h1>
 
-  <!-- Main Content -->
-  <main class="main">
-    <div class="container">
-      <div class="card wallet-generator">
-        <h2 class="card-title">Genera Wallet Bitcoin</h2>
-        
-        <!-- Form di generazione -->
-        <div class="generation-options">
-          <div class="form-group">
-            <label for="generationMethod">Metodo di generazione:</label>
-            <select id="generationMethod" class="form-control">
-              <option value="random">Casuale (24 parole)</option>
-              <option value="mnemonic">Inserisci mnemonico</option>
-              <option value="entropy">Inserisci entropy</option>
-            </select>
-          </div>
+  <button id="generateBtn">Genera Wallet</button>
 
-          <!-- Opzioni mnemonico (nascoste inizialmente) -->
-          <div id="mnemonicOptions" style="display:none;">
-            <div class="form-group">
-              <label for="mnemonicPhrase">Frase mnemonica (24 parole):</label>
-              <textarea id="mnemonicPhrase" class="form-control" rows="3"></textarea>
-            </div>
-          </div>
+  <h3>Frase mnemonica (12 parole):</h3>
+  <p id="mnemonic"></p>
 
-          <!-- Opzioni entropy (nascoste inizialmente) -->
-          <div id="entropyOptions" style="display:none;">
-            <div class="form-group">
-              <label for="customEntropy">Entropy (esadecimale 64 caratteri):</label>
-              <input type="text" id="customEntropy" class="form-control">
-            </div>
-          </div>
+  <h3>Indirizzo Bitcoin:</h3>
+  <p id="address"></p>
 
-          <!-- Opzioni rete e percorso -->
-          <div class="form-group">
-            <label>Network:</label>
-            <div class="radio-group">
-              <label><input type="radio" name="network" value="mainnet" checked> Mainnet</label>
-              <label><input type="radio" name="network" value="testnet"> Testnet</label>
-            </div>
-          </div>
+  <h3>Chiave privata (WIF):</h3>
+  <p id="privateKey"></p>
 
-          <div class="form-group">
-            <label for="derivationPath">Percorso di derivazione:</label>
-            <select id="derivationPath" class="form-control">
-              <option value="m/84'/0'/0'/0/0">BIP84 (Native SegWit)</option>
-              <option value="m/44'/0'/0'/0/0">BIP44 (Legacy)</option>
-              <option value="custom">Custom</option>
-            </select>
-            <input type="text" id="customPath" class="form-control hidden" placeholder="Inserisci percorso personalizzato">
-          </div>
+  <script>
+    const NETWORKS = {
+      mainnet: bitcoin.networks.bitcoin,
+      testnet: bitcoin.networks.testnet
+    };
 
-          <button id="generateWallet" class="button primary">
-            Genera Wallet
-          </button>
-        </div>
+    function generateWallet() {
+      // 1. Genera mnemonico 12 parole
+      const mnemonic = bip39.generateMnemonic(128);
 
-        <!-- Risultati (nascosti inizialmente) -->
-        <div class="wallet-results hidden">
-          <h3>Wallet Generato</h3>
-          
-          <div class="qr-section">
-            <div id="addressQr"></div>
-            <p>Indirizzo pubblico:</p>
-            <p id="bitcoinAddress" class="wallet-address"></p>
-            <button class="copy-btn" data-target="bitcoinAddress">Copy</button>
-          </div>
+      // 2. Ottieni seed da mnemonico
+      const seed = bip39.mnemonicToSeedSync(mnemonic);
 
-          <div class="private-section">
-            <p>Chiave pubblica:</p>
-            <p id="publicKey" class="wallet-address"></p>
-            
-            <p>Chiave privata (WIF):</p>
-            <p id="privateKey" class="wallet-address"></p>
-            <button class="copy-btn" data-target="privateKey">Copy</button>
-            <button id="showQrPrivate">Mostra QR Privato</button>
-            <div id="privateQr" class="hidden"></div>
-          </div>
+      // 3. Crea root dalla seed (mainnet di default)
+      const root = bitcoin.bip32.fromSeed(seed, NETWORKS.mainnet);
 
-          <div id="mnemonicDisplay" class="hidden">
-            <p>Frase mnemonica:</p>
-            <p id="mnemonicDisplayText" class="wallet-address"></p>
-            <button class="copy-btn" data-target="mnemonicDisplayText">Copy</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+      // 4. Deriva percorso standard BIP84 (p2wpkh native segwit)
+      const path = "m/84'/0'/0'/0/0";
+      const child = root.derivePath(path);
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-content">
-      <div class="footer-links">
-        <a href="#" class="footer-link">GitHub</a>
-        <a href="#" class="footer-link">Documentazione</a>
-      </div>
-      <p class="footer-legal">© 2023 BTC Finder</p>
-    </div>
-  </footer>
+      // 5. Crea indirizzo bitcoin p2wpkh
+      const { address } = bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: NETWORKS.mainnet });
 
-  <!-- Script JS -->
-  <script src="./js/app.js"></script>
+      // 6. Mostra tutto nella pagina
+      document.getElementById('mnemonic').textContent = mnemonic;
+      document.getElementById('address').textContent = address;
+      document.getElementById('privateKey').textContent = child.toWIF();
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', generateWallet);
+  </script>
 </body>
 </html>
