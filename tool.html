@@ -8,7 +8,13 @@
   <link rel="stylesheet" href="./css/styles.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bip39/3.0.4/bip39.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    .hidden { display: none; }
+    .wallet-address { word-break: break-all; }
+    #addressQr, #privateQr { margin: 10px 0; }
+    .copy-btn { margin-left: 10px; }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -42,17 +48,17 @@
           </select>
         </div>
 
-        <div id="mnemonicOptions" style="display:none;">
+        <div id="mnemonicOptions" class="hidden">
           <div class="form-group">
             <label for="mnemonicPhrase">Frase mnemonica (24 parole):</label>
-            <textarea id="mnemonicPhrase" class="form-control" rows="3"></textarea>
+            <textarea id="mnemonicPhrase" class="form-control" rows="3" placeholder="Inserisci la tua frase mnemonica di 24 parole"></textarea>
           </div>
         </div>
 
-        <div id="entropyOptions" style="display:none;">
+        <div id="entropyOptions" class="hidden">
           <div class="form-group">
             <label for="customEntropy">Entropy (esadecimale 64 caratteri):</label>
-            <input type="text" id="customEntropy" class="form-control" />
+            <input type="text" id="customEntropy" class="form-control" placeholder="Inserisci 64 caratteri esadecimali (0-9, a-f)" />
           </div>
         </div>
 
@@ -69,9 +75,10 @@
           <select id="derivationPath" class="form-control">
             <option value="m/84'/0'/0'/0/0">BIP84 (Native SegWit)</option>
             <option value="m/44'/0'/0'/0/0">BIP44 (Legacy)</option>
+            <option value="m/49'/0'/0'/0/0">BIP49 (Nested SegWit)</option>
             <option value="custom">Custom</option>
           </select>
-          <input type="text" id="customPath" class="form-control hidden" placeholder="Inserisci percorso personalizzato" />
+          <input type="text" id="customPath" class="form-control hidden" placeholder="es: m/84'/0'/0'/0/0" />
         </div>
 
         <button id="generateWallet" class="button primary">Genera Wallet</button>
@@ -95,7 +102,7 @@
           <p>Chiave privata (WIF):</p>
           <p id="privateKey" class="wallet-address"></p>
           <button class="copy-btn" data-target="privateKey">Copy</button>
-          <button id="showQrPrivate">Mostra QR Privato</button>
+          <button id="showQrPrivate" class="button secondary">Mostra QR Privato</button>
           <div id="privateQr" class="hidden"></div>
         </div>
 
@@ -120,6 +127,9 @@
     </div>
   </footer>
 
-  <script src="./js/app.js"></script>
+  <script>
+    // Qui inserire tutto il codice JavaScript fornito precedentemente
+    // (il codice completo che ti ho inviato nella risposta precedente)
+  </script>
 </body>
 </html>
