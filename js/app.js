@@ -1,4 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Verifica che tutte le librerie siano caricate
+    if (!window.bitcoin || !window.bip39 || !window.QRCode) {
+        alert("Errore: Librerie non caricate correttamente. Ricarica la pagina.");
+        console.error("Libreries mancanti:", {
+            bitcoin: !!window.bitcoin,
+            bip39: !!window.bip39,
+            QRCode: !!window.QRCode
+        });
+        return;
+    }
+
     // Configurazione
     const NETWORKS = {
         mainnet: bitcoin.networks.bitcoin,
@@ -18,13 +29,26 @@ document.addEventListener('DOMContentLoaded', () => {
         publicKey: document.getElementById('publicKey'),
         privateKey: document.getElementById('privateKey'),
         mnemonicDisplay: document.getElementById('mnemonicDisplay'),
-        mnemonicDisplayText: document.getElementById('mnemonicDisplayText')
+        mnemonicDisplayText: document.getElementById('mnemonicDisplayText'),
+        mnemonicOptions: document.getElementById('mnemonicOptions'),
+        entropyOptions: document.getElementById('entropyOptions')
     };
 
     // Inizializzazione
     initEventListeners();
 
     function initEventListeners() {
+        // Mostra/nascondi opzioni in base al metodo selezionato
+        dom.generationMethod.addEventListener('change', function() {
+            dom.mnemonicOptions.style.display = this.value === 'mnemonic' ? 'block' : 'none';
+            dom.entropyOptions.style.display = this.value === 'entropy' ? 'block' : 'none';
+        });
+
+        // Mostra/nascondi percorso custom
+        dom.derivationPath.addEventListener('change', function() {
+            dom.customPath.classList.toggle('hidden', this.value !== 'custom');
+        });
+
         dom.generateBtn.addEventListener('click', generateWallet);
 
         document.querySelectorAll('.copy-btn').forEach(btn => {
@@ -86,26 +110,37 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.publicKey.textContent = publicKey;
         dom.privateKey.textContent = privateKey;
 
-        dom.mnemonicDisplayText.textContent = mnemonic || '';
-        dom.mnemonicDisplay.classList.remove('hidden');
+        if (mnemonic) {
+            dom.mnemonicDisplayText.textContent = mnemonic;
+            dom.mnemonicDisplay.classList.remove('hidden');
+        } else {
+            dom.mnemonicDisplay.classList.add('hidden');
+        }
 
         generateQR('addressQr', address);
-
         dom.walletResults.classList.remove('hidden');
         dom.walletResults.scrollIntoView({ behavior: 'smooth' });
     }
 
     function generateQR(elementId, data) {
-        const element = document.getElementById(elementId);
-        element.innerHTML = '';
-        new QRCode(element, {
-            text: data,
-            width: 150,
-            height: 150,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        try {
+            const element = document.getElementById(elementId);
+            if (!element) throw new Error(`Elemento ${elementId} non trovato`);
+            
+            element.innerHTML = '';
+            new QRCode(element, {
+                text: data,
+                width: 150,
+                height: 150,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } catch (error) {
+            console.error('Errore generazione QR:', error);
+            // Fallback: mostra il testo se il QR non funziona
+            document.getElementById(elementId).textContent = data;
+        }
     }
 
     function copyToClipboard(e) {
@@ -120,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => {
                 console.error('Errore durante la copia:', err);
+                alert('Errore durante la copia negli appunti');
             });
     }
 
