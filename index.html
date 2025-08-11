@@ -1,122 +1,111 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000" />
   <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
-  
-  <!-- Meta Tags Migliorati -->
-  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data on fees, confirmations, balances and historical trends.">
-  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer, address monitor, block details, mempool stats, bitcoin analytics">
-  <meta name="author" content="Advanced Bitcoin Explorer Team">
-  <meta name="robots" content="index, follow">
-  
-  <!-- Open Graph / Social Media Migliorati -->
-  <meta property="og:title" content="Advanced Bitcoin Explorer | Real-time Blockchain Analytics">
-  <meta property="og:description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics for transactions, addresses and blocks">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://btcfinder.xyz/">
-  <meta property="og:image" content="https://btcfinder.xyz/images/social-preview.jpg">
-  <meta property="og:site_name" content="Advanced Bitcoin Explorer">
-  <meta name="twitter:card" content="summary_large_image">
-  
+  <!-- Meta tags migliorati -->
+  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data on fees, confirmations, balances and historical trends." />
+  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer, address monitor, block details, mempool stats, bitcoin analytics" />
+  <meta name="author" content="Advanced Bitcoin Explorer Team" />
+  <meta name="robots" content="index, follow" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Advanced Bitcoin Explorer | Real-time Blockchain Analytics" />
+  <meta property="og:description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics for transactions, addresses and blocks" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://btcfinder.xyz/" />
+  <meta property="og:image" content="https://btcfinder.xyz/images/social-preview.jpg" />
+  <meta property="og:site_name" content="Advanced Bitcoin Explorer" />
+  <meta name="twitter:card" content="summary_large_image" />
   <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>">
-  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css">
-<header class="header">
-  <div class="header-container">
-    <!-- Parte sinistra con logo e titolo -->
-    <div class="header-left">
-      <a href="/" class="btc-symbol-link" aria-label="Home">
-        <span class="btc-symbol">₿</span>
-      </a>
-      <div class="header-titles">
-        <h1 class="title">Advanced Bitcoin Explorer</h1>
-        <p class="subtitle">Explore the Bitcoin blockchain</p>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header-container">
+      <div class="header-left">
+        <a href="/" class="btc-symbol-link" aria-label="Home">
+          <span class="btc-symbol">₿</span>
+        </a>
+        <div class="header-titles">
+          <h1 class="title">Advanced Bitcoin Explorer</h1>
+          <p class="subtitle">Explore the Bitcoin blockchain</p>
+        </div>
+      </div>
+      <nav class="header-center">
+        <a href="#dashboard" class="nav-link active">Network Dashboard</a>
+        <a href="#favorites" class="nav-link">Favorites</a>
+        <a href="#charts" class="nav-link">Charts</a>
+        <a href="#api" class="nav-link">API</a>
+      </nav>
+      <div class="header-right">
+        <a href="tool.html" class="nav-link tool-link" id="toolLink">
+          <span class="tool-icon">🛠️</span>
+          <span class="tool-text">Tools</span>
+        </a>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <span class="toggle-icon">🌓</span>
+        </button>
       </div>
     </div>
+  </header>
 
-    <!-- Parte centrale con navigazione -->
-    <nav class="header-center">
-      <a href="#dashboard" class="nav-link active">Network Dashboard</a>
-      <a href="#favorites" class="nav-link">Favorites</a>
-      <a href="#charts" class="nav-link">Charts</a>
-      <a href="#api" class="nav-link">API</a>
-    </nav>
-
-    <!-- Parte destra con strumenti -->
-    <div class="header-right">
-      <a href="tool.html" class="nav-link tool-link" id="toolLink">
-        <span class="tool-icon">🛠️</span>
-        <span class="tool-text">Tools</span>
-      </a>
-      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-        <span class="toggle-icon">🌓</span>
-      </button>
-    </div>
-  </div>
-</header>
-
-    <main class="main-content">
-      <div class="search-container">
-        <div class="search-controls">
-          <select id="searchType" class="search-select">
-            <option value="address">Address</option>
-            <option value="tx">Transaction (TXID)</option>
-            <option value="block">Block (height or hash)</option>
-          </select>
-          
-          <div class="search-input-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
-            <button id="searchBtn" class="search-button" onclick="performSearch()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              Search
-            </button>
-          </div>
-        </div>
-
-        <div class="action-buttons">
-          <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
-          <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
+  <main class="main-content">
+    <div class="search-container">
+      <div class="search-controls">
+        <select id="searchType" class="search-select">
+          <option value="address">Address</option>
+          <option value="tx">Transaction (TXID)</option>
+          <option value="block">Block (height or hash)</option>
+        </select>
+        <div class="search-input-container">
+          <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
+          <button id="searchBtn" class="search-button" onclick="performSearch()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search
+          </button>
         </div>
       </div>
 
-      <div id="dashboard" class="dashboard-container" style="display:none;"></div>
-      <div id="result" class="result-container"></div>
-    </main>
+      <div class="action-buttons">
+        <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
+        <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
+      </div>
+    </div>
 
-    <div class="footer class="footer">
-  <div class="footer-content">
-    <div class="footer-disclaimer">
-      <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
-      <p>All data is provided for informational purposes only.</p>
+    <div id="dashboard" class="dashboard-container" style="display:none;"></div>
+    <div id="result" class="result-container"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-disclaimer">
+        <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
+        <p>All data is provided for informational purposes only.</p>
+      </div>
+      <div class="footer-legal">
+        <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
+        <p>
+          Blockchain data from
+          <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
+          <span class="footer-separator">|</span>
+          <a href="/privacy">Privacy Policy</a>
+          <span class="footer-separator">|</span>
+          <a href="/terms">Terms of Service</a>
+        </p>
+      </div>
     </div>
-    
-    <div class="footer-legal">
-      <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
-      <p>
-        Blockchain data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
-        <span class="footer-separator">|</span>
-        <a href="/privacy">Privacy Policy</a>
-        <span class="footer-separator">|</span>
-        <a href="/terms">Terms of Service</a>
-      </p>
-    </div>
-  </div>
-</footer>
-  </div>
+  </footer>
 
   <script src="js/main.js"></script>
 </body>
