@@ -25,53 +25,33 @@ document.addEventListener('DOMContentLoaded', () => {
     initEventListeners();
 
     function initEventListeners() {
-        // Cambio metodo di generazione
-        dom.generationMethod.addEventListener('change', function() {
-            document.getElementById('mnemonicOptions').style.display = 
-                this.value === 'mnemonic' ? 'block' : 'none';
-            document.getElementById('entropyOptions').style.display = 
-                this.value === 'entropy' ? 'block' : 'none';
-        });
-        
-        // Cambio percorso di derivazione
-        dom.derivationPath.addEventListener('change', function() {
-            dom.customPath.classList.toggle('hidden', this.value !== 'custom');
-        });
-        
-        // Genera wallet
         dom.generateBtn.addEventListener('click', generateWallet);
-        
-        // Pulsanti copia
+
         document.querySelectorAll('.copy-btn').forEach(btn => {
             btn.addEventListener('click', copyToClipboard);
         });
-        
-        // Mostra/nascondi QR privato
+
         document.getElementById('showQrPrivate').addEventListener('click', togglePrivateQR);
     }
 
     async function generateWallet() {
         try {
-            // 1. Ottieni i parametri
             const method = dom.generationMethod.value;
             const network = document.querySelector('input[name="network"]:checked').value;
             const path = dom.derivationPath.value === 'custom' ? dom.customPath.value : dom.derivationPath.value;
 
-            // 2. Genera il seed
             let mnemonic, seed;
-            
+
             if (method === 'random') {
                 mnemonic = bip39.generateMnemonic(256);
                 seed = await bip39.mnemonicToSeed(mnemonic);
-            } 
-            else if (method === 'mnemonic') {
+            } else if (method === 'mnemonic') {
                 mnemonic = dom.mnemonicPhrase.value.trim();
                 if (!bip39.validateMnemonic(mnemonic)) {
                     throw new Error('Frase mnemonica non valida');
                 }
                 seed = await bip39.mnemonicToSeed(mnemonic);
-            }
-            else if (method === 'entropy') {
+            } else if (method === 'entropy') {
                 const entropy = dom.customEntropy.value.trim();
                 if (!/^[0-9a-fA-F]{64}$/.test(entropy)) {
                     throw new Error('Entropy deve essere una stringa esadecimale di 64 caratteri');
@@ -80,17 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 seed = await bip39.mnemonicToSeed(mnemonic);
             }
 
-            // 3. Deriva il wallet
             const root = bitcoin.bip32.fromSeed(seed, NETWORKS[network]);
             const child = root.derivePath(path);
-            
-            // 4. Genera indirizzo
-            const { address } = bitcoin.payments.p2wpkh({ 
+
+            const { address } = bitcoin.payments.p2wpkh({
                 pubkey: child.publicKey,
                 network: NETWORKS[network]
             });
 
-            // 5. Mostra risultati
             displayResults({
                 address,
                 publicKey: child.publicKey.toString('hex'),
@@ -105,23 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResults({ address, publicKey, privateKey, mnemonic }) {
-        // Mostra dati wallet
         dom.bitcoinAddress.textContent = address;
         dom.publicKey.textContent = publicKey;
         dom.privateKey.textContent = privateKey;
-        
-        // Mostra/nascondi mnemonico
-        if (mnemonic) {
-            dom.mnemonicDisplayText.textContent = mnemonic;
-            dom.mnemonicDisplay.classList.remove('hidden');
-        } else {
-            dom.mnemonicDisplay.classList.add('hidden');
-        }
-        
-        // Genera QR code
+
+        dom.mnemonicDisplayText.textContent = mnemonic || '';
+        dom.mnemonicDisplay.classList.remove('hidden');
+
         generateQR('addressQr', address);
-        
-        // Mostra sezione risultati
+
         dom.walletResults.classList.remove('hidden');
         dom.walletResults.scrollIntoView({ behavior: 'smooth' });
     }
@@ -146,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(() => {
                 e.target.textContent = 'Copiato!';
                 setTimeout(() => {
-                    e.target.textContent = 'Copia';
+                    e.target.textContent = 'Copy';
                 }, 2000);
             })
             .catch(err => {
@@ -157,14 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function togglePrivateQR() {
         const qrElement = document.getElementById('privateQr');
         const btn = document.getElementById('showQrPrivate');
-        
+
         if (qrElement.classList.contains('hidden')) {
             generateQR('privateQr', dom.privateKey.textContent);
             btn.textContent = 'Nascondi QR Privato';
         } else {
             btn.textContent = 'Mostra QR Privato';
         }
-        
+
         qrElement.classList.toggle('hidden');
     }
 });
