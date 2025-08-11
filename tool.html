@@ -5,40 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BTC Finder - Wallet Generator</title>
   <meta name="description" content="BTC Finder: Generatore di wallet Bitcoin sicuro e facile da usare con opzioni avanzate di mnemonico, entropy e percorsi di derivazione." />
-  <link rel="stylesheet" href="./css/styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bip39/3.0.4/bip39.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
     .hidden { display: none; }
     .wallet-address { word-break: break-all; }
     #addressQr, #privateQr { margin: 10px 0; }
     .copy-btn { margin-left: 10px; }
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-control { width: 100%; padding: 8px; }
+    .button { padding: 10px 15px; cursor: pointer; }
+    .primary { background-color: #4CAF50; color: white; border: none; }
+    .secondary { background-color: #f0ad4e; color: white; border: none; }
   </style>
+  <!-- Librerie aggiornate e compatibili -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/5.2.0/bitcoin.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bip39/2.6.0/bip39.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 </head>
 <body>
-  <header class="header">
-    <div class="header-container">
-      <div class="header-left">
-        <a href="index.html" class="btc-symbol-link" aria-label="Home">
-          <span class="btc-symbol">₿</span>
-        </a>
-        <div class="header-titles">
-          <h1 class="title">BTC Finder</h1>
-          <p class="subtitle">Genera wallet Bitcoin</p>
+  <header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <div style="display: flex; align-items: center;">
+        <span style="font-size: 24px; margin-right: 10px;">₿</span>
+        <div>
+          <h1 style="margin: 0;">BTC Finder</h1>
+          <p style="margin: 0;">Genera wallet Bitcoin</p>
         </div>
       </div>
-      <nav class="header-center">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="tool.html" class="nav-link active">Wallet Generator</a>
+      <nav>
+        <a href="index.html" style="margin-right: 10px;">Home</a>
+        <a href="tool.html" style="font-weight: bold;">Wallet Generator</a>
       </nav>
     </div>
   </header>
 
-  <main class="main-content">
-    <div class="search-container wallet-generator">
+  <main>
+    <div>
       <!-- Form generazione wallet -->
-      <div class="generation-options">
+      <div>
         <div class="form-group">
           <label for="generationMethod">Metodo di generazione:</label>
           <select id="generationMethod" class="form-control">
@@ -64,7 +68,7 @@
 
         <div class="form-group">
           <label>Network:</label>
-          <div class="radio-group">
+          <div>
             <label><input type="radio" name="network" value="mainnet" checked /> Mainnet</label>
             <label><input type="radio" name="network" value="testnet" /> Testnet</label>
           </div>
@@ -85,17 +89,17 @@
       </div>
 
       <!-- Sezione risultati -->
-      <div class="wallet-results hidden">
+      <div id="walletResults" class="hidden">
         <h3>Wallet Generato</h3>
 
-        <div class="qr-section">
+        <div>
           <div id="addressQr"></div>
           <p>Indirizzo pubblico:</p>
           <p id="bitcoinAddress" class="wallet-address"></p>
           <button class="copy-btn" data-target="bitcoinAddress">Copy</button>
         </div>
 
-        <div class="private-section">
+        <div>
           <p>Chiave pubblica:</p>
           <p id="publicKey" class="wallet-address"></p>
 
@@ -115,46 +119,46 @@
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="#" class="footer-link">GitHub</a>
-        <a href="#" class="footer-link">Documentazione</a>
-        <a href="/privacy" class="footer-link">Privacy Policy</a>
-        <a href="/terms" class="footer-link">Terms of Service</a>
+  <footer style="margin-top: 30px; text-align: center;">
+    <div>
+      <div>
+        <a href="#" style="margin-right: 10px;">GitHub</a>
+        <a href="#" style="margin-right: 10px;">Documentazione</a>
+        <a href="/privacy" style="margin-right: 10px;">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
       </div>
-      <p class="footer-legal">© 2023 BTC Finder</p>
+      <p>© 2023 BTC Finder</p>
     </div>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-    // Verifica che tutte le librerie siano caricate
-    if (!window.bitcoin || !window.bip39 || !window.QRCode) {
-        alert("Errore: Librerie non caricate correttamente. Ricarica la pagina.");
+      // Verifica che tutte le librerie siano caricate
+      if (!window.bitcoin || !window.bip39 || !window.QRCode) {
         console.error("Libreries mancanti:", {
-            bitcoin: !!window.bitcoin,
-            bip39: !!window.bip39,
-            QRCode: !!window.QRCode
+          bitcoin: !!window.bitcoin,
+          bip39: !!window.bip39,
+          QRCode: !!window.QRCode
         });
+        alert("Errore: Ricarica la pagina o controlla la connessione");
         return;
-    }
+      }
 
-    // Configurazione
-    const NETWORKS = {
+      // Configurazione
+      const NETWORKS = {
         mainnet: bitcoin.networks.bitcoin,
         testnet: bitcoin.networks.testnet
-    };
+      };
 
-    // Elementi DOM
-    const dom = {
+      // Elementi DOM
+      const dom = {
         generationMethod: document.getElementById('generationMethod'),
         mnemonicPhrase: document.getElementById('mnemonicPhrase'),
         customEntropy: document.getElementById('customEntropy'),
         derivationPath: document.getElementById('derivationPath'),
         customPath: document.getElementById('customPath'),
         generateBtn: document.getElementById('generateWallet'),
-        walletResults: document.querySelector('.wallet-results'),
+        walletResults: document.getElementById('walletResults'),
         bitcoinAddress: document.getElementById('bitcoinAddress'),
         publicKey: document.getElementById('publicKey'),
         privateKey: document.getElementById('privateKey'),
@@ -162,147 +166,146 @@
         mnemonicDisplayText: document.getElementById('mnemonicDisplayText'),
         mnemonicOptions: document.getElementById('mnemonicOptions'),
         entropyOptions: document.getElementById('entropyOptions')
-    };
+      };
 
-    // Inizializzazione
-    initEventListeners();
+      // Inizializzazione
+      initEventListeners();
 
-    function initEventListeners() {
+      function initEventListeners() {
         // Mostra/nascondi opzioni in base al metodo selezionato
         dom.generationMethod.addEventListener('change', function() {
-            dom.mnemonicOptions.style.display = this.value === 'mnemonic' ? 'block' : 'none';
-            dom.entropyOptions.style.display = this.value === 'entropy' ? 'block' : 'none';
+          dom.mnemonicOptions.style.display = this.value === 'mnemonic' ? 'block' : 'none';
+          dom.entropyOptions.style.display = this.value === 'entropy' ? 'block' : 'none';
         });
 
         // Mostra/nascondi percorso custom
         dom.derivationPath.addEventListener('change', function() {
-            dom.customPath.classList.toggle('hidden', this.value !== 'custom');
+          dom.customPath.classList.toggle('hidden', this.value !== 'custom');
         });
 
         dom.generateBtn.addEventListener('click', generateWallet);
 
         document.querySelectorAll('.copy-btn').forEach(btn => {
-            btn.addEventListener('click', copyToClipboard);
+          btn.addEventListener('click', copyToClipboard);
         });
 
         document.getElementById('showQrPrivate').addEventListener('click', togglePrivateQR);
-    }
+      }
 
-    async function generateWallet() {
+      async function generateWallet() {
         try {
-            const method = dom.generationMethod.value;
-            const network = document.querySelector('input[name="network"]:checked').value;
-            const path = dom.derivationPath.value === 'custom' ? dom.customPath.value : dom.derivationPath.value;
+          const method = dom.generationMethod.value;
+          const network = document.querySelector('input[name="network"]:checked').value;
+          const path = dom.derivationPath.value === 'custom' ? dom.customPath.value : dom.derivationPath.value;
 
-            let mnemonic, seed;
+          let mnemonic, seed;
 
-            if (method === 'random') {
-                mnemonic = bip39.generateMnemonic(256);
-                seed = await bip39.mnemonicToSeed(mnemonic);
-            } else if (method === 'mnemonic') {
-                mnemonic = dom.mnemonicPhrase.value.trim();
-                if (!bip39.validateMnemonic(mnemonic)) {
-                    throw new Error('Frase mnemonica non valida');
-                }
-                seed = await bip39.mnemonicToSeed(mnemonic);
-            } else if (method === 'entropy') {
-                const entropy = dom.customEntropy.value.trim();
-                if (!/^[0-9a-fA-F]{64}$/.test(entropy)) {
-                    throw new Error('Entropy deve essere una stringa esadecimale di 64 caratteri');
-                }
-                mnemonic = bip39.entropyToMnemonic(entropy);
-                seed = await bip39.mnemonicToSeed(mnemonic);
+          if (method === 'random') {
+            mnemonic = bip39.generateMnemonic(256);
+            seed = await bip39.mnemonicToSeed(mnemonic);
+          } else if (method === 'mnemonic') {
+            mnemonic = dom.mnemonicPhrase.value.trim();
+            if (!bip39.validateMnemonic(mnemonic)) {
+              throw new Error('Frase mnemonica non valida');
             }
+            seed = await bip39.mnemonicToSeed(mnemonic);
+          } else if (method === 'entropy') {
+            const entropy = dom.customEntropy.value.trim();
+            if (!/^[0-9a-fA-F]{64}$/.test(entropy)) {
+              throw new Error('Entropy deve essere una stringa esadecimale di 64 caratteri');
+            }
+            mnemonic = bip39.entropyToMnemonic(entropy);
+            seed = await bip39.mnemonicToSeed(mnemonic);
+          }
 
-            const root = bitcoin.bip32.fromSeed(seed, NETWORKS[network]);
-            const child = root.derivePath(path);
+          const root = bitcoin.HDNode.fromSeedBuffer(seed, NETWORKS[network]);
+          const child = root.derivePath(path);
 
-            const { address } = bitcoin.payments.p2wpkh({
-                pubkey: child.publicKey,
-                network: NETWORKS[network]
-            });
+          const address = bitcoin.address.toBase58Check(
+            bitcoin.crypto.hash160(child.getPublicKeyBuffer()),
+            NETWORKS[network].pubKeyHash
+          );
 
-            displayResults({
-                address,
-                publicKey: child.publicKey.toString('hex'),
-                privateKey: child.toWIF(),
-                mnemonic: (method === 'random' || method === 'entropy') ? mnemonic : null
-            });
+          displayResults({
+            address,
+            publicKey: child.getPublicKeyBuffer().toString('hex'),
+            privateKey: child.keyPair.toWIF(),
+            mnemonic: (method === 'random' || method === 'entropy') ? mnemonic : null
+          });
 
         } catch (error) {
-            console.error('Errore generazione wallet:', error);
-            alert(`Errore: ${error.message}`);
+          console.error('Errore generazione wallet:', error);
+          alert(`Errore: ${error.message}`);
         }
-    }
+      }
 
-    function displayResults({ address, publicKey, privateKey, mnemonic }) {
+      function displayResults({ address, publicKey, privateKey, mnemonic }) {
         dom.bitcoinAddress.textContent = address;
         dom.publicKey.textContent = publicKey;
         dom.privateKey.textContent = privateKey;
 
         if (mnemonic) {
-            dom.mnemonicDisplayText.textContent = mnemonic;
-            dom.mnemonicDisplay.classList.remove('hidden');
+          dom.mnemonicDisplayText.textContent = mnemonic;
+          dom.mnemonicDisplay.classList.remove('hidden');
         } else {
-            dom.mnemonicDisplay.classList.add('hidden');
+          dom.mnemonicDisplay.classList.add('hidden');
         }
 
         generateQR('addressQr', address);
         dom.walletResults.classList.remove('hidden');
         dom.walletResults.scrollIntoView({ behavior: 'smooth' });
-    }
+      }
 
-    function generateQR(elementId, data) {
+      function generateQR(elementId, data) {
         try {
-            const element = document.getElementById(elementId);
-            if (!element) throw new Error(`Elemento ${elementId} non trovato`);
-            
-            element.innerHTML = '';
-            new QRCode(element, {
-                text: data,
-                width: 150,
-                height: 150,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+          const element = document.getElementById(elementId);
+          if (!element) throw new Error(`Elemento ${elementId} non trovato`);
+          
+          element.innerHTML = '';
+          new QRCode(element, {
+            text: data,
+            width: 150,
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
         } catch (error) {
-            console.error('Errore generazione QR:', error);
-            // Fallback: mostra il testo se il QR non funziona
-            document.getElementById(elementId).textContent = data;
+          console.error('Errore generazione QR:', error);
+          document.getElementById(elementId).textContent = data;
         }
-    }
+      }
 
-    function copyToClipboard(e) {
+      function copyToClipboard(e) {
         const target = e.target.getAttribute('data-target');
         const text = document.getElementById(target).textContent;
         navigator.clipboard.writeText(text)
-            .then(() => {
-                e.target.textContent = 'Copiato!';
-                setTimeout(() => {
-                    e.target.textContent = 'Copy';
-                }, 2000);
-            })
-            .catch(err => {
-                console.error('Errore durante la copia:', err);
-                alert('Errore durante la copia negli appunti');
-            });
-    }
+          .then(() => {
+            e.target.textContent = 'Copiato!';
+            setTimeout(() => {
+              e.target.textContent = 'Copy';
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Errore durante la copia:', err);
+            alert('Errore durante la copia negli appunti');
+          });
+      }
 
-    function togglePrivateQR() {
+      function togglePrivateQR() {
         const qrElement = document.getElementById('privateQr');
         const btn = document.getElementById('showQrPrivate');
 
         if (qrElement.classList.contains('hidden')) {
-            generateQR('privateQr', dom.privateKey.textContent);
-            btn.textContent = 'Nascondi QR Privato';
+          generateQR('privateQr', dom.privateKey.textContent);
+          btn.textContent = 'Nascondi QR Privato';
         } else {
-            btn.textContent = 'Mostra QR Privato';
+          btn.textContent = 'Mostra QR Privato';
         }
 
         qrElement.classList.toggle('hidden');
-    }
-});
+      }
+    });
   </script>
 </body>
 </html>
