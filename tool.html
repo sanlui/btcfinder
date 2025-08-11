@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Simple BTC Wallet Generator</title>
-  <!-- bip39 e bitcoinjs-lib compatibili browser -->
   <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/browser/bip39.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs.min.js"></script>
+  <script src="https://unpkg.com/bitcoinjs-lib@6.1.0/dist/bitcoinjs.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
     button { padding: 10px 20px; font-size: 1.2em; }
@@ -27,32 +26,20 @@
   <p id="privateKey">-</p>
 
   <script>
-    // Definisci rete mainnet Bitcoin
     const NETWORK = bitcoin.networks.bitcoin;
 
     function generateWallet() {
       try {
-        // Genera mnemonic 12 parole (128 bit)
         const mnemonic = bip39.generateMnemonic(128);
-
-        // Seed da mnemonic
         const seed = bip39.mnemonicToSeedSync(mnemonic);
-
-        // Root HD wallet
         const root = bitcoin.bip32.fromSeed(seed, NETWORK);
-
-        // Derivazione BIP84 (native segwit)
         const path = "m/84'/0'/0'/0/0";
         const child = root.derivePath(path);
-
-        // Indirizzo p2wpkh
         const { address } = bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: NETWORK });
 
-        // Mostra dati su pagina
         document.getElementById('mnemonic').textContent = mnemonic;
         document.getElementById('address').textContent = address;
         document.getElementById('privateKey').textContent = child.toWIF();
-
       } catch (err) {
         alert('Errore durante la generazione: ' + err.message);
       }
