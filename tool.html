@@ -1,73 +1,77 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <!-- Meta Tags Fondamentali -->
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  
-  <!-- SEO Ottimizzato -->
-  <title>Bitcoin Wallet Generator | Create Secure BTC Wallets Offline | Advanced Bitcoin Explorer</title>
-  <meta name="description" content="Generate Bitcoin private keys and addresses 100% offline. Educational tool for blockchain developers. No server-side processing." />
-  <meta name="keywords" content="bitcoin wallet generator, BTC private key, WIF generator, offline wallet, bitcoin address, educational tool" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bitcoin Wallet Generator | Advanced Bitcoin Explorer</title>
+  <meta name="description" content="Generate Bitcoin private keys and addresses securely and offline. For educational use only." />
   <meta name="author" content="Advanced Bitcoin Explorer Team" />
-  <meta name="robots" content="index, follow" />
-  
-  <!-- Open Graph / Social Media -->
-  <meta property="og:title" content="Offline Bitcoin Wallet Generator | Advanced Bitcoin Explorer" />
-  <meta property="og:description" content="Generate Bitcoin wallets securely in your browser. No data leaves your device." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://yourdomain.com/tool.html" />
-  <meta property="og:image" content="https://yourdomain.com/images/wallet-generator-preview.jpg" />
-  <meta property="og:site_name" content="Advanced Bitcoin Explorer" />
-  
-  <!-- Favicon (usando lo stesso di index.html) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
-  
-  <!-- Preload Fonts -->
-  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-  
-  <!-- CSS Condiviso -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  
-  <!-- Script Esterni con Defer -->
-  <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.6/bsv.min.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
-  
-  <!-- Schema.org Markup -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Bitcoin Wallet Generator",
-      "description": "Offline tool to generate Bitcoin private keys and addresses",
-      "applicationCategory": "BlockchainUtility",
-      "operatingSystem": "WebBrowser"
+  <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.6/bsv.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    .tool-section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
     }
-  </script>
+    .card {
+      background: var(--card-bg, #1e1e1e);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .value {
+      word-break: break-word;
+      font-family: monospace;
+      background: #121212;
+      padding: 10px;
+      border-radius: 4px;
+      color: #f1f1f1;
+    }
+    .warning {
+      color: #ff6b6b;
+      font-weight: 600;
+      margin: 20px 0;
+      text-align: center;
+    }
+    #qrcode {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
-
 <body>
-  <!-- Header Coerente con index.html -->
   <header class="header">
     <div class="header-container">
       <div class="header-left">
-        <a href="index.html" class="btc-symbol-link" aria-label="Home">
+        <a href="/" class="btc-symbol-link" aria-label="Home">
           <span class="btc-symbol">₿</span>
         </a>
         <div class="header-titles">
           <h1 class="title">Advanced Bitcoin Explorer</h1>
-          <p class="subtitle">Wallet Generator Tool</p>
+          <p class="subtitle">Explore the Bitcoin blockchain</p>
         </div>
       </div>
       <nav class="header-center">
-        <a href="index.html" class="nav-link">Network Dashboard</a>
-        <a href="index.html#favorites" class="nav-link">Favorites</a>
-        <a href="index.html#charts" class="nav-link">Charts</a>
+        <a href="#dashboard" class="nav-link">Network Dashboard</a>
+        <a href="#favorites" class="nav-link">Favorites</a>
+        <a href="#charts" class="nav-link">Charts</a>
+        <a href="#api" class="nav-link">API</a>
       </nav>
       <div class="header-right">
-        <a href="tool.html" class="nav-link tool-link active">
+        <a href="tool.html" class="nav-link tool-link active" id="toolLink">
           <span class="tool-icon">🛠️</span>
           <span class="tool-text">Tools</span>
         </a>
@@ -78,157 +82,93 @@
     </div>
   </header>
 
-  <!-- Contenuto Principale -->
   <main class="main-content">
-    <section class="tool-section" aria-labelledby="wallet-generator-title">
-      <h2 id="wallet-generator-title" class="section-title">Autonomous Bitcoin Wallet Generator</h2>
-      
-      <!-- Avviso di Sicurezza -->
-      <div class="warning-box" role="alert">
-        <p>⚠️ <strong>For educational use only</strong>. Generated wallets are not automatically saved. Always backup your keys securely.</p>
-      </div>
+    <section class="tool-section">
+      <h2 style="text-align:center;">Autonomous Bitcoin Wallet Generator</h2>
+      <p class="warning">⚠️ For educational use only. Do not use for real funds.</p>
 
-      <!-- Pulsanti Azione -->
       <div class="action-buttons">
-        <button id="generateBtn" class="button primary" aria-label="Generate new wallet">
-          Generate Wallet
-        </button>
-        <button id="copyBtn" class="button secondary" aria-label="Copy wallet details">
-          Copy to Clipboard
-        </button>
-        <button id="downloadBtn" class="button secondary" aria-label="Download wallet as text file">
-          Download Wallet
-        </button>
+        <button id="generateBtn" class="button primary">Generate Wallet</button>
+        <button id="copyBtn" class="button secondary">Copy</button>
+        <button id="downloadBtn" class="button secondary">Download</button>
       </div>
 
-      <!-- Card Chiave Privata -->
-      <div class="card" aria-live="polite">
+      <div class="card">
         <h3>Private Key (WIF):</h3>
-        <div id="privateKey" class="value" tabindex="0">Not generated yet</div>
-        <p class="help-text">Keep this secret! Anyone with this key can access your funds.</p>
+        <div id="privateKey" class="value">-</div>
       </div>
 
-      <!-- Card Indirizzo -->
-      <div class="card" aria-live="polite">
+      <div class="card">
         <h3>Bitcoin Address:</h3>
-        <div id="address" class="value" tabindex="0">Not generated yet</div>
-        <div id="qrcode" class="qrcode-container" aria-hidden="true"></div>
+        <div id="address" class="value">-</div>
+        <div id="qrcode"></div>
       </div>
-    </section>
-
-    <!-- Sezione Educativa -->
-    <section class="education-section">
-      <h3 class="section-subtitle">How This Works</h3>
-      <ul class="feature-list">
-        <li>✅ <strong>100% Offline</strong> - All processing happens in your browser</li>
-        <li>🔒 <strong>No Tracking</strong> - We never see your keys or addresses</li>
-        <li>📚 <strong>Educational</strong> - Learn how Bitcoin key generation works</li>
-      </ul>
     </section>
   </main>
 
-  <!-- Footer Coerente con index.html -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-disclaimer">
-        <p>Advanced Bitcoin Explorer is an <strong>open-source educational tool</strong>.</p>
-        <p>Not affiliated with Bitcoin Core or any cryptocurrency foundation.</p>
+        <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
+        <p>All data is provided for informational purposes only.</p>
       </div>
       <div class="footer-legal">
-        <p>&copy; <span id="current-year">2025</span> BTCFinder </p>
-        <div class="footer-links">
-          <a href="privacy.html">Privacy Policy</a>
-          <span aria-hidden="true">|</span>
-          <a href="terms.html">Terms of Use</a>
-          <span aria-hidden="true">|</span>
-          <a href="https://github.com/sanlui/btcfinder/tree/main" target="_blank" rel="noopener">GitHub</a>
-        </div>
+        <p>&copy; <span id="current-year">2025</span> Advanced Bitcoin Explorer</p>
+        <p>
+          Blockchain data from
+          <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
+          <span class="footer-separator">|</span>
+          <a href="/privacy">Privacy Policy</a>
+          <span class="footer-separator">|</span>
+          <a href="/terms">Terms of Service</a>
+        </p>
       </div>
     </div>
   </footer>
 
-  <!-- Script Ottimizzato -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Elementi DOM
-      const generateBtn = document.getElementById('generateBtn');
-      const copyBtn = document.getElementById('copyBtn');
-      const downloadBtn = document.getElementById('downloadBtn');
-      const privateKeyEl = document.getElementById('privateKey');
-      const addressEl = document.getElementById('address');
+    let currentPrivateKey = '';
+    let currentAddress = '';
+
+    function generateWallet() {
+      const privateKey = bsv.PrivateKey.fromRandom();
+      const address = privateKey.toAddress().toString();
+      const wif = privateKey.toWIF();
+
+      currentPrivateKey = wif;
+      currentAddress = address;
+
+      document.getElementById('privateKey').textContent = wif;
+      document.getElementById('address').textContent = address;
+
       const qrContainer = document.getElementById('qrcode');
-      
-      // Variabili di stato
-      let currentPrivateKey = '';
-      let currentAddress = '';
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, address);
+    }
 
-      // Genera Wallet
-      generateBtn.addEventListener('click', () => {
-        try {
-          const privateKey = bsv.PrivateKey.fromRandom();
-          currentPrivateKey = privateKey.toWIF();
-          currentAddress = privateKey.toAddress().toString();
-          
-          privateKeyEl.textContent = currentPrivateKey;
-          addressEl.textContent = currentAddress;
-          
-          // QR Code
-          qrContainer.innerHTML = '';
-          new QRCode(qrContainer, {
-            text: currentAddress,
-            width: 128,
-            height: 128,
-            colorDark: "#000000",
-            colorLight: "#ffffff"
-          });
-          
-          // Focus per accessibilità
-          privateKeyEl.focus();
-        } catch (error) {
-          console.error("Generation error:", error);
-          alert("Error generating wallet. Please try again.");
-        }
-      });
+    function copyToClipboard() {
+      const text = `Private Key:\n${currentPrivateKey}\n\nBitcoin Address:\n${currentAddress}`;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Copy error: " + err));
+    }
 
-      // Copia negli appunti
-      copyBtn.addEventListener('click', () => {
-        if (!currentPrivateKey) {
-          alert("Generate a wallet first!");
-          return;
-        }
-        
-        const text = `Private Key (WIF): ${currentPrivateKey}\nAddress: ${currentAddress}`;
-        navigator.clipboard.writeText(text)
-          .then(() => {
-            const originalText = copyBtn.textContent;
-            copyBtn.textContent = "Copied!";
-            setTimeout(() => { copyBtn.textContent = originalText; }, 2000);
-          })
-          .catch(err => alert("Copy failed: " + err));
-      });
+    function downloadWallet() {
+      const content = `=== Bitcoin Wallet ===\n\nPrivate Key:\n${currentPrivateKey}\n\nBitcoin Address:\n${currentAddress}\n\nGenerated for educational use only.`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bitcoin-wallet.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
-      // Download
-      downloadBtn.addEventListener('click', () => {
-        if (!currentPrivateKey) {
-          alert("Generate a wallet first!");
-          return;
-        }
-        
-        const content = `=== Bitcoin Wallet ===\n\nPRIVATE KEY (WIF):\n${currentPrivateKey}\n\nADDRESS:\n${currentAddress}\n\n⚠️ IMPORTANT:\n- Backup this file securely\n- Never share your private key\n- For educational use only`;
-        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `bitcoin-wallet-${Date.now()}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
+    document.getElementById('generateBtn').addEventListener('click', generateWallet);
+    document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+    document.getElementById('downloadBtn').addEventListener('click', downloadWallet);
 
-      // Anno corrente nel footer
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-    });
+    document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
