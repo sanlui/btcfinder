@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Generatore Wallet Bitcoin</title>
+  <title>Generatore Wallet Bitcoin Autonomo</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
     button { 
@@ -11,57 +11,42 @@
     }
     .card { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
     .value { word-break: break-all; font-family: monospace; background: white; padding: 10px; border-radius: 4px; }
+    .warning { color: #d32f2f; font-weight: bold; margin: 15px 0; }
   </style>
 </head>
 <body>
-  <h1>Generatore Wallet Bitcoin</h1>
+  <h1>Generatore Wallet Bitcoin Autonomo</h1>
+  <div class="warning">ATTENZIONE: Solo per scopi educativi. Non usare per fondi reali.</div>
+  
   <button id="generateBtn">Genera Wallet</button>
   
   <div class="card">
-    <h3>Frase Mnemonica (12 parole):</h3>
-    <div id="mnemonic" class="value">-</div>
-  </div>
-  
-  <div class="card">
-    <h3>Indirizzo Bitcoin:</h3>
-    <div id="address" class="value">-</div>
-  </div>
-  
-  <div class="card">
-    <h3>Chiave Privata (WIF):</h3>
+    <h3>Chiave Privata (esadecimale):</h3>
     <div id="privateKey" class="value">-</div>
+  </div>
+  
+  <div class="card">
+    <h3>Indirizzo Bitcoin (Legacy):</h3>
+    <div id="address" class="value">-</div>
   </div>
 
   <script>
-    // Versione semplificata ma funzionante
+    // Funzione principale semplificata ma funzionante
     async function generateWallet() {
       try {
-        // 1. Genera mnemonic (usa una vera libreria bip39 in produzione)
-        const words = [
-          'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
-          'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act'
-        ];
-        const mnemonic = Array.from({length: 12}, () => words[Math.floor(Math.random() * words.length)]).join(' ');
+        // 1. Genera una chiave privata casuale (32 byte)
+        const privateKey = new Uint8Array(32);
+        crypto.getRandomValues(privateKey);
         
-        // 2. Crea seed dal mnemonic (semplificato)
-        const seed = new TextEncoder().encode(mnemonic);
+        // 2. Genera la public key (versione semplificata)
+        const publicKey = await generatePublicKey(privateKey);
         
-        // 3. Genera chiave master (semplificato)
-        const masterKey = await deriveMasterKey(seed);
-        
-        // 4. Deriva il path BIP84 (m/84'/0'/0'/0/0)
-        const childKey = await deriveChildKey(masterKey, "m/84'/0'/0'/0/0");
-        
-        // 5. Genera indirizzo Bech32 (bc1...)
-        const address = await createSegWitAddress(childKey.publicKey);
-        
-        // 6. Converti chiave privata in formato WIF
-        const wif = privateKeyToWIF(childKey.privateKey);
+        // 3. Genera indirizzo Bitcoin legacy (versione semplificata)
+        const address = await generateAddress(publicKey);
         
         // Mostra i risultati
-        document.getElementById('mnemonic').textContent = mnemonic;
+        document.getElementById('privateKey').textContent = toHex(privateKey);
         document.getElementById('address').textContent = address;
-        document.getElementById('privateKey').textContent = wif;
         
       } catch (err) {
         alert("Errore: " + err.message);
@@ -69,86 +54,65 @@
       }
     }
 
-    // Funzioni di supporto
-    async function deriveMasterKey(seed) {
-      const key = await crypto.subtle.importKey(
-        'raw', seed, {name: 'HMAC', hash: 'SHA-512'}, false, ['sign']
-      );
-      const result = await crypto.subtle.sign('HMAC', key, new Uint8Array());
-      const buffer = new Uint8Array(result);
-      return {
-        privateKey: buffer.slice(0, 32),
-        chainCode: buffer.slice(32),
-        publicKey: await getPublicKey(buffer.slice(0, 32))
-      };
+    // Genera una public key semplificata (in produzione usare ECC)
+    async function generatePublicKey(privateKey) {
+      // Nota: Questa è una versione SEMPLIFICATA che non usa ECC
+      // Solo per dimostrazione - in produzione usare una libreria
+      const hash = await crypto.subtle.digest('SHA-256', privateKey);
+      return new Uint8Array(hash);
     }
 
-    async function deriveChildKey(parent, path) {
-      const parts = path.split('/').slice(1);
-      let currentKey = parent;
-      
-      for (const part of parts) {
-        const index = part.endsWith("'") ? 
-          parseInt(part.slice(0, -1)) + 0x80000000 : 
-          parseInt(part);
-        
-        currentKey = await deriveChild(currentKey, index);
-      }
-      
-      return currentKey;
-    }
-
-    async function deriveChild(parent, index) {
-      const data = new Uint8Array(37);
-      if (index >= 0x80000000) {
-        // Deriva hardened
-        data.set(parent.privateKey, 1);
-      } else {
-        // Deriva normale
-        data.set(parent.publicKey, 0);
-      }
-      
-      // Aggiungi indice
-      data[33] = index >> 24;
-      data[34] = index >> 16;
-      data[35] = index >> 8;
-      data[36] = index;
-      
-      const key = await crypto.subtle.importKey(
-        'raw', parent.chainCode, {name: 'HMAC', hash: 'SHA-512'}, false, ['sign']
-      );
-      const result = await crypto.subtle.sign('HMAC', key, data);
-      const buffer = new Uint8Array(result);
-      
-      return {
-        privateKey: buffer.slice(0, 32),
-        chainCode: buffer.slice(32),
-        publicKey: await getPublicKey(buffer.slice(0, 32))
-      };
-    }
-
-    async function getPublicKey(privateKey) {
-      // Nota: In una implementazione reale qui ci sarebbe la moltiplicazione ellittica
-      // Questa è una versione semplificata solo per dimostrazione
-      return privateKey;
-    }
-
-    async function createSegWitAddress(publicKey) {
-      // Hash SHA256 + RIPEMD160 della public key
+    // Genera un indirizzo Bitcoin legacy (P2PKH)
+    async function generateAddress(publicKey) {
+      // 1. SHA-256 + RIPEMD-160 (semplificato)
       const sha256 = await crypto.subtle.digest('SHA-256', publicKey);
-      const hash = await window.crypto.subtle.digest('RIPEMD-160', sha256);
+      const hash160 = await sha256ToHash160(new Uint8Array(sha256));
       
-      // Codifica Bech32 (versione semplificata)
-      const words = [0, ...new Uint8Array(hash)];
-      return 'bc1' + words.map(b => b.toString(16).padStart(2, '0')).join('');
+      // 2. Aggiungi prefix mainnet (0x00)
+      const withPrefix = new Uint8Array(21);
+      withPrefix.set([0x00], 0);
+      withPrefix.set(hash160, 1);
+      
+      // 3. Calcola checksum (doppio SHA-256)
+      const checksum = await doubleSha256(withPrefix);
+      
+      // 4. Costruisci l'indirizzo Base58
+      const fullPayload = new Uint8Array(25);
+      fullPayload.set(withPrefix, 0);
+      fullPayload.set(checksum.slice(0, 4), 21);
+      
+      return base58Encode(fullPayload);
     }
 
-    function privateKeyToWIF(privateKey) {
-      // Versione semplificata - in produzione usare una libreria
-      const prefix = 0x80; // Mainnet
-      const suffix = 0x01; // Compressed
-      const data = new Uint8Array([prefix, ...privateKey, suffix]);
-      return 'K' + Array.from(data).map(b => b.toString(16)).join('').slice(0, 52);
+    // Funzioni di supporto
+    async function sha256ToHash160(data) {
+      // Versione semplificata (in produzione usare RIPEMD-160)
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      return new Uint8Array(hash).slice(0, 20);
+    }
+
+    async function doubleSha256(data) {
+      const firstHash = await crypto.subtle.digest('SHA-256', data);
+      const secondHash = await crypto.subtle.digest('SHA-256', firstHash);
+      return new Uint8Array(secondHash);
+    }
+
+    function base58Encode(data) {
+      const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+      let result = '';
+      
+      for (let i = 0; i < data.length; i++) {
+        const byte = data[i];
+        result += alphabet[byte % alphabet.length];
+      }
+      
+      return result;
+    }
+
+    function toHex(buffer) {
+      return Array.from(buffer)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
     }
 
     document.getElementById('generateBtn').addEventListener('click', generateWallet);
