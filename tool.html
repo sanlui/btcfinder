@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Simple BTC Wallet Generator</title>
-  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/browser/bip39.min.js"></script>
-  <script src="https://unpkg.com/bitcoinjs-lib@6.1.0/dist/bitcoinjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/bip39.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
     button { padding: 10px 20px; font-size: 1.2em; }
@@ -26,26 +26,35 @@
   <p id="privateKey">-</p>
 
   <script>
-    const NETWORK = bitcoin.networks.bitcoin;
-
-    function generateWallet() {
-      try {
-        const mnemonic = bip39.generateMnemonic(128);
-        const seed = bip39.mnemonicToSeedSync(mnemonic);
-        const root = bitcoin.bip32.fromSeed(seed, NETWORK);
-        const path = "m/84'/0'/0'/0/0";
-        const child = root.derivePath(path);
-        const { address } = bitcoin.payments.p2wpkh({ pubkey: child.publicKey, network: NETWORK });
-
-        document.getElementById('mnemonic').textContent = mnemonic;
-        document.getElementById('address').textContent = address;
-        document.getElementById('privateKey').textContent = child.toWIF();
-      } catch (err) {
-        alert('Errore durante la generazione: ' + err.message);
+    // Assicurati che le librerie siano caricate
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof bip39 === 'undefined' || typeof bitcoin === 'undefined') {
+        alert('Errore: Le librerie necessarie non sono caricate correttamente');
+        return;
       }
-    }
 
-    document.getElementById('generateBtn').addEventListener('click', generateWallet);
+      const NETWORK = bitcoin.networks.bitcoin;
+
+      function generateWallet() {
+        try {
+          const mnemonic = bip39.generateMnemonic();
+          const seed = bip39.mnemonicToSeedSync(mnemonic);
+          const root = bitcoin.bip32.fromSeed(seed, NETWORK);
+          const path = "m/44'/0'/0'/0/0"; // Modificato a BIP44 per maggiore compatibilità
+          const child = root.derivePath(path);
+          const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network: NETWORK });
+
+          document.getElementById('mnemonic').textContent = mnemonic;
+          document.getElementById('address').textContent = address;
+          document.getElementById('privateKey').textContent = child.toWIF();
+        } catch (err) {
+          alert('Errore durante la generazione: ' + err.message);
+          console.error(err);
+        }
+      }
+
+      document.getElementById('generateBtn').addEventListener('click', generateWallet);
+    });
   </script>
 </body>
 </html>
