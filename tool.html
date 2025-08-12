@@ -18,7 +18,7 @@
       font-size: 16px;
       border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 20px;
+      margin: 10px 5px 20px 0;
     }
     .card {
       background: #f8f9fa;
@@ -38,6 +38,9 @@
       font-weight: bold;
       margin: 15px 0;
     }
+    #qrcode {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -45,6 +48,8 @@
   <div class="warning">ATTENZIONE: Solo per scopi educativi. Non usare per fondi reali.</div>
 
   <button id="generateBtn">Genera Wallet</button>
+  <button id="copyBtn">Copia negli Appunti</button>
+  <button id="downloadBtn">Scarica Wallet</button>
 
   <div class="card">
     <h3>Chiave Privata (esadecimale):</h3>
@@ -54,28 +59,66 @@
   <div class="card">
     <h3>Indirizzo Bitcoin (Legacy):</h3>
     <div id="address" class="value">-</div>
+    <div id="qrcode"></div>
   </div>
 
-  <!-- Librerie necessarie -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs.min.js"></script>
+  <!-- Librerie -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <script>
+    let currentPrivateKey = '';
+    let currentAddress = '';
+    let qr;
+
     function generateWallet() {
       try {
-        const keyPair = bitcoinjs.ECPair.makeRandom();
-        const { address } = bitcoinjs.payments.p2pkh({ pubkey: keyPair.publicKey });
+        const keyPair = bitcoinjsLib.ECPair.makeRandom();
+        const { address } = bitcoinjsLib.payments.p2pkh({ pubkey: keyPair.publicKey });
         const privateKey = keyPair.privateKey.toString('hex');
+
+        currentPrivateKey = privateKey;
+        currentAddress = address;
 
         document.getElementById('privateKey').textContent = privateKey;
         document.getElementById('address').textContent = address;
+
+        // Genera QR code
+        const qrContainer = document.getElementById('qrcode');
+        qrContainer.innerHTML = ''; // Pulisce il precedente
+        qr = new QRCode(qrContainer, {
+          text: address,
+          width: 128,
+          height: 128,
+        });
       } catch (err) {
         alert("Errore: " + err.message);
         console.error(err);
       }
     }
 
+    function copyToClipboard() {
+      const text = `Chiave Privata:\n${currentPrivateKey}\n\nIndirizzo Bitcoin:\n${currentAddress}`;
+      navigator.clipboard.writeText(text)
+        .then(() => alert("Copiato negli appunti!"))
+        .catch(err => alert("Errore nella copia: " + err));
+    }
+
+    function downloadWallet() {
+      const content = `=== Wallet Bitcoin ===\n\nChiave Privata:\n${currentPrivateKey}\n\nIndirizzo Bitcoin:\n${currentAddress}\n\nGenerato solo per scopi educativi.`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wallet-bitcoin.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     document.getElementById('generateBtn').addEventListener('click', generateWallet);
+    document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+    document.getElementById('downloadBtn').addEventListener('click', downloadWallet);
   </script>
 </body>
 </html>
