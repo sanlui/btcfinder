@@ -211,7 +211,7 @@ body {
   padding: var(--space-xl) var(--space-md);
 }
 
-/* Tool Section - Centratura completa */
+/* Tool Section */
 .tool-section {
   max-width: 600px;
   width: 100%;
@@ -243,6 +243,33 @@ body {
   max-width: 100%;
 }
 
+/* Security Warning */
+.security-warning {
+  background: rgba(229, 62, 62, 0.1);
+  border-left: 4px solid var(--error);
+  padding: var(--space-md);
+  margin: var(--space-xl) 0;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.security-warning h3 {
+  color: var(--error);
+  margin-bottom: var(--space-sm);
+  text-align: center;
+}
+
+.security-warning ul {
+  text-align: left;
+  margin-left: var(--space-md);
+  padding-left: var(--space-sm);
+}
+
+.security-warning li {
+  margin-bottom: var(--space-xs);
+}
+
+/* Action Buttons */
 .action-buttons {
   display: flex;
   justify-content: center;
@@ -262,6 +289,8 @@ body {
   transition: all var(--transition-fast);
   border: 1px solid transparent;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .button.primary {
@@ -271,8 +300,8 @@ body {
 
 .button.primary:hover {
   opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(247, 147, 26, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
 }
 
 .button.secondary {
@@ -283,10 +312,22 @@ body {
 
 .button.secondary:hover {
   background-color: var(--background);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
 
+/* Pulse animation for generate button */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+#generateBtn {
+  animation: pulse 2s infinite;
+}
+
+/* Wallet Cards */
 .wallet-card {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -296,6 +337,12 @@ body {
   box-shadow: var(--shadow);
   width: 100%;
   text-align: center;
+  transition: all var(--transition-slow);
+}
+
+.wallet-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(247, 147, 26, 0.2);
 }
 
 .wallet-card h3 {
@@ -305,7 +352,7 @@ body {
 
 .wallet-value {
   font-family: 'Courier New', monospace;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.3);
   padding: var(--space-md);
   border-radius: var(--radius-md);
   margin: var(--space-sm) 0;
@@ -314,6 +361,21 @@ body {
   font-size: var(--font-size-sm);
   line-height: 1.6;
   text-align: center;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.wallet-value:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.wallet-value.generated::before {
+  content: "✓";
+  color: var(--success);
+  position: absolute;
+  left: var(--space-sm);
+  font-weight: bold;
 }
 
 .help-text {
@@ -323,6 +385,7 @@ body {
   text-align: center;
 }
 
+/* QR Code */
 .qrcode-container {
   margin: var(--space-md) auto;
   padding: var(--space-sm);
@@ -332,6 +395,44 @@ body {
   border: 1px solid var(--border);
 }
 
+/* Educational Content */
+.educational-tip {
+  margin: var(--space-xl) 0;
+  width: 100%;
+  text-align: left;
+}
+
+.educational-tip details {
+  background: rgba(56, 161, 105, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+}
+
+.educational-tip summary {
+  font-weight: var(--font-weight-bold);
+  outline: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.educational-tip summary::-webkit-details-marker {
+  display: none;
+}
+
+.educational-tip summary::before {
+  content: "ℹ️";
+  margin-right: var(--space-xs);
+}
+
+.educational-tip p {
+  margin-top: var(--space-md);
+  color: var(--text-primary);
+}
+
+/* How It Works Section */
 .how-it-works {
   margin-top: var(--space-xl);
   width: 100%;
@@ -349,6 +450,7 @@ body {
   text-align: center;
   margin: 0 auto;
   max-width: 400px;
+  padding: 0;
 }
 
 .feature-list li {
@@ -357,6 +459,22 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--space-xs);
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  background: var(--primary-dark);
+  color: white;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-xs);
+  font-size: var(--font-size-xs);
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+  pointer-events: none;
 }
 
 /* Footer */
@@ -404,6 +522,35 @@ body {
   color: var(--warning);
 }
 
+/* Focus States */
+button:focus, input:focus, .wallet-value:focus {
+  outline: 2px solid var(--warning);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .header, .footer, .action-buttons {
+    display: none;
+  }
+  
+  .wallet-card {
+    border: 2px solid #000;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+    padding: 0;
+  }
+  
+  .main-content {
+    padding: 0 !important;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-container {
@@ -436,6 +583,11 @@ body {
   .tool-section {
     padding: var(--space-md);
   }
+  
+  .security-warning ul {
+    margin-left: var(--space-sm);
+    padding-left: var(--space-xs);
+  }
 }
 
 @media (max-width: 480px) {
@@ -450,6 +602,15 @@ body {
 
   .section-title {
     font-size: var(--font-size-xl);
+  }
+  
+  .wallet-value {
+    font-size: var(--font-size-xs);
+    padding: var(--space-sm);
+  }
+  
+  .educational-tip {
+    margin: var(--space-lg) 0;
   }
 }
 
