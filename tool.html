@@ -52,50 +52,36 @@
   <button id="downloadBtn">Scarica Wallet</button>
 
   <div class="card">
-    <h3>Chiave Privata (esadecimale):</h3>
+    <h3>Chiave Privata (WIF):</h3>
     <div id="privateKey" class="value">-</div>
   </div>
 
   <div class="card">
-    <h3>Indirizzo Bitcoin (Legacy):</h3>
+    <h3>Indirizzo Bitcoin:</h3>
     <div id="address" class="value">-</div>
     <div id="qrcode"></div>
   </div>
 
-  <!-- Librerie -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/buffer/6.0.3/buffer.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Librerie compatibili -->
+  <script src="https://cdn.jsdelivr.net/gh/pointbiz/bitaddress.org@master/src/bitcoinjs-lib.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/pointbiz/bitaddress.org@master/src/qrcode.js"></script>
 
   <script>
     let currentPrivateKey = '';
     let currentAddress = '';
-    let qr;
 
     function generateWallet() {
-      try {
-        const keyPair = bitcoinjsLib.ECPair.makeRandom();
-        const { address } = bitcoinjsLib.payments.p2pkh({ pubkey: keyPair.publicKey });
-        const privateKey = keyPair.privateKey.toString('hex');
+      const key = new Bitcoin.ECKey(false); // false = chiave privata casuale
+      currentPrivateKey = key.getBitcoinWalletImportFormat();
+      currentAddress = key.getBitcoinAddress();
 
-        currentPrivateKey = privateKey;
-        currentAddress = address;
+      document.getElementById('privateKey').textContent = currentPrivateKey;
+      document.getElementById('address').textContent = currentAddress;
 
-        document.getElementById('privateKey').textContent = privateKey;
-        document.getElementById('address').textContent = address;
-
-        // Genera QR code
-        const qrContainer = document.getElementById('qrcode');
-        qrContainer.innerHTML = ''; // Pulisce il precedente
-        qr = new QRCode(qrContainer, {
-          text: address,
-          width: 128,
-          height: 128,
-        });
-      } catch (err) {
-        alert("Errore: " + err.message);
-        console.error(err);
-      }
+      // QR code
+      const qrContainer = document.getElementById('qrcode');
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, currentAddress);
     }
 
     function copyToClipboard() {
