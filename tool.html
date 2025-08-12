@@ -1,16 +1,56 @@
 <!DOCTYPE html>
-<html lang="it" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Generatore Wallet Bitcoin | Advanced Bitcoin Explorer</title>
-  <meta name="description" content="Genera chiavi private e indirizzi Bitcoin in modo sicuro e offline. Solo per scopi educativi." />
+  <title>Bitcoin Wallet Generator | Advanced Bitcoin Explorer</title>
+  <meta name="description" content="Generate Bitcoin private keys and addresses securely and offline. For educational use only." />
   <meta name="author" content="Advanced Bitcoin Explorer Team" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.6/bsv.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    .tool-section {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .card {
+      background: var(--card-bg, #1e1e1e);
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .value {
+      word-break: break-word;
+      font-family: monospace;
+      background: #121212;
+      padding: 10px;
+      border-radius: 4px;
+      color: #f1f1f1;
+    }
+    .warning {
+      color: #ff6b6b;
+      font-weight: 600;
+      margin: 20px 0;
+      text-align: center;
+    }
+    #qrcode {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    }
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -44,22 +84,22 @@
 
   <main class="main-content">
     <section class="tool-section">
-      <h2>Generatore Wallet Bitcoin Autonomo</h2>
-      <p class="warning">⚠️ Solo per scopi educativi. Non usare per fondi reali.</p>
+      <h2 style="text-align:center;">Autonomous Bitcoin Wallet Generator</h2>
+      <p class="warning">⚠️ For educational use only. Do not use for real funds.</p>
 
       <div class="action-buttons">
-        <button id="generateBtn" class="button primary">Genera Wallet</button>
-        <button id="copyBtn" class="button secondary">Copia negli Appunti</button>
-        <button id="downloadBtn" class="button secondary">Scarica Wallet</button>
+        <button id="generateBtn" class="button primary">Generate Wallet</button>
+        <button id="copyBtn" class="button secondary">Copy</button>
+        <button id="downloadBtn" class="button secondary">Download</button>
       </div>
 
       <div class="card">
-        <h3>Chiave Privata (WIF):</h3>
+        <h3>Private Key (WIF):</h3>
         <div id="privateKey" class="value">-</div>
       </div>
 
       <div class="card">
-        <h3>Indirizzo Bitcoin:</h3>
+        <h3>Bitcoin Address:</h3>
         <div id="address" class="value">-</div>
         <div id="qrcode"></div>
       </div>
@@ -69,13 +109,13 @@
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-disclaimer">
-        <p>Advanced Bitcoin Explorer è un progetto open-source indipendente.</p>
-        <p>I dati sono forniti solo a scopo informativo.</p>
+        <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
+        <p>All data is provided for informational purposes only.</p>
       </div>
       <div class="footer-legal">
         <p>&copy; <span id="current-year">2025</span> Advanced Bitcoin Explorer</p>
         <p>
-          Blockchain data da
+          Blockchain data from
           <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
           <span class="footer-separator">|</span>
           <a href="/privacy">Privacy Policy</a>
@@ -107,19 +147,19 @@
     }
 
     function copyToClipboard() {
-      const text = `Chiave Privata:\n${currentPrivateKey}\n\nIndirizzo Bitcoin:\n${currentAddress}`;
+      const text = `Private Key:\n${currentPrivateKey}\n\nBitcoin Address:\n${currentAddress}`;
       navigator.clipboard.writeText(text)
-        .then(() => alert("Copiato negli appunti!"))
-        .catch(err => alert("Errore nella copia: " + err));
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Copy error: " + err));
     }
 
     function downloadWallet() {
-      const content = `=== Wallet Bitcoin ===\n\nChiave Privata:\n${currentPrivateKey}\n\nIndirizzo Bitcoin:\n${currentAddress}\n\nGenerato solo per scopi educativi.`;
+      const content = `=== Bitcoin Wallet ===\n\nPrivate Key:\n${currentPrivateKey}\n\nBitcoin Address:\n${currentAddress}\n\nGenerated for educational use only.`;
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'wallet-bitcoin.txt';
+      a.download = 'bitcoin-wallet.txt';
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -128,7 +168,6 @@
     document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
     document.getElementById('downloadBtn').addEventListener('click', downloadWallet);
 
-    // Aggiorna anno nel footer
     document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>
 </body>
