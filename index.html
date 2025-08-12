@@ -22,8 +22,8 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- TradingView Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -58,33 +58,63 @@
   </header>
 
   <main class="main-content">
-    <div class="search-container">
-      <div class="search-controls">
-        <select id="searchType" class="search-select">
-          <option value="address">Address</option>
-          <option value="tx">Transaction (TXID)</option>
-          <option value="block">Block (height or hash)</option>
-        </select>
-        <div class="search-input-container">
-          <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
-          <button id="searchBtn" class="search-button" onclick="performSearch()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-            Search
-          </button>
+    <section class="search-section">
+      <div class="search-container">
+        <div class="search-header">
+          <h2 class="search-title">Bitcoin Blockchain Explorer</h2>
+          <p class="search-subtitle">Search for transactions, addresses, blocks and analyze network data</p>
+        </div>
+        
+        <div class="search-controls">
+          <div class="search-input-container">
+            <select id="searchType" class="search-select">
+              <option value="address">Address</option>
+              <option value="tx">Transaction (TXID)</option>
+              <option value="block">Block (height or hash)</option>
+              <option value="asset">Asset</option>
+            </select>
+            <input type="text" id="searchInput" class="search-input" placeholder="Enter BTC address, TXID or block height..." aria-label="Search input" />
+            <button id="searchBtn" class="search-button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              Search
+            </button>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button id="dashboardBtn" class="button primary">Show Network Dashboard</button>
+          <button id="favoritesBtn" class="button secondary">Show Favorites</button>
+          <button id="realtimeBtn" class="button secondary">Real-time Charts</button>
         </div>
       </div>
+    </section>
 
-      <div class="action-buttons">
-        <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
-        <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
+    <section id="dashboard" class="dashboard-container" style="display:none;">
+      <!-- Network stats will be loaded here -->
+    </section>
+
+    <section id="realtime-charts" class="chart-section" style="display:none;">
+      <div class="chart-container">
+        <div class="chart-header">
+          <h2 class="chart-title">BTC/USD Price Chart</h2>
+          <div class="chart-controls">
+            <button class="timeframe-btn active" data-timeframe="1D">1D</button>
+            <button class="timeframe-btn" data-timeframe="1W">1W</button>
+            <button class="timeframe-btn" data-timeframe="1M">1M</button>
+            <button class="timeframe-btn" data-timeframe="1Y">1Y</button>
+            <button class="timeframe-btn" data-timeframe="ALL">ALL</button>
+          </div>
+        </div>
+        <div id="tradingview-chart" class="chart-wrapper"></div>
       </div>
-    </div>
+    </section>
 
-    <div id="dashboard" class="dashboard-container" style="display:none;"></div>
-    <div id="result" class="result-container"></div>
+    <section id="result" class="result-container">
+      <!-- Search results will be loaded here -->
+    </section>
   </main>
 
   <footer class="footer">
@@ -93,20 +123,131 @@
         <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
         <p>All data is provided for informational purposes only.</p>
       </div>
+      <div class="footer-links">
+        <a href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="footer-separator">|</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="footer-separator">|</span>
+        <a href="/terms">Terms of Service</a>
+        <span class="footer-separator">|</span>
+        <a href="https://status.btcfinder.xyz" target="_blank" rel="noopener noreferrer">Status</a>
+      </div>
       <div class="footer-legal">
         <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
-        <p>
-          Blockchain data from
-          <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
-          <span class="footer-separator">|</span>
-          <a href="/privacy">Privacy Policy</a>
-          <span class="footer-separator">|</span>
-          <a href="/terms">Terms of Service</a>
-        </p>
+        <p>Data from <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a> and <a href="https://www.coingecko.com/" target="_blank" rel="noopener noreferrer">CoinGecko</a></p>
       </div>
     </div>
   </footer>
 
   <script src="js/main.js"></script>
+  <script>
+    // Initialize TradingView Chart
+    document.addEventListener('DOMContentLoaded', function() {
+      const chartContainer = document.getElementById('tradingview-chart');
+      
+      // Create chart instance
+      const chart = LightweightCharts.createChart(chartContainer, {
+        layout: {
+          backgroundColor: 'transparent',
+          textColor: getComputedStyle(document.documentElement).getPropertyValue('--text-primary'),
+        },
+        grid: {
+          vertLines: {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid'),
+          },
+          horzLines: {
+            color: getComputedStyle(document.documentElement).getPropertyValue('--chart-grid'),
+          },
+        },
+        crosshair: {
+          mode: LightweightCharts.CrosshairMode.Normal,
+        },
+        rightPriceScale: {
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border'),
+        },
+        timeScale: {
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue('--border'),
+        },
+        width: chartContainer.clientWidth,
+        height: 400,
+      });
+
+      // Add candle series
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#26a69a',
+        downColor: '#ef5350',
+        borderVisible: false,
+        wickUpColor: '#26a69a',
+        wickDownColor: '#ef5350',
+      });
+
+      // Sample data (replace with real API data)
+      const initialData = generateSampleData();
+      candleSeries.setData(initialData);
+
+      // Timeframe switching
+      document.querySelectorAll('.timeframe-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          loadChartData(this.dataset.timeframe);
+        });
+      });
+
+      // Responsive resize
+      window.addEventListener('resize', function() {
+        chart.applyOptions({
+          width: chartContainer.clientWidth,
+        });
+      });
+
+      // Button to show/hide charts
+      document.getElementById('realtimeBtn').addEventListener('click', function() {
+        const chartSection = document.getElementById('realtime-charts');
+        chartSection.style.display = chartSection.style.display === 'none' ? 'block' : 'none';
+      });
+
+      // Helper functions
+      function generateSampleData() {
+        const data = [];
+        let time = new Date('2023-01-01');
+        let price = 16500;
+        
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(time);
+          date.setDate(date.getDate() + 1);
+          time = date;
+          
+          const open = price;
+          const close = open * (1 + (Math.random() * 0.02 - 0.01));
+          const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+          const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+          
+          data.push({
+            time: date.toISOString().split('T')[0],
+            open,
+            high,
+            low,
+            close
+          });
+          
+          price = close;
+        }
+        
+        return data;
+      }
+
+      function loadChartData(timeframe) {
+        // Here you would fetch real data from an API
+        console.log('Loading data for timeframe:', timeframe);
+        // Simulate loading
+        chartContainer.classList.add('updating');
+        setTimeout(() => {
+          candleSeries.setData(generateSampleData());
+          chartContainer.classList.remove('updating');
+        }, 500);
+      }
+    });
+  </script>
 </body>
 </html>
