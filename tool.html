@@ -1,87 +1,109 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>Generatore Wallet Bitcoin Autonomo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    button {
-      background: #f7931a;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 10px 5px 20px 0;
-    }
-    .card {
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-    .value {
-      word-break: break-word;
-      font-family: monospace;
-      background: white;
-      padding: 10px;
-      border-radius: 4px;
-    }
-    .warning {
-      color: #d32f2f;
-      font-weight: bold;
-      margin: 15px 0;
-    }
-    #qrcode {
-      margin-top: 10px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Generatore Wallet Bitcoin | Advanced Bitcoin Explorer</title>
+  <meta name="description" content="Genera chiavi private e indirizzi Bitcoin in modo sicuro e offline. Solo per scopi educativi." />
+  <meta name="author" content="Advanced Bitcoin Explorer Team" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/bsv@1.5.6/bsv.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
-  <h1>Generatore Wallet Bitcoin Autonomo</h1>
-  <div class="warning">ATTENZIONE: Solo per scopi educativi. Non usare per fondi reali.</div>
+  <header class="header">
+    <div class="header-container">
+      <div class="header-left">
+        <a href="/" class="btc-symbol-link" aria-label="Home">
+          <span class="btc-symbol">₿</span>
+        </a>
+        <div class="header-titles">
+          <h1 class="title">Advanced Bitcoin Explorer</h1>
+          <p class="subtitle">Explore the Bitcoin blockchain</p>
+        </div>
+      </div>
+      <nav class="header-center">
+        <a href="#dashboard" class="nav-link">Network Dashboard</a>
+        <a href="#favorites" class="nav-link">Favorites</a>
+        <a href="#charts" class="nav-link">Charts</a>
+        <a href="#api" class="nav-link">API</a>
+      </nav>
+      <div class="header-right">
+        <a href="tool.html" class="nav-link tool-link active" id="toolLink">
+          <span class="tool-icon">🛠️</span>
+          <span class="tool-text">Tools</span>
+        </a>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+          <span class="toggle-icon">🌓</span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-  <button id="generateBtn">Genera Wallet</button>
-  <button id="copyBtn">Copia negli Appunti</button>
-  <button id="downloadBtn">Scarica Wallet</button>
+  <main class="main-content">
+    <section class="tool-section">
+      <h2>Generatore Wallet Bitcoin Autonomo</h2>
+      <p class="warning">⚠️ Solo per scopi educativi. Non usare per fondi reali.</p>
 
-  <div class="card">
-    <h3>Chiave Privata (WIF):</h3>
-    <div id="privateKey" class="value">-</div>
-  </div>
+      <div class="action-buttons">
+        <button id="generateBtn" class="button primary">Genera Wallet</button>
+        <button id="copyBtn" class="button secondary">Copia negli Appunti</button>
+        <button id="downloadBtn" class="button secondary">Scarica Wallet</button>
+      </div>
 
-  <div class="card">
-    <h3>Indirizzo Bitcoin:</h3>
-    <div id="address" class="value">-</div>
-    <div id="qrcode"></div>
-  </div>
+      <div class="card">
+        <h3>Chiave Privata (WIF):</h3>
+        <div id="privateKey" class="value">-</div>
+      </div>
 
-  <!-- Librerie compatibili -->
-  <script src="https://cdn.jsdelivr.net/gh/pointbiz/bitaddress.org@master/src/bitcoinjs-lib.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/pointbiz/bitaddress.org@master/src/qrcode.js"></script>
+      <div class="card">
+        <h3>Indirizzo Bitcoin:</h3>
+        <div id="address" class="value">-</div>
+        <div id="qrcode"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-disclaimer">
+        <p>Advanced Bitcoin Explorer è un progetto open-source indipendente.</p>
+        <p>I dati sono forniti solo a scopo informativo.</p>
+      </div>
+      <div class="footer-legal">
+        <p>&copy; <span id="current-year">2025</span> Advanced Bitcoin Explorer</p>
+        <p>
+          Blockchain data da
+          <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
+          <span class="footer-separator">|</span>
+          <a href="/privacy">Privacy Policy</a>
+          <span class="footer-separator">|</span>
+          <a href="/terms">Terms of Service</a>
+        </p>
+      </div>
+    </div>
+  </footer>
 
   <script>
     let currentPrivateKey = '';
     let currentAddress = '';
 
     function generateWallet() {
-      const key = new Bitcoin.ECKey(false); // false = chiave privata casuale
-      currentPrivateKey = key.getBitcoinWalletImportFormat();
-      currentAddress = key.getBitcoinAddress();
+      const privateKey = bsv.PrivateKey.fromRandom();
+      const address = privateKey.toAddress().toString();
+      const wif = privateKey.toWIF();
 
-      document.getElementById('privateKey').textContent = currentPrivateKey;
-      document.getElementById('address').textContent = currentAddress;
+      currentPrivateKey = wif;
+      currentAddress = address;
 
-      // QR code
+      document.getElementById('privateKey').textContent = wif;
+      document.getElementById('address').textContent = address;
+
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
-      new QRCode(qrContainer, currentAddress);
+      new QRCode(qrContainer, address);
     }
 
     function copyToClipboard() {
@@ -105,6 +127,9 @@
     document.getElementById('generateBtn').addEventListener('click', generateWallet);
     document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
     document.getElementById('downloadBtn').addEventListener('click', downloadWallet);
+
+    // Aggiorna anno nel footer
+    document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
