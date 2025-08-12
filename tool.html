@@ -2,58 +2,75 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Simple BTC Wallet Generator</title>
-  <script src="https://cdn.jsdelivr.net/npm/bip39@3.0.4/bip39.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bitcoinjs-lib/6.1.0/bitcoinjs.min.js"></script>
+  <title>Generatore di Wallet Bitcoin</title>
+  <!-- Aggiornato a versioni più recenti e CDN alternativi -->
+  <script src="https://cdn.jsdelivr.net/npm/bip39@3.1.0/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.0/dist/bitcoinjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bip32@3.0.1/bip32.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
-    button { padding: 10px 20px; font-size: 1.2em; }
+    button { padding: 10px 20px; font-size: 1.2em; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    button:hover { background: #45a049; }
     p { word-break: break-all; background: #f0f0f0; padding: 10px; border-radius: 5px; }
+    .container { margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h1>Genera Wallet Bitcoin Semplice</h1>
-
-  <button id="generateBtn">Genera Wallet</button>
-
-  <h3>Frase mnemonica (12 parole):</h3>
-  <p id="mnemonic">-</p>
-
-  <h3>Indirizzo Bitcoin:</h3>
-  <p id="address">-</p>
-
-  <h3>Chiave privata (WIF):</h3>
-  <p id="privateKey">-</p>
+  <h1>Generatore di Wallet Bitcoin</h1>
+  
+  <button id="generateBtn">Genera Nuovo Wallet</button>
+  
+  <div class="container">
+    <h3>Frase Mnemonica (12 parole):</h3>
+    <p id="mnemonic">-</p>
+    
+    <h3>Indirizzo Bitcoin:</h3>
+    <p id="address">-</p>
+    
+    <h3>Chiave Privata (WIF):</h3>
+    <p id="privateKey">-</p>
+  </div>
 
   <script>
-    // Assicurati che le librerie siano caricate
-    document.addEventListener('DOMContentLoaded', function() {
-      if (typeof bip39 === 'undefined' || typeof bitcoin === 'undefined') {
-        alert('Errore: Le librerie necessarie non sono caricate correttamente');
-        return;
+    // Verifica che tutte le librerie siano caricate
+    function checkLibraries() {
+      if (typeof bip39 === 'undefined' || typeof bitcoin === 'undefined' || typeof bip32 === 'undefined') {
+        throw new Error("Una o più librerie non sono state caricate correttamente. Ricarica la pagina.");
       }
+    }
 
-      const NETWORK = bitcoin.networks.bitcoin;
-
-      function generateWallet() {
-        try {
-          const mnemonic = bip39.generateMnemonic();
-          const seed = bip39.mnemonicToSeedSync(mnemonic);
-          const root = bitcoin.bip32.fromSeed(seed, NETWORK);
-          const path = "m/44'/0'/0'/0/0"; // Modificato a BIP44 per maggiore compatibilità
-          const child = root.derivePath(path);
-          const { address } = bitcoin.payments.p2pkh({ pubkey: child.publicKey, network: NETWORK });
-
-          document.getElementById('mnemonic').textContent = mnemonic;
-          document.getElementById('address').textContent = address;
-          document.getElementById('privateKey').textContent = child.toWIF();
-        } catch (err) {
-          alert('Errore durante la generazione: ' + err.message);
-          console.error(err);
-        }
+    document.getElementById('generateBtn').addEventListener('click', function() {
+      try {
+        checkLibraries();
+        
+        // Genera mnemonic
+        const mnemonic = bip39.generateMnemonic(128);
+        
+        // Genera seed
+        const seed = bip39.mnemonicToSeedSync(mnemonic);
+        
+        // Crea root node
+        const root = bip32.fromSeed(seed, bitcoin.networks.bitcoin);
+        
+        // Deriva il wallet - percorso BIP84 (SegWit)
+        const path = "m/84'/0'/0'/0/0";
+        const child = root.derivePath(path);
+        
+        // Genera indirizzo SegWit (bech32)
+        const { address } = bitcoin.payments.p2wpkh({ 
+          pubkey: child.publicKey, 
+          network: bitcoin.networks.bitcoin 
+        });
+        
+        // Mostra i risultati
+        document.getElementById('mnemonic').textContent = mnemonic;
+        document.getElementById('address').textContent = address;
+        document.getElementById('privateKey').textContent = child.toWIF();
+        
+      } catch (err) {
+        alert("ERRORE: " + err.message);
+        console.error(err);
       }
-
-      document.getElementById('generateBtn').addEventListener('click', generateWallet);
     });
   </script>
 </body>
