@@ -35,6 +35,40 @@ body {
     min-height: 100vh;
 }
 
+/* --- For Sale Banner Styles --- */
+#sale-banner {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    text-align: center;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-bottom: 3px solid #0056b3;
+}
+
+#sale-banner p {
+    margin: 0;
+}
+
+#sale-banner a {
+    color: var(--light-text);
+    text-decoration: underline;
+    font-weight: bold;
+    transition: opacity 0.2s ease;
+}
+
+#sale-banner a:hover {
+    text-decoration: none;
+    opacity: 0.8;
+}
+/* --- End of For Sale Banner Styles --- */
+
+
 /* Top Banner */
 .top-banner {
     width: 100%;
@@ -183,6 +217,9 @@ main {
 
 /* Responsive Design for Mobile */
 @media (max-width: 768px) {
+    #sale-banner {
+        font-size: 0.8rem;
+    }
     .top-banner { height: 50px; padding: 0 15px; }
     .banner-left h2 { font-size: 1.2rem; }
     .banner-center { display: none; }
