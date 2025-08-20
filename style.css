@@ -1,0 +1,195 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+/* CSS Variables for elegant theme management */
+:root {
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --primary-color: #007bff;
+    --secondary-color: #6c757d;
+    --border-color: #dee2e6;
+    --card-bg-color: #ffffff;
+    --dark-bg: #111;
+    --light-text: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.07);
+    --success-color: #28a745;
+}
+
+/* Base styles and reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Top Banner */
+.top-banner {
+    width: 100%;
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    padding: 0 30px;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.banner-left h2, .banner-right p {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+.banner-right p {
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+
+/* Page Title */
+.page-title {
+    text-align: center;
+    margin: 50px 0;
+}
+.page-title h1 {
+    font-size: 3.5rem;
+    font-weight: 300;
+    margin: 0;
+}
+.subtitle {
+    font-size: 1.2rem;
+    color: var(--secondary-color);
+}
+
+/* Main Content */
+main {
+    width: 100%;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
+/* Search Module */
+.search-module {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+#searchInput {
+    flex-grow: 1;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+#searchInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+#searchButton {
+    background-color: var(--text-color);
+    color: var(--light-text);
+    border: none;
+    border-radius: 8px;
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+#searchButton:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Modules (Chart & Results) */
+.chart-container, .results-module {
+    background-color: var(--card-bg-color);
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+    margin-bottom: 40px;
+}
+.chart-container h3, .results-module h3 {
+    font-weight: 400;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin: 0 0 20px 0;
+}
+
+/* Results with Fade-in Animation */
+.results-module.fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.results-module p {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    line-height: 1.8;
+}
+.results-module strong {
+    margin-right: 8px;
+}
+
+/* Copy Button */
+.copy-btn {
+    background-color: #e9ecef;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.2s ease;
+}
+.copy-btn:hover {
+    background-color: #ced4da;
+}
+.copy-btn.copied {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Footer */
+.main-footer {
+    margin-top: auto;
+    padding: 40px 0;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+    .top-banner { height: 50px; padding: 0 15px; }
+    .banner-left h2 { font-size: 1.2rem; }
+    .banner-center { display: none; }
+    .banner-right p { font-size: 1rem; }
+    .page-title { margin: 30px 0; }
+    .page-title h1 { font-size: 2.5rem; }
+    .search-module { flex-direction: column; }
+    .chart-container, .results-module { padding: 20px; }
+    .results-module p { font-size: 1rem; }
+}
