@@ -1,112 +1,62 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Strict-Transport-Security" content="max-age=63072000" />
-  <title>Advanced Bitcoin Explorer | Analyze Transactions, Addresses & Blocks</title>
-  <!-- Meta tags migliorati -->
-  <meta name="description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics. Track transactions, monitor addresses, inspect blocks with real-time data on fees, confirmations, balances and historical trends." />
-  <meta name="keywords" content="bitcoin explorer, blockchain explorer, BTC tracker, transaction analyzer, address monitor, block details, mempool stats, bitcoin analytics" />
-  <meta name="author" content="Advanced Bitcoin Explorer Team" />
-  <meta name="robots" content="index, follow" />
-  <!-- Open Graph -->
-  <meta property="og:title" content="Advanced Bitcoin Explorer | Real-time Blockchain Analytics" />
-  <meta property="og:description" content="Comprehensive Bitcoin blockchain explorer with advanced analytics for transactions, addresses and blocks" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://btcfinder.xyz/" />
-  <meta property="og:image" content="https://btcfinder.xyz/images/social-preview.jpg" />
-  <meta property="og:site_name" content="Advanced Bitcoin Explorer" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <!-- Favicon -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>₿</text></svg>" />
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Styles -->
-  <link rel="stylesheet" href="css/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>BTC Finder | Live Bitcoin Blockchain Explorer & Price Chart</title>
+    <meta name="description" content="Instantly search and analyze the Bitcoin blockchain. Look up any BTC address or transaction ID (TxID), view real-time price data, and explore historical price charts with this elegant and fast explorer.">
+
+    <meta property="og:title" content="BTC Finder | Live Bitcoin Blockchain Explorer">
+    <meta property="og:description" content="A fast, elegant, and powerful tool to explore the Bitcoin blockchain.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://btcfinder.xyz"> 
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    
+    <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="header">
-    <div class="header-container">
-      <div class="header-left">
-        <a href="/" class="btc-symbol-link" aria-label="Home">
-          <span class="btc-symbol">₿</span>
-        </a>
-        <div class="header-titles">
-          <h1 class="title">Advanced Bitcoin Explorer</h1>
-          <p class="subtitle">Explore the Bitcoin blockchain</p>
-        </div>
-      </div>
-      <nav class="header-center">
-        <a href="#dashboard" class="nav-link active">Network Dashboard</a>
-        <a href="#favorites" class="nav-link">Favorites</a>
-        <a href="#charts" class="nav-link">Charts</a>
-        <a href="#api" class="nav-link">API</a>
-      </nav>
-      <div class="header-right">
-        <a href="tool.html" class="nav-link tool-link" id="toolLink">
-          <span class="tool-icon">🛠️</span>
-          <span class="tool-text">Tools</span>
-        </a>
-        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-          <span class="toggle-icon">🌓</span>
-        </button>
-      </div>
-    </div>
-  </header>
 
-  <main class="main-content">
-    <div class="search-container">
-      <div class="search-controls">
-        <select id="searchType" class="search-select">
-          <option value="address">Address</option>
-          <option value="tx">Transaction (TXID)</option>
-          <option value="block">Block (height or hash)</option>
-        </select>
-        <div class="search-input-container">
-          <input type="text" id="searchInput" class="search-input" placeholder="Enter TXID, address or block" />
-          <button id="searchBtn" class="search-button" onclick="performSearch()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    <header class="top-banner" aria-label="Page Header">
+        <div class="banner-left">
+            <h2>BTC Finder</h2>
+        </div>
+        <div class="banner-center">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 0 32 32">
+                <path fill="#FF9900" d="M21.6,15.2c0.8-0.5,1.3-1.4,1.3-2.3c0-1.6-1.3-2.9-2.9-2.9h-2.5V6.4h-3.6v3.6h-2.1V6.4H8.2v3.6H6.4v3.6h1.8v8.7H6.4v3.6h1.8v3.6h3.6v-3.6h2.1v3.6h3.6v-3.6h2.5c1.6,0,2.9-1.3,2.9-2.9c0-0.9-0.5-1.8-1.3-2.3c0.8-0.5,1.3-1.4,1.3-2.3C22.9,16.5,22.4,15.6,21.6,15.2z M12.5,13.6h4.5c1,0,1.8,0.8,1.8,1.8s-0.8,1.8-1.8,1.8h-4.5V13.6z M12.5,20.7h5.1c1,0,1.8,0.8,1.8,1.8c0,1-0.8,1.8-1.8,1.8h-5.1V20.7z"/>
             </svg>
-            Search
-          </button>
         </div>
-      </div>
+        <div class="banner-right">
+            <p id="btc-price" aria-live="polite">Loading...</p>
+        </div>
+    </header>
 
-      <div class="action-buttons">
-        <button onclick="toggleDashboard()" id="dashboardBtn" class="button primary">Show Network Dashboard</button>
-        <button onclick="showFavorites()" class="button secondary">Show Favorites</button>
-      </div>
+    <div class="page-title">
+        <h1>Bitcoin Blockchain Explorer</h1>
+        <p class="subtitle">Analyze the Ledger with Elegance</p>
     </div>
 
-    <div id="dashboard" class="dashboard-container" style="display:none;"></div>
-    <div id="result" class="result-container"></div>
-  </main>
+    <main>
+        <section class="search-module" aria-label="Blockchain Search">
+            <input type="text" id="searchInput" placeholder="Enter Bitcoin Address or Transaction ID..." aria-label="Search Input">
+            <button id="searchButton" aria-label="Submit Search">Analyze</button>
+        </section>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-disclaimer">
-        <p>Advanced Bitcoin Explorer is an independent open-source project.</p>
-        <p>All data is provided for informational purposes only.</p>
-      </div>
-      <div class="footer-legal">
-        <p>&copy; <span id="current-year">2023</span> Advanced Bitcoin Explorer</p>
-        <p>
-          Blockchain data from
-          <a href="https://blockstream.info/" target="_blank" rel="noopener noreferrer">Blockstream API</a>
-          <span class="footer-separator">|</span>
-          <a href="/privacy">Privacy Policy</a>
-          <span class="footer-separator">|</span>
-          <a href="/terms">Terms of Service</a>
-        </p>
-      </div>
-    </div>
-  </footer>
+        <section class="chart-container" aria-label="Bitcoin Price Chart">
+            <h3>BTC Price (Last 30 Days)</h3>
+            <canvas id="btcPriceChart" role="img" aria-label="Line chart showing Bitcoin's price history over the last 30 days."></canvas>
+        </section>
+        
+        <section id="results-container" class="results-module" aria-live="polite">
+            </section>
+    </main>
 
-  <script src="js/main.js"></script>
+    <footer class="main-footer">
+        <p>&copy; 2025 BTCFinder.xyz - All Rights Reserved</p>
+    </footer>
+
 </body>
 </html>
